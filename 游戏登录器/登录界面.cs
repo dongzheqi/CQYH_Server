@@ -82,7 +82,7 @@ namespace 游戏登录器
         private void 密码强度_提示(object sender, EventArgs e)
         {
             string 文本;
-            UISystem.UILabel 标签;
+            Sunny.UI.UILabel 标签;
             if (sender == 注册_账号密码输入框)
             {
                 文本 = 注册_账号密码输入框.Text;

@@ -33,6 +33,53 @@ namespace 游戏服务器.网络类
 
         public static HashSet<客户网络> 网络连接表;
 
+        // PROTO-03: 门票来源 IP 白名单, 启动时从 Settings.门票来源白名单 解析.
+        // 空集合 = 兼容旧部署不过滤 (启动会打警告). 非空 = 严格匹配, 拒绝其他源 IP 的门票.
+        private static System.Collections.Generic.HashSet<string> 门票来源白名单集合;
+        private static DateTime 上次门票拒绝日志 = DateTime.MinValue;
+
+        public static bool 门票来源放行(IPEndPoint 来源)
+        {
+            if (门票来源白名单集合 == null || 门票来源白名单集合.Count == 0)
+            {
+                return true;
+            }
+            if (来源 == null || 来源.Address == null) return false;
+            if (门票来源白名单集合.Contains(来源.Address.ToString()))
+            {
+                return true;
+            }
+            // 1 分钟内最多打一条拒绝日志 (避免攻击者刷日志)
+            DateTime now = 主程.当前时间;
+            if ((now - 上次门票拒绝日志).TotalSeconds > 60)
+            {
+                上次门票拒绝日志 = now;
+                主程.添加系统日志($"[门票来源被拒] 非白名单 IP: {来源.Address}");
+            }
+            return false;
+        }
+
+        public static void 初始化门票白名单()
+        {
+            门票来源白名单集合 = new System.Collections.Generic.HashSet<string>();
+            string raw = Settings.门票来源白名单;
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                主程.添加系统日志("[警告] 门票来源白名单 未配置, 任意 IP 可注入伪造门票登录任意账号. " +
+                    "建议在 Setup.ini [General] 段添加 \"门票来源白名单=账号服务器IP,127.0.0.1\"");
+                return;
+            }
+            foreach (string ip in raw.Split(',', ';'))
+            {
+                string trimmed = ip.Trim();
+                if (!string.IsNullOrEmpty(trimmed))
+                {
+                    门票来源白名单集合.Add(trimmed);
+                }
+            }
+            主程.添加系统日志($"[安全] 门票来源白名单已加载, 仅以下 IP 可注入门票: {string.Join(", ", 门票来源白名单集合)}");
+        }
+
         // DoS 防护: 限制单 IP 并发 TCP 连接数 + 全局总量上限.
         // 原 444 行的 9999 全局上限被注释掉, 加上无 per-IP 限制 → 攻击者从单机即可耗尽 fd/内存.
         // 计数表只在 异步连接 (accept callback) 与 等待移除表 处理点变更, ConcurrentDictionary 即可.
@@ -66,6 +113,7 @@ namespace 游戏服务器.网络类
             网络服务网关.网络监听器.BeginAcceptTcpClient(异步连接, null);
             网络服务网关.门票数据表 = new Dictionary<string, 门票信息>();
             网络服务网关.门票接收器 = new UdpClient(new IPEndPoint(IPAddress.Any, Settings.门票接收端口));
+            网络服务网关.初始化门票白名单();
             /*
             网络服务网关.Http门票数据 = new ConcurrentQueue<string>();
             if (Settings.Http门票接收端口 != 0)
@@ -274,6 +322,11 @@ namespace 游戏服务器.网络类
                         }
                         byte[] bytes;
                         bytes = 网络服务网关.门票接收器.Receive(ref 网络服务网关.门票发送端);
+                        // PROTO-03: 拒绝白名单外的源 IP 注入门票
+                        if (!网络服务网关.门票来源放行(网络服务网关.门票发送端))
+                        {
+                            continue;
+                        }
                         string[] array;
                         array = Encoding.UTF8.GetString(bytes).Split(';');
                         if (array.Length != 5)
@@ -319,14 +372,22 @@ namespace 游戏服务器.网络类
                 {
                     while (true)
                     {
-                        string[] strArray;
+                        string[] strArray = System.Array.Empty<string>();
                         do
                         {
                             UdpClient 门票接收器 = 网络服务网关.门票接收器;
                             if (门票接收器 != null)
                             {
                                 if (门票接收器.Available != 0)
-                                    strArray = Encoding.UTF8.GetString(网络服务网关.门票接收器.Receive(ref 网络服务网关.门票发送端)).Split(';');
+                                {
+                                    byte[] _rawBytes = 网络服务网关.门票接收器.Receive(ref 网络服务网关.门票发送端);
+                                    // PROTO-03: 拒绝白名单外的源 IP
+                                    if (!网络服务网关.门票来源放行(网络服务网关.门票发送端))
+                                    {
+                                        continue;
+                                    }
+                                    strArray = Encoding.UTF8.GetString(_rawBytes).Split(';');
+                                }
                                 else
                                     goto label_5;
                             }

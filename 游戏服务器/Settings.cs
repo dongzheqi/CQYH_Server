@@ -17,6 +17,11 @@ namespace 游戏服务器
 
         public static ushort 门票接收端口 = 6678;
 
+        // PROTO-03: 门票接收 UDP 端口绑定 IPAddress.Any, 任何源 IP 都能注入伪造门票登录任意账号.
+        // 此白名单声明可信账号服务器 IP, 以逗号分隔. 空字符串 = 不过滤 (兼容旧部署, 启动时打警告).
+        // 建议生产环境设置为账号服务器实际地址, 如 "10.0.0.5,127.0.0.1".
+        public static string 门票来源白名单 = "";
+
         public static ushort 封包限定数量 = 100;
 
         public static ushort 异常屏蔽时间 = 5;
@@ -292,6 +297,7 @@ namespace 游戏服务器
             Settings.iniconfig = new InIReader(".\\Setup.ini");
             Settings.客户连接端口 = Settings.iniconfig.ReadUInt16("General", "客户连接端口", Settings.客户连接端口);
             Settings.门票接收端口 = Settings.iniconfig.ReadUInt16("General", "门票接收端口", Settings.门票接收端口);
+            Settings.门票来源白名单 = Settings.iniconfig.ReadString("General", "门票来源白名单", Settings.门票来源白名单);
             Settings.封包限定数量 = Settings.iniconfig.ReadUInt16("General", "封包限定数量", Settings.封包限定数量);
             Settings.异常屏蔽时间 = Settings.iniconfig.ReadUInt16("General", "异常屏蔽时间", Settings.异常屏蔽时间);
             Settings.掉线判定时间 = Settings.iniconfig.ReadUInt16("General", "掉线判定时间", Settings.掉线判定时间);
@@ -400,6 +406,7 @@ namespace 游戏服务器
         {
             Settings.iniconfig.Write("General", "客户连接端口", Settings.客户连接端口);
             Settings.iniconfig.Write("General", "门票接收端口", Settings.门票接收端口);
+            Settings.iniconfig.Write("General", "门票来源白名单", Settings.门票来源白名单);
             Settings.iniconfig.Write("General", "封包限定数量", Settings.封包限定数量);
             Settings.iniconfig.Write("General", "异常屏蔽时间", Settings.异常屏蔽时间);
             Settings.iniconfig.Write("General", "掉线判定时间", Settings.掉线判定时间);
