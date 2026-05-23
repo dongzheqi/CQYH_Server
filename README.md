@@ -128,7 +128,15 @@ YH_Server_Code/
 
 ## 🌟 星级历史
 
-[![Star History Chart](https://api.star-history.com/svg?repos=awp0721/cqyh_server&type=Date&_=20260523a)](https://star-history.com/#awp0721/cqyh_server&Date)
+## Star History
+
+<a href="https://www.star-history.com/?type=date&repos=awp0721%2Fcqyh_server">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=awp0721/cqyh_server&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=awp0721/cqyh_server&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=awp0721/cqyh_server&type=date&legend=top-left" />
+ </picture>
+</a>
 
 ## 📄 许可
 
