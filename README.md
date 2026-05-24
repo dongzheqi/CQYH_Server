@@ -113,12 +113,8 @@ YH_Server_Code/
 
 ## 🌟 星级历史
 
-<a href="https://www.star-history.com/?type=date&repos=awp0721%2Fcqyh_server">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=awp0721/cqyh_server&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=awp0721/cqyh_server&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=awp0721/cqyh_server&type=date&legend=top-left" />
- </picture>
+<a href="https://starchart.cc/awp0721/CQYH_Server">
+  <img alt="Stargazers over time" src="https://starchart.cc/awp0721/CQYH_Server.svg?variant=adaptive" />
 </a>
 
 ## 📄 许可
