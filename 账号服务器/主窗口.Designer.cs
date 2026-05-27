@@ -308,7 +308,7 @@
             MaximizeBox = false;
             Name = "主窗口";
             StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            Text = " 永恒传奇登登录服务器 ";
+            Text = "Elaina Engine - 账号服务器";
             FormClosing += 隐藏窗口_Click;
             Load += 主窗口_Load;
             主选项卡.ResumeLayout(false);

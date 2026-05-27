@@ -846,7 +846,7 @@
             MaximizeBox = false;
             Name = "登录界面";
             StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            Text = " 永恒传奇登录器 ";
+            Text = "Elaina Engine - 登录器";
             FormClosing += 托盘_隐藏到托盘区;
             Load += 登录界面_Load;
             主选项卡.ResumeLayout(false);

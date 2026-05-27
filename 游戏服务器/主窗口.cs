@@ -3871,7 +3871,7 @@ namespace 游戏服务器
             base.MaximizeBox = false;
             base.Name = "主窗口";
             base.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "九八游戏服务器";
+            this.Text = "Elaina Engine";
             base.FormClosing += new System.Windows.Forms.FormClosingEventHandler(关闭主界面_Click);
             this.主选项卡.ResumeLayout(false);
             this.日志页面.ResumeLayout(false);
