@@ -11,6 +11,8 @@
 </div>
 
 > 💼 **私人引擎咨询请联系：** awp227hcx@gmail.com
+>
+> 💬 **QQ 技术交流群：** `1105229144` —— **仅限单机技术交流**，禁止商业运营 / 私服推广 / 外挂相关话题
 
 ## 📦 项目结构
 
@@ -107,7 +109,9 @@ YH_Server_Code/
 
 ### 6. 联系方式
 
-如对本仓库内容有疑问、建议或需要沟通的事项，请通过 [GitHub Issues](https://github.com/awp0721/CQYH_Server/issues) 提交。
+- **GitHub Issues**：[awp0721/CQYH_Server/issues](https://github.com/awp0721/CQYH_Server/issues) —— 仓库内容疑问、建议、Bug 反馈
+- **私人咨询**：awp227hcx@gmail.com
+- **QQ 群**：`1105229144` —— **仅供单机技术交流**（架构讨论、代码学习、调试经验），**严禁**讨论商业运营、私服搭建推广、外挂破解等违规话题，违者踢出
 
 ---
 
