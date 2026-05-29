@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace 游戏服务器.模板类
@@ -386,11 +387,19 @@ namespace 游戏服务器.模板类
 			}
 			object[] array;
 			array = 序列化类.反序列化(text, typeof(游戏怪物));
+			// 怪物爆率为每怪物一份独立 .txt(还可经 #CALL/@ 递归读更多文件), 各自只写自己的 怪物掉落物品,
+			// 彼此独立 -> 并行加载这波二次 IO(约4215次 File.OpenText). dictionary.Add 留到下面单线程做.
+			Parallel.ForEach(array, delegate (object obj)
+			{
+				if (obj is 游戏怪物 游戏怪物3)
+				{
+					游戏怪物.加载怪物爆率(游戏怪物3);
+				}
+			});
 			for (int i = 0; i < array.Length; i++)
 			{
 				if (array[i] is 游戏怪物 游戏怪物2)
 				{
-					游戏怪物.加载怪物爆率(游戏怪物2);
 					dictionary.Add(游戏怪物2.怪物名字, 游戏怪物2);
 				}
 			}

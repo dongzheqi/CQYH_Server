@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
@@ -229,8 +230,10 @@ namespace 游戏服务器.模板类
             }
             Task.Run(delegate
             {
+                Stopwatch 总计时 = Stopwatch.StartNew();
                 foreach (Type item in 模板列表)
                 {
+                    Stopwatch 单计时 = Stopwatch.StartNew();
                     MethodInfo method;
                     method = item.GetMethod("载入数据", BindingFlags.Static | BindingFlags.Public);
                     try
@@ -253,6 +256,7 @@ namespace 游戏服务器.模板类
                         }
                         continue;
                     }
+                    单计时.Stop();
                     object obj;
                     obj = item.GetField("数据表", BindingFlags.Static | BindingFlags.Public)?.GetValue(null);
                     object obj3;
@@ -278,7 +282,7 @@ namespace 游戏服务器.模板类
                     num = ((obj3 != null) ? ((int)obj3) : 0);
                     if (num != 0)
                     {
-                        主程.添加系统日志($"{item.Name}.模板已经加载,  数量: {num}");
+                        主程.添加系统日志($"{item.Name}.模板已经加载,  数量: {num}  耗时: {单计时.ElapsedMilliseconds}ms");
                     }
                     else
                     {
@@ -289,6 +293,7 @@ namespace 游戏服务器.模板类
                         SMain.Main.允许重载();
                     }
                 }
+                主程.添加系统日志($"[计时] 系统数据全部加载完成, 总耗时: {总计时.ElapsedMilliseconds}ms");
             }).Wait();
             if (单独加载 == 12)
             {

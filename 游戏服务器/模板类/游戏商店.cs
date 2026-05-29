@@ -88,15 +88,10 @@ namespace 游戏服务器.模板类
 				}
 			}
 			array = 序列化类.压缩字节(memoryStream.ToArray());
-			num = 0;
-			byte[] array3;
-			array3 = array;
-			byte[] array4;
-			array4 = array3;
-			for (int i = 0; i < array4.Length; i++)
-			{
-				num += 计算类.CRC(array3);
-			}
+			// 原代码对整段固定字节算 CRC 却循环 array.Length 次并累加(O(n²)+溢出), 是本 loader 慢的根因.
+			// CRC 对固定数组只需算一次; 商店文件效验 仅作客户端缓存版本令牌(玩家实例.cs:8028 回传比对、不自算),
+			// 改单次后客户端部署首次开商店会重新同步一次(无害), 之后稳定.
+			num = 计算类.CRC(array);
 			游戏商店.商店文件数据 = array;
 			游戏商店.商店文件效验 = num;
 			游戏商店.商店物品数量 = num2;

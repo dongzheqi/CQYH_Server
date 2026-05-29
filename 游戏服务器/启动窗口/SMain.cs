@@ -98,16 +98,20 @@ namespace 游戏服务器
             Task.Run(delegate
             {
                 Thread.Sleep(100);
+                Stopwatch 启动计时 = Stopwatch.StartNew();
                 主程.添加系统日志("正在加载系统数据...");
                 系统数据网关.加载数据();
-                主程.添加系统日志("系统数据加载完成");
+                long t1 = 启动计时.ElapsedMilliseconds;
+                主程.添加系统日志($"系统数据加载完成 (耗时 {t1}ms)");
                 主程.添加系统日志("正在初始化脚本系统...");
                 游戏脚本.初始化脚本系统();
-                主程.添加系统日志("脚本系统初始化完成");
+                long t2 = 启动计时.ElapsedMilliseconds;
+                主程.添加系统日志($"脚本系统初始化完成 (耗时 {t2 - t1}ms)");
                 主程.添加系统日志("正在加载客户数据...");
                 游戏数据网关.加载数据();
                 SMain.加载客户数据();
-                主程.添加系统日志("客户数据加载完成");
+                long t3 = 启动计时.ElapsedMilliseconds;
+                主程.添加系统日志($"客户数据加载完成 (耗时 {t3 - t2}ms, 启动加载总耗时 {t3}ms)");
 
                 BeginInvoke(new MethodInvoker(delegate ()
                 {
