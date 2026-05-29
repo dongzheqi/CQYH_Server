@@ -11,6 +11,15 @@
 - **游戏登录器单文件发布**：登录器编译产物不再附带一堆 DLL。`游戏登录器.csproj` 启用 `PublishSingleFile`（框架依赖、`win-x86`、不裁剪、`DebugType=none`），`dotnet publish -c Release -r win-x86 --self-contained false` 后发布目录仅剩单个 `游戏登录器.exe`（约 4.9 MB）。玩家端需预装 .NET 8 桌面运行时
 - **登录器自动生成默认配置**：`ServerCfg.txt` 缺失时不再直接报错退出，而是自动生成默认单机配置 `127.0.0.1:8001`（本机账号服务器默认监听端口）并提示，单机开箱即用；联网改该文件后重启即可。沿用账号服务器 `Server.txt` 缺失自动创建的同款风格（`登录界面.cs`）
 
+### 修复
+
+- **中文 / 非 ASCII 安装路径下 Lua 脚本加载失败**：服务端放在含中文的目录（如 `公开引擎`、`游戏服务器`）时，`require "init"` 等报 `module 'init' not found`，且报错里的中文路径显示为 `������` 乱码方块
+  - 根因：NLua 把含中文的 `package.path` 按 UTF-8 交给 Lua，而 Lua 5.4 原生 `require` 底层用 C 运行库 `fopen` 按系统 ANSI 代码页（简体中文为 GBK/936）打开文件，无法识别 UTF-8 字节序列的中文路径
+  - 修复：`游戏脚本.cs` 新增静态方法 `加载lua模块` + 一个走 .NET `File.ReadAllText` 的 Lua 模块搜索器（插入 `package.searchers` 第 2 位，优先于默认 path 搜索器）。读文件完全在托管侧完成、只把源码交给 `load`，彻底绕开原生 `fopen`；入口 `main.lua` 同步改用 `File.ReadAllText` + `DoString` 加载。中文与纯英文路径均可正常加载
+- **中文变量名 Lua 脚本无法编译（魔改 Lua 未接入构建）**：脚本系统大量使用中文标识符（`主程`、`计算类` 等），标准 Lua 5.4 词法分析器不接受非 ASCII 标识符，修好上面的路径问题后 `init.lua` 暴露出 `unexpected symbol near '<\228>'`
+  - 根因：作者准备的、支持中文标识符的魔改 `lua54.dll` 一直留在 `游戏服务器/` 根目录，但从未接入构建；KeraLua（NLua 依赖）始终加载 NuGet 自带的标准 Lua（`runtimes/win-x64/native/lua54.dll`）
+  - 修复：`游戏服务器.csproj` 新增 `AfterTargets="Build"` 与 `"Publish"` 的 MSBuild Target，构建/发布后自动用根目录的魔改 `lua54.dll` 覆盖输出根目录与 `runtimes/win-x64/native/` 下的标准版。`clone` + `build` 即自动启用，无需手动替换 dll
+
 ### 安全修复（第二轮深度审计 2026-05-27）
 
 | ID | 严重 | 修复 |

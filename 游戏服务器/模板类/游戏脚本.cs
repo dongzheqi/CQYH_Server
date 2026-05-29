@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.IO;
 using 游戏服务器.地图类;
 using 游戏服务器.数据类;
 using NLua;
@@ -111,6 +112,27 @@ namespace 游戏服务器.模板类
 		{
 		}
 
+		// 供 Lua 搜索器调用: 用 .NET 文件 API 读取脚本源码, 避开 Lua 原生 fopen 对中文/非 ANSI 代码页路径无法打开的问题
+		public static string 加载lua模块(string 模块名)
+		{
+			try
+			{
+				if (string.IsNullOrEmpty(模块名))
+				{
+					return null;
+				}
+				string text = Path.Combine(Settings.游戏数据目录, "System", "lua", 模块名.Replace('/', '\\') + ".lua");
+				if (File.Exists(text))
+				{
+					return File.ReadAllText(text);
+				}
+			}
+			catch
+			{
+			}
+			return null;
+		}
+
 		public static void 初始化脚本系统()
 		{
 			if (!Settings.开启lua)
@@ -130,8 +152,11 @@ namespace 游戏服务器.模板类
 				游戏脚本.状态机.DoString("import ('游戏服务器') ");
 				游戏脚本.状态机.RegisterFunction("print", null, typeof(主程).GetMethod("添加系统日志"));
 				游戏脚本.状态机.RegisterFunction("GetMonster", null, typeof(游戏怪物).GetMethod("获取游戏怪物"));
+				游戏脚本.状态机.RegisterFunction("__clr_loadmodule", null, typeof(游戏脚本).GetMethod("加载lua模块"));
 				游戏脚本.状态机.DoString("package.path = \"" + Settings.游戏数据目录.Replace("\\", "/") + "/System/lua/?.lua;\" .. package.path");
-				游戏脚本.状态机.DoFile(Settings.游戏数据目录 + "\\System\\lua\\main.lua");
+				// 注册一个走 .NET 文件 API 的 Lua 模块搜索器, 优先于默认 path 搜索器, 从而支持中文/非 ASCII 安装路径
+				游戏脚本.状态机.DoString("table.insert(package.searchers, 2, function(name) local src = __clr_loadmodule(name) if src then local f, e = load(src, '@'..name) if f then return f end error(e) end return '\\n\\t[CLR] no lua file for module '..name end)");
+				游戏脚本.状态机.DoString(File.ReadAllText(Settings.游戏数据目录 + "\\System\\lua\\main.lua"), "@main.lua");
 				主程.添加系统日志("正在绑定玩家触发脚本");
 				主程.添加系统日志("正在绑定技能触发脚本");
 				主程.添加系统日志("正在绑定技能NPC对话脚本");

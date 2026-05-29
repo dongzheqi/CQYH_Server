@@ -50,4 +50,17 @@
 			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
 		</EmbeddedResource>
 	</ItemGroup>
+	<!-- 这套 Lua 脚本大量使用中文变量名(如 主程 / 计算类), 而 KeraLua(NLua 的依赖)自带的标准 Lua 5.4 -->
+	<!-- 词法分析器不接受非 ASCII 标识符。构建/发布后, 用源码根目录支持中文标识符的魔改 Lua 5.4 覆盖 NuGet -->
+	<!-- 还原出的标准 lua54.dll(KeraLua 从 runtimes\win-x64\native 加载), 否则脚本编译报 "unexpected symbol"。 -->
+	<Target Name="覆盖为魔改Lua" AfterTargets="Build">
+		<Copy SourceFiles="$(MSBuildProjectDirectory)\lua54.dll" DestinationFiles="$(OutDir)lua54.dll" OverwriteReadOnlyFiles="true" />
+		<Copy SourceFiles="$(MSBuildProjectDirectory)\lua54.dll" DestinationFiles="$(OutDir)runtimes\win-x64\native\lua54.dll" OverwriteReadOnlyFiles="true" Condition="Exists('$(OutDir)runtimes\win-x64\native\lua54.dll')" />
+		<Message Importance="high" Text="[Elaina] 已用支持中文标识符的魔改 Lua 覆盖 lua54.dll -&gt; $(OutDir)" />
+	</Target>
+	<Target Name="覆盖为魔改Lua_Publish" AfterTargets="Publish">
+		<Copy SourceFiles="$(MSBuildProjectDirectory)\lua54.dll" DestinationFiles="$(PublishDir)lua54.dll" OverwriteReadOnlyFiles="true" />
+		<Copy SourceFiles="$(MSBuildProjectDirectory)\lua54.dll" DestinationFiles="$(PublishDir)runtimes\win-x64\native\lua54.dll" OverwriteReadOnlyFiles="true" Condition="Exists('$(PublishDir)runtimes\win-x64\native\lua54.dll')" />
+		<Message Importance="high" Text="[Elaina] (publish) 已用魔改 Lua 覆盖 lua54.dll -&gt; $(PublishDir)" />
+	</Target>
 </Project>
