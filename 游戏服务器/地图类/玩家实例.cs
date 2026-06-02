@@ -11108,6 +11108,7 @@ namespace 游戏服务器.地图类
 
         public void 玩家铭文刻印(byte 装备位置, int 物品编号, int 铭文索引)
         {
+            if (this.对象死亡 || this.摆摊状态 > 0 || this.交易状态 >= 3) return; // R6 守卫家族(防交易/摆摊/死亡中改背包 dupe)
             if (物品编号 % 100 / 10 != 0)
             {
                 this.网络连接?.发送封包(new 游戏错误提示
@@ -15492,6 +15493,7 @@ namespace 游戏服务器.地图类
 
         public void 玩家装备雕色(byte 装备部位, int 孔洞位置, int 孔洞颜色)
         {
+            if (this.对象死亡 || this.摆摊状态 > 0 || this.交易状态 >= 3) return; // R6 守卫家族(防交易/摆摊/死亡中改背包 dupe)
             byte[][] array;
             array = new byte[9][]
             {
@@ -15611,6 +15613,7 @@ namespace 游戏服务器.地图类
 
         public void 玩家孔色传承(byte 来源位置, byte 传承位置)
         {
+            if (this.对象死亡 || this.摆摊状态 > 0 || this.交易状态 >= 3) return; // R6 守卫家族(防交易/摆摊/死亡中改背包 dupe)
             if (!this.角色背包.TryGetValue(来源位置, out var v) || !(v is 装备数据 装备数据) || !this.角色背包.TryGetValue(传承位置, out var v2) || !(v2 is 装备数据 装备数据2))
             {
                 return;
@@ -15744,6 +15747,7 @@ namespace 游戏服务器.地图类
 
         public void 玩家合成灵石(int 物品编号, int 幸运符数)
         {
+            if (this.对象死亡 || this.摆摊状态 > 0 || this.交易状态 >= 3) return; // R6 守卫家族(防交易/摆摊/死亡中改背包 dupe)
             int num;
             num = 5000000;
             if ((long)this.金币数量 >= 5000000L && this.查找背包物品(10, 物品编号 - 1, out var 物品列表))
@@ -15769,6 +15773,7 @@ namespace 游戏服务器.地图类
 
         public void 玩家兑换精粹(byte 物品位置)
         {
+            if (this.对象死亡 || this.摆摊状态 > 0 || this.交易状态 >= 3) return; // R6 守卫家族(防交易/摆摊/死亡中改背包 dupe)
             if (this.角色背包.TryGetValue(物品位置, out var v) && v is 装备数据 装备数据)
             {
                 int num;
@@ -16245,6 +16250,7 @@ namespace 游戏服务器.地图类
 
         public void 装备开启精炼(byte 背包类型, byte 背包位置)
         {
+            if (this.对象死亡 || this.摆摊状态 > 0 || this.交易状态 >= 3) return; // R6 守卫家族(防交易/摆摊/死亡中改背包 dupe)
             字典监视器<byte, 物品数据> 字典监视器;
             字典监视器 = null;
             if (背包类型 == 1)
@@ -16294,6 +16300,7 @@ namespace 游戏服务器.地图类
 
         public void 装备重新精炼(byte 背包类型, byte 背包位置, byte 材料类型, byte 材料位置, ushort 特殊标记)
         {
+            if (this.对象死亡 || this.摆摊状态 > 0 || this.交易状态 >= 3) return; // R6 守卫家族(防交易/摆摊/死亡中改背包 dupe)
             字典监视器<byte, 物品数据> 字典监视器;
             字典监视器 = null;
             if (背包类型 == 1)
@@ -16429,6 +16436,7 @@ namespace 游戏服务器.地图类
 
         public void 装备转移精炼(byte 背包类型, byte 背包位置, byte 材料类型, byte 材料位置)
         {
+            if (this.对象死亡 || this.摆摊状态 > 0 || this.交易状态 >= 3) return; // R6 守卫家族(防交易/摆摊/死亡中改背包 dupe)
             字典监视器<byte, 物品数据> 字典监视器;
             字典监视器 = null;
             if (背包类型 == 1)
@@ -18562,6 +18570,7 @@ namespace 游戏服务器.地图类
 
         public void 角色防具升级(int 装备部位)
         {
+            if (this.对象死亡 || this.摆摊状态 > 0 || this.交易状态 >= 3) return; // R6 守卫家族(防交易/摆摊/死亡中改背包 dupe)
             if (!this.角色装备.TryGetValue((byte)装备部位, out var v) || v.升级次数.V >= 9 || !装备升级.数据表.TryGetValue(new 升级装备
             {
                 装备编号 = v.物品编号,
@@ -19051,6 +19060,7 @@ namespace 游戏服务器.地图类
 
         public void 玩家合无相石(byte 物品位置, bool 一键合成)
         {
+            if (this.对象死亡 || this.摆摊状态 > 0 || this.交易状态 >= 3) return; // R6 守卫家族(防交易/摆摊/死亡中改背包 dupe)
             物品数据 物品数据;
             物品数据 = this.角色背包[物品位置];
             if (物品数据 == null || !合成公式.数据表.TryGetValue((byte)(物品数据.物品编号 - 140000), out var value))
@@ -19076,6 +19086,7 @@ namespace 游戏服务器.地图类
 
         public int 玩家武器祈祷(byte 未知参数)
         {
+            if (this.对象死亡 || this.摆摊状态 > 0 || this.交易状态 >= 3) return 0; // R6 守卫家族(防交易/摆摊/死亡中改背包 dupe)
             装备数据 装备数据;
             装备数据 = this.角色装备[0];
             if (装备数据 == null)
@@ -19238,6 +19249,7 @@ namespace 游戏服务器.地图类
 
         public int 玩家武器铸魂()
         {
+            if (this.对象死亡 || this.摆摊状态 > 0 || this.交易状态 >= 3) return 0; // R6 守卫家族(防交易/摆摊/死亡中改背包 dupe)
             Dictionary<int, byte> dictionary;
             dictionary = new Dictionary<int, byte>
             {
@@ -19286,6 +19298,7 @@ namespace 游戏服务器.地图类
 
         public int 玩家合成装备(bool 合成勋章, int 合成模板, byte[] 未知参数, byte[] 合成参数)
         {
+            if (this.对象死亡 || this.摆摊状态 > 0 || this.交易状态 >= 3) return 0; // R6 守卫家族(防交易/摆摊/死亡中改背包 dupe)
             if (合成勋章 && 合成参数.Length != 8)
             {
                 主程.添加系统日志("玩家合成装备 合成勋章 参数错误");
