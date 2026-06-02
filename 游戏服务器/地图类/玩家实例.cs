@@ -17734,6 +17734,10 @@ namespace 游戏服务器.地图类
             {
                 return;
             }
+            if (领取类型 == 1 && !this.角色数据.开启战令.V) // R6-12: 高级(军机/赛季,检测战令==true)奖励需已开启战令, 防未购战令玩家免费领取
+            {
+                return;
+            }
             List<战功奖励> list;
             list = 战功奖励.数据表.Values.Where((战功奖励 x) => (x.检测战令 ? 1 : 0) == 领取类型 && (x.检测战令 ? (this.角色数据.军机奖励.V < x.需要点数) : (this.角色数据.战功奖励.V < x.需要点数)) && this.全部战功 >= x.需要点数).ToList();
             if (list == null || list.Count == 0)

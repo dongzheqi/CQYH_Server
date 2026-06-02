@@ -395,7 +395,7 @@ namespace 账号服务器
 
         private void 加载账号按钮_Click(object sender, EventArgs e)
         {
-            账号数据 = new ConcurrentDictionary<string, 账号数据>();
+            账号数据 = new ConcurrentDictionary<string, 账号数据>(System.StringComparer.OrdinalIgnoreCase); // R6-14: 账号名大小写不敏感, 与 Windows 文件系统一致, 防大小写折叠注册覆盖他人账号文件/接管
             if (!Directory.Exists(数据目录))
             {
                 添加日志("账号目录不存在, 已自动创建");
