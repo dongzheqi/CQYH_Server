@@ -157,6 +157,10 @@ namespace 游戏服务器.模板类
 				// 注册一个走 .NET 文件 API 的 Lua 模块搜索器, 优先于默认 path 搜索器, 从而支持中文/非 ASCII 安装路径
 				游戏脚本.状态机.DoString("table.insert(package.searchers, 2, function(name) local src = __clr_loadmodule(name) if src then local f, e = load(src, '@'..name) if f then return f end error(e) end return '\\n\\t[CLR] no lua file for module '..name end)");
 				游戏脚本.状态机.DoString(File.ReadAllText(Settings.游戏数据目录 + "\\System\\lua\\main.lua"), "@main.lua");
+				// 注入未知暗殿一层/二层每日进入计数常量为 Lua 全局：版本脚本 6350/6359.lua 未定义这些名字，
+				// 否则索引会塌缩到 脚本变量[0] 与其它数据互相覆盖。引擎侧统一来源，避免改动版本数据。
+				游戏脚本.状态机["数字_未知一层每日进入次数"] = 游戏服务器.副本类.副本.数字_未知一层每日进入次数;
+				游戏脚本.状态机["数字_未知二层每日进入次数"] = 游戏服务器.副本类.副本.数字_未知二层每日进入次数;
 				主程.添加系统日志("正在绑定玩家触发脚本");
 				主程.添加系统日志("正在绑定技能触发脚本");
 				主程.添加系统日志("正在绑定技能NPC对话脚本");
