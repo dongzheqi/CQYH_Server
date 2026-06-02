@@ -621,7 +621,7 @@ namespace 游戏服务器.地图类
 
         public void 申请发送邮件(byte[] 数据)
         {
-            if (数据.Length >= 94 && 数据.Length <= 839)
+            if (数据.Length >= 98 && 数据.Length <= 839) // R6-31: 下限 94→98 (正文 array3=Skip(97) 需 Length>=98, 否则 array3[0] 越界自掉线)
             {
                 if (主程.当前时间 < this.邮件时间)
                 {

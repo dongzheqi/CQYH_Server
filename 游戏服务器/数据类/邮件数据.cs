@@ -88,7 +88,7 @@ namespace 游戏服务器.数据类
 			binaryWriter.Write(array);
 			byte[] array2;
 			array2 = new byte[61];
-			Encoding.UTF8.GetBytes(this.邮件标题.V + "\0").CopyTo(array2, 0);
+			{ /* R6-10: 截断至缓冲区, 防超长标题致 CopyTo 溢出抛异常锁死收件人邮箱 */ byte[] _t = Encoding.UTF8.GetBytes(this.邮件标题.V + "\0"); System.Array.Copy(_t, array2, System.Math.Min(_t.Length, array2.Length - 1)); }
 			binaryWriter.Write(array2);
 			return memoryStream.ToArray();
 		}
@@ -111,11 +111,11 @@ namespace 游戏服务器.数据类
 			binaryWriter.Write(array);
 			byte[] array2;
 			array2 = new byte[61];
-			Encoding.UTF8.GetBytes(this.邮件标题.V + "\0").CopyTo(array2, 0);
+			{ /* R6-10: 截断至缓冲区, 防超长标题致 CopyTo 溢出抛异常锁死收件人邮箱 */ byte[] _t = Encoding.UTF8.GetBytes(this.邮件标题.V + "\0"); System.Array.Copy(_t, array2, System.Math.Min(_t.Length, array2.Length - 1)); }
 			binaryWriter.Write(array2);
 			byte[] array3;
 			array3 = new byte[554];
-			Encoding.UTF8.GetBytes(this.邮件正文.V + "\0").CopyTo(array3, 0);
+			{ /* R6-10: 截断至缓冲区, 防超长正文致 CopyTo 溢出抛异常锁死收件人邮箱 */ byte[] _b = Encoding.UTF8.GetBytes(this.邮件正文.V + "\0"); System.Array.Copy(_b, array3, System.Math.Min(_b.Length, array3.Length - 1)); }
 			binaryWriter.Write(array3);
 			binaryWriter.Write(this.邮件编号);
 			binaryWriter.Write(0);
