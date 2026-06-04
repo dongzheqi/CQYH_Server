@@ -359,16 +359,21 @@ namespace 游戏服务器.网络类
 				}
 				throw new Exception($"获取封包Length失败! 封包编号:{num:X4}");
 			}
-			if (value2 == 0 && 原始数据.Length < 4)
+			if (value2 == 0)
 			{
-				return null;
-			}
-			value2 = ((value2 == 0) ? BitConverter.ToUInt16(原始数据, 2) : value2);
-			if (value2 < 4)
-			{
+				if (原始数据.Length < 4)
+				{
+					return null;
+				}
+				value2 = BitConverter.ToUInt16(原始数据, 2);
 				// C07: 变长封包头部恒为 编号(2)+总长(2)=4 字节, 合法总长必 >=4.
 				// 总长字段填 0/1/2/3 会让游标零推进, 触发接收回调 while(true) 无限重解析同一畸形包(预鉴权 DoS).
-				throw new Exception($"封包总长非法(变长封包头部不足4字节)! 封包编号:{num} 总长:{value2}");
+				// 此检查只能在变长分支内做: 定长包 value2 取自可信注册表(允许 2/3 字节, 如查询地图路线/打开背包),
+				// 游标必 Skip(value2>=1) 推进, 不存在死循环; 误把 <4 套到定长包会踢光所有短定长包(C07 回归).
+				if (value2 < 4)
+				{
+					throw new Exception($"封包总长非法(变长封包头部不足4字节)! 封包编号:{num} 总长:{value2}");
+				}
 			}
 			if (原始数据.Length < value2)
 			{
