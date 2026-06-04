@@ -1,4 +1,4 @@
-﻿namespace 游戏登录器
+namespace 游戏登录器
 {
 
     public partial class 登录界面 : global::System.Windows.Forms.Form
@@ -55,6 +55,10 @@
             打开ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             退出ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             游戏进程监测 = new System.Windows.Forms.Timer(components);
+            卡片边框 = new System.Windows.Forms.Panel();
+            标题文字 = new System.Windows.Forms.Label();
+            最小化按钮 = new System.Windows.Forms.Label();
+            关闭按钮 = new System.Windows.Forms.Label();
             主选项卡.SuspendLayout();
             账号登录页面.SuspendLayout();
             账号注册页面.SuspendLayout();
@@ -70,31 +74,32 @@
             主选项卡.Controls.Add(密码修改页面);
             主选项卡.Controls.Add(启动游戏页面);
             主选项卡.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
-            主选项卡.FillColor = System.Drawing.Color.FromArgb(255, 244, 240);
-            主选项卡.Font = new System.Drawing.Font("微软雅黑", 12F);
-            主选项卡.ItemSize = new System.Drawing.Size(260, 28);
-            主选项卡.Location = new System.Drawing.Point(436, 21);
+            主选项卡.FillColor = System.Drawing.Color.FromArgb(36, 26, 17);
+            主选项卡.Font = new System.Drawing.Font("微软雅黑", 10.5F);
+            主选项卡.ItemSize = new System.Drawing.Size(90, 34);
+            主选项卡.Location = new System.Drawing.Point(255, 72);
             主选项卡.MainPage = "";
             主选项卡.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             主选项卡.MenuStyle = Sunny.UI.UIMenuStyle.Custom;
             主选项卡.Name = "主选项卡";
             主选项卡.SelectedIndex = 0;
-            主选项卡.Size = new System.Drawing.Size(386, 478);
+            主选项卡.Size = new System.Drawing.Size(390, 414);
+            主选项卡.TabVisible = true;
             主选项卡.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             主选项卡.Style = Sunny.UI.UIStyle.Custom;
             主选项卡.StyleCustomMode = true;
             主选项卡.TabIndex = 9;
-            主选项卡.TabSelectedColor = System.Drawing.Color.FromArgb(56, 56, 56);
-            主选项卡.TabSelectedForeColor = System.Drawing.Color.FromArgb(255, 87, 34);
-            主选项卡.TabSelectedHighColor = System.Drawing.Color.FromArgb(255, 87, 34);
-            主选项卡.TabSelectedHighColorSize = 0;
+            主选项卡.TabSelectedColor = System.Drawing.Color.FromArgb(62, 46, 28);
+            主选项卡.TabSelectedForeColor = System.Drawing.Color.FromArgb(236, 206, 128);
+            主选项卡.TabSelectedHighColor = System.Drawing.Color.FromArgb(224, 162, 40);
+            主选项卡.TabSelectedHighColorSize = 3;
             主选项卡.TabStop = false;
-            主选项卡.TabUnSelectedForeColor = System.Drawing.Color.FromArgb(255, 87, 34);
+            主选项卡.TabUnSelectedForeColor = System.Drawing.Color.FromArgb(170, 138, 82);
             主选项卡.TipsFont = new System.Drawing.Font("微软雅黑", 9F);
             // 
             // 账号登录页面
             // 
-            账号登录页面.BackColor = System.Drawing.Color.FromArgb(255, 244, 240);
+            账号登录页面.BackColor = System.Drawing.Color.FromArgb(36, 26, 17);
             账号登录页面.Controls.Add(登录_登录账号按钮);
             账号登录页面.Controls.Add(登录_忘记密码选项);
             账号登录页面.Controls.Add(登录_账号密码输入框);
@@ -111,21 +116,21 @@
             // 登录_登录账号按钮
             // 
             登录_登录账号按钮.Cursor = System.Windows.Forms.Cursors.Hand;
-            登录_登录账号按钮.FillColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            登录_登录账号按钮.FillColor2 = System.Drawing.Color.FromArgb(230, 80, 80);
-            登录_登录账号按钮.FillHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            登录_登录账号按钮.FillPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            登录_登录账号按钮.FillSelectedColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            登录_登录账号按钮.FillColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            登录_登录账号按钮.FillColor2 = System.Drawing.Color.FromArgb(198, 158, 74);
+            登录_登录账号按钮.FillHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            登录_登录账号按钮.FillPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            登录_登录账号按钮.FillSelectedColor = System.Drawing.Color.FromArgb(150, 116, 44);
             登录_登录账号按钮.Font = new System.Drawing.Font("微软雅黑", 12F);
             登录_登录账号按钮.LightColor = System.Drawing.Color.FromArgb(253, 243, 243);
             登录_登录账号按钮.Location = new System.Drawing.Point(67, 221);
             登录_登录账号按钮.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             登录_登录账号按钮.MinimumSize = new System.Drawing.Size(1, 1);
             登录_登录账号按钮.Name = "登录_登录账号按钮";
-            登录_登录账号按钮.RectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            登录_登录账号按钮.RectHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            登录_登录账号按钮.RectPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            登录_登录账号按钮.RectSelectedColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            登录_登录账号按钮.RectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            登录_登录账号按钮.RectHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            登录_登录账号按钮.RectPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            登录_登录账号按钮.RectSelectedColor = System.Drawing.Color.FromArgb(150, 116, 44);
             登录_登录账号按钮.Size = new System.Drawing.Size(253, 41);
             登录_登录账号按钮.Style = Sunny.UI.UIStyle.Custom;
             登录_登录账号按钮.TabIndex = 13;
@@ -136,10 +141,10 @@
             // 
             // 登录_忘记密码选项
             // 
-            登录_忘记密码选项.ActiveLinkColor = System.Drawing.Color.FromArgb(230, 80, 80);
+            登录_忘记密码选项.ActiveLinkColor = System.Drawing.Color.FromArgb(255, 232, 150);
             登录_忘记密码选项.AutoSize = true;
-            登录_忘记密码选项.Font = new System.Drawing.Font("微软雅黑", 9F);
-            登录_忘记密码选项.ForeColor = System.Drawing.Color.FromArgb(48, 48, 48);
+            登录_忘记密码选项.Font = new System.Drawing.Font("微软雅黑", 10.5F);
+            登录_忘记密码选项.ForeColor = System.Drawing.Color.FromArgb(242, 214, 140);
             登录_忘记密码选项.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
             登录_忘记密码选项.Location = new System.Drawing.Point(258, 143);
             登录_忘记密码选项.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
@@ -149,17 +154,17 @@
             登录_忘记密码选项.TabIndex = 16;
             登录_忘记密码选项.TabStop = true;
             登录_忘记密码选项.Text = "忘记密码?";
-            登录_忘记密码选项.VisitedLinkColor = System.Drawing.Color.FromArgb(230, 80, 80);
+            登录_忘记密码选项.VisitedLinkColor = System.Drawing.Color.FromArgb(198, 158, 74);
             登录_忘记密码选项.Click += 登录_忘记密码选项_Click;
             // 
             // 登录_账号密码输入框
             // 
-            登录_账号密码输入框.ButtonFillColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            登录_账号密码输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            登录_账号密码输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            登录_账号密码输入框.ButtonRectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            登录_账号密码输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            登录_账号密码输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            登录_账号密码输入框.ButtonFillColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            登录_账号密码输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            登录_账号密码输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            登录_账号密码输入框.ButtonRectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            登录_账号密码输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            登录_账号密码输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
             登录_账号密码输入框.ButtonStyleInherited = false;
             登录_账号密码输入框.Cursor = System.Windows.Forms.Cursors.IBeam;
             登录_账号密码输入框.FillColor2 = System.Drawing.Color.FromArgb(253, 243, 243);
@@ -170,8 +175,8 @@
             登录_账号密码输入框.Name = "登录_账号密码输入框";
             登录_账号密码输入框.Padding = new System.Windows.Forms.Padding(5);
             登录_账号密码输入框.PasswordChar = '*';
-            登录_账号密码输入框.RectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            登录_账号密码输入框.ScrollBarColor = System.Drawing.Color.FromArgb(230, 80, 80);
+            登录_账号密码输入框.RectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            登录_账号密码输入框.ScrollBarColor = System.Drawing.Color.FromArgb(198, 158, 74);
             登录_账号密码输入框.ScrollBarStyleInherited = false;
             登录_账号密码输入框.ShowText = false;
             登录_账号密码输入框.Size = new System.Drawing.Size(253, 41);
@@ -185,21 +190,21 @@
             // 登录_注册账号按钮
             // 
             登录_注册账号按钮.Cursor = System.Windows.Forms.Cursors.Hand;
-            登录_注册账号按钮.FillColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            登录_注册账号按钮.FillColor2 = System.Drawing.Color.FromArgb(230, 80, 80);
-            登录_注册账号按钮.FillHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            登录_注册账号按钮.FillPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            登录_注册账号按钮.FillSelectedColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            登录_注册账号按钮.FillColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            登录_注册账号按钮.FillColor2 = System.Drawing.Color.FromArgb(198, 158, 74);
+            登录_注册账号按钮.FillHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            登录_注册账号按钮.FillPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            登录_注册账号按钮.FillSelectedColor = System.Drawing.Color.FromArgb(150, 116, 44);
             登录_注册账号按钮.Font = new System.Drawing.Font("微软雅黑", 12F);
             登录_注册账号按钮.LightColor = System.Drawing.Color.FromArgb(253, 243, 243);
             登录_注册账号按钮.Location = new System.Drawing.Point(67, 288);
             登录_注册账号按钮.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             登录_注册账号按钮.MinimumSize = new System.Drawing.Size(1, 1);
             登录_注册账号按钮.Name = "登录_注册账号按钮";
-            登录_注册账号按钮.RectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            登录_注册账号按钮.RectHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            登录_注册账号按钮.RectPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            登录_注册账号按钮.RectSelectedColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            登录_注册账号按钮.RectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            登录_注册账号按钮.RectHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            登录_注册账号按钮.RectPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            登录_注册账号按钮.RectSelectedColor = System.Drawing.Color.FromArgb(150, 116, 44);
             登录_注册账号按钮.Size = new System.Drawing.Size(253, 41);
             登录_注册账号按钮.Style = Sunny.UI.UIStyle.Custom;
             登录_注册账号按钮.Symbol = 62004;
@@ -227,12 +232,12 @@
             // 
             // 登录_账号名字输入框
             // 
-            登录_账号名字输入框.ButtonFillColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            登录_账号名字输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            登录_账号名字输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            登录_账号名字输入框.ButtonRectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            登录_账号名字输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            登录_账号名字输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            登录_账号名字输入框.ButtonFillColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            登录_账号名字输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            登录_账号名字输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            登录_账号名字输入框.ButtonRectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            登录_账号名字输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            登录_账号名字输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
             登录_账号名字输入框.ButtonStyleInherited = false;
             登录_账号名字输入框.Cursor = System.Windows.Forms.Cursors.IBeam;
             登录_账号名字输入框.FillColor2 = System.Drawing.Color.FromArgb(253, 243, 243);
@@ -242,8 +247,8 @@
             登录_账号名字输入框.MinimumSize = new System.Drawing.Size(1, 16);
             登录_账号名字输入框.Name = "登录_账号名字输入框";
             登录_账号名字输入框.Padding = new System.Windows.Forms.Padding(5);
-            登录_账号名字输入框.RectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            登录_账号名字输入框.ScrollBarColor = System.Drawing.Color.FromArgb(230, 80, 80);
+            登录_账号名字输入框.RectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            登录_账号名字输入框.ScrollBarColor = System.Drawing.Color.FromArgb(198, 158, 74);
             登录_账号名字输入框.ScrollBarStyleInherited = false;
             登录_账号名字输入框.ShowText = false;
             登录_账号名字输入框.Size = new System.Drawing.Size(253, 41);
@@ -256,7 +261,7 @@
             // 
             // 账号注册页面
             // 
-            账号注册页面.BackColor = System.Drawing.Color.FromArgb(255, 244, 240);
+            账号注册页面.BackColor = System.Drawing.Color.FromArgb(36, 26, 17);
             账号注册页面.Controls.Add(注册_返回登录按钮);
             账号注册页面.Controls.Add(注册_错误提示标签);
             账号注册页面.Controls.Add(注册_注册账号按钮);
@@ -274,21 +279,21 @@
             // 注册_返回登录按钮
             // 
             注册_返回登录按钮.Cursor = System.Windows.Forms.Cursors.Hand;
-            注册_返回登录按钮.FillColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            注册_返回登录按钮.FillColor2 = System.Drawing.Color.FromArgb(230, 80, 80);
-            注册_返回登录按钮.FillHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            注册_返回登录按钮.FillPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            注册_返回登录按钮.FillSelectedColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            注册_返回登录按钮.FillColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            注册_返回登录按钮.FillColor2 = System.Drawing.Color.FromArgb(198, 158, 74);
+            注册_返回登录按钮.FillHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            注册_返回登录按钮.FillPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            注册_返回登录按钮.FillSelectedColor = System.Drawing.Color.FromArgb(150, 116, 44);
             注册_返回登录按钮.Font = new System.Drawing.Font("微软雅黑", 12F);
             注册_返回登录按钮.LightColor = System.Drawing.Color.FromArgb(253, 243, 243);
             注册_返回登录按钮.Location = new System.Drawing.Point(74, 313);
             注册_返回登录按钮.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             注册_返回登录按钮.MinimumSize = new System.Drawing.Size(1, 1);
             注册_返回登录按钮.Name = "注册_返回登录按钮";
-            注册_返回登录按钮.RectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            注册_返回登录按钮.RectHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            注册_返回登录按钮.RectPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            注册_返回登录按钮.RectSelectedColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            注册_返回登录按钮.RectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            注册_返回登录按钮.RectHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            注册_返回登录按钮.RectPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            注册_返回登录按钮.RectSelectedColor = System.Drawing.Color.FromArgb(150, 116, 44);
             注册_返回登录按钮.Size = new System.Drawing.Size(248, 42);
             注册_返回登录按钮.Style = Sunny.UI.UIStyle.Custom;
             注册_返回登录按钮.Symbol = 61730;
@@ -317,21 +322,21 @@
             // 注册_注册账号按钮
             // 
             注册_注册账号按钮.Cursor = System.Windows.Forms.Cursors.Hand;
-            注册_注册账号按钮.FillColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            注册_注册账号按钮.FillColor2 = System.Drawing.Color.FromArgb(230, 80, 80);
-            注册_注册账号按钮.FillHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            注册_注册账号按钮.FillPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            注册_注册账号按钮.FillSelectedColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            注册_注册账号按钮.FillColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            注册_注册账号按钮.FillColor2 = System.Drawing.Color.FromArgb(198, 158, 74);
+            注册_注册账号按钮.FillHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            注册_注册账号按钮.FillPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            注册_注册账号按钮.FillSelectedColor = System.Drawing.Color.FromArgb(150, 116, 44);
             注册_注册账号按钮.Font = new System.Drawing.Font("微软雅黑", 12F);
             注册_注册账号按钮.LightColor = System.Drawing.Color.FromArgb(253, 243, 243);
             注册_注册账号按钮.Location = new System.Drawing.Point(74, 255);
             注册_注册账号按钮.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             注册_注册账号按钮.MinimumSize = new System.Drawing.Size(1, 1);
             注册_注册账号按钮.Name = "注册_注册账号按钮";
-            注册_注册账号按钮.RectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            注册_注册账号按钮.RectHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            注册_注册账号按钮.RectPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            注册_注册账号按钮.RectSelectedColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            注册_注册账号按钮.RectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            注册_注册账号按钮.RectHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            注册_注册账号按钮.RectPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            注册_注册账号按钮.RectSelectedColor = System.Drawing.Color.FromArgb(150, 116, 44);
             注册_注册账号按钮.Size = new System.Drawing.Size(248, 42);
             注册_注册账号按钮.Style = Sunny.UI.UIStyle.Custom;
             注册_注册账号按钮.Symbol = 62004;
@@ -344,12 +349,12 @@
             // 
             // 注册_密保答案输入框
             // 
-            注册_密保答案输入框.ButtonFillColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            注册_密保答案输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            注册_密保答案输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            注册_密保答案输入框.ButtonRectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            注册_密保答案输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            注册_密保答案输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            注册_密保答案输入框.ButtonFillColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            注册_密保答案输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            注册_密保答案输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            注册_密保答案输入框.ButtonRectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            注册_密保答案输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            注册_密保答案输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
             注册_密保答案输入框.ButtonStyleInherited = false;
             注册_密保答案输入框.Cursor = System.Windows.Forms.Cursors.IBeam;
             注册_密保答案输入框.FillColor2 = System.Drawing.Color.FromArgb(253, 243, 243);
@@ -360,8 +365,8 @@
             注册_密保答案输入框.Name = "注册_密保答案输入框";
             注册_密保答案输入框.Padding = new System.Windows.Forms.Padding(5);
             注册_密保答案输入框.PasswordChar = '*';
-            注册_密保答案输入框.RectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            注册_密保答案输入框.ScrollBarColor = System.Drawing.Color.FromArgb(230, 80, 80);
+            注册_密保答案输入框.RectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            注册_密保答案输入框.ScrollBarColor = System.Drawing.Color.FromArgb(198, 158, 74);
             注册_密保答案输入框.ScrollBarStyleInherited = false;
             注册_密保答案输入框.ShowText = false;
             注册_密保答案输入框.Size = new System.Drawing.Size(248, 42);
@@ -374,12 +379,12 @@
             // 
             // 注册_账号密码输入框
             // 
-            注册_账号密码输入框.ButtonFillColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            注册_账号密码输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            注册_账号密码输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            注册_账号密码输入框.ButtonRectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            注册_账号密码输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            注册_账号密码输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            注册_账号密码输入框.ButtonFillColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            注册_账号密码输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            注册_账号密码输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            注册_账号密码输入框.ButtonRectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            注册_账号密码输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            注册_账号密码输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
             注册_账号密码输入框.ButtonStyleInherited = false;
             注册_账号密码输入框.Cursor = System.Windows.Forms.Cursors.IBeam;
             注册_账号密码输入框.FillColor2 = System.Drawing.Color.FromArgb(253, 243, 243);
@@ -390,8 +395,8 @@
             注册_账号密码输入框.Name = "注册_账号密码输入框";
             注册_账号密码输入框.Padding = new System.Windows.Forms.Padding(5);
             注册_账号密码输入框.PasswordChar = '*';
-            注册_账号密码输入框.RectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            注册_账号密码输入框.ScrollBarColor = System.Drawing.Color.FromArgb(230, 80, 80);
+            注册_账号密码输入框.RectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            注册_账号密码输入框.ScrollBarColor = System.Drawing.Color.FromArgb(198, 158, 74);
             注册_账号密码输入框.ScrollBarStyleInherited = false;
             注册_账号密码输入框.ShowText = false;
             注册_账号密码输入框.Size = new System.Drawing.Size(248, 42);
@@ -404,12 +409,12 @@
             // 
             // 注册_密保问题输入框
             // 
-            注册_密保问题输入框.ButtonFillColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            注册_密保问题输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            注册_密保问题输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            注册_密保问题输入框.ButtonRectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            注册_密保问题输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            注册_密保问题输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            注册_密保问题输入框.ButtonFillColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            注册_密保问题输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            注册_密保问题输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            注册_密保问题输入框.ButtonRectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            注册_密保问题输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            注册_密保问题输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
             注册_密保问题输入框.ButtonStyleInherited = false;
             注册_密保问题输入框.Cursor = System.Windows.Forms.Cursors.IBeam;
             注册_密保问题输入框.FillColor2 = System.Drawing.Color.FromArgb(253, 243, 243);
@@ -419,8 +424,8 @@
             注册_密保问题输入框.MinimumSize = new System.Drawing.Size(1, 16);
             注册_密保问题输入框.Name = "注册_密保问题输入框";
             注册_密保问题输入框.Padding = new System.Windows.Forms.Padding(5);
-            注册_密保问题输入框.RectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            注册_密保问题输入框.ScrollBarColor = System.Drawing.Color.FromArgb(230, 80, 80);
+            注册_密保问题输入框.RectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            注册_密保问题输入框.ScrollBarColor = System.Drawing.Color.FromArgb(198, 158, 74);
             注册_密保问题输入框.ScrollBarStyleInherited = false;
             注册_密保问题输入框.ShowText = false;
             注册_密保问题输入框.Size = new System.Drawing.Size(248, 42);
@@ -433,12 +438,12 @@
             // 
             // 注册_账号名字输入框
             // 
-            注册_账号名字输入框.ButtonFillColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            注册_账号名字输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            注册_账号名字输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            注册_账号名字输入框.ButtonRectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            注册_账号名字输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            注册_账号名字输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            注册_账号名字输入框.ButtonFillColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            注册_账号名字输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            注册_账号名字输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            注册_账号名字输入框.ButtonRectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            注册_账号名字输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            注册_账号名字输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
             注册_账号名字输入框.ButtonStyleInherited = false;
             注册_账号名字输入框.Cursor = System.Windows.Forms.Cursors.IBeam;
             注册_账号名字输入框.FillColor2 = System.Drawing.Color.FromArgb(253, 243, 243);
@@ -448,8 +453,8 @@
             注册_账号名字输入框.MinimumSize = new System.Drawing.Size(1, 16);
             注册_账号名字输入框.Name = "注册_账号名字输入框";
             注册_账号名字输入框.Padding = new System.Windows.Forms.Padding(5);
-            注册_账号名字输入框.RectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            注册_账号名字输入框.ScrollBarColor = System.Drawing.Color.FromArgb(230, 80, 80);
+            注册_账号名字输入框.RectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            注册_账号名字输入框.ScrollBarColor = System.Drawing.Color.FromArgb(198, 158, 74);
             注册_账号名字输入框.ScrollBarStyleInherited = false;
             注册_账号名字输入框.ShowText = false;
             注册_账号名字输入框.Size = new System.Drawing.Size(248, 42);
@@ -462,7 +467,7 @@
             // 
             // 密码修改页面
             // 
-            密码修改页面.BackColor = System.Drawing.Color.FromArgb(255, 244, 240);
+            密码修改页面.BackColor = System.Drawing.Color.FromArgb(36, 26, 17);
             密码修改页面.Controls.Add(修改_返回登录按钮);
             密码修改页面.Controls.Add(修改_错误提示标签);
             密码修改页面.Controls.Add(修改_修改密码按钮);
@@ -480,21 +485,21 @@
             // 修改_返回登录按钮
             // 
             修改_返回登录按钮.Cursor = System.Windows.Forms.Cursors.Hand;
-            修改_返回登录按钮.FillColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            修改_返回登录按钮.FillColor2 = System.Drawing.Color.FromArgb(230, 80, 80);
-            修改_返回登录按钮.FillHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            修改_返回登录按钮.FillPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            修改_返回登录按钮.FillSelectedColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            修改_返回登录按钮.FillColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            修改_返回登录按钮.FillColor2 = System.Drawing.Color.FromArgb(198, 158, 74);
+            修改_返回登录按钮.FillHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            修改_返回登录按钮.FillPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            修改_返回登录按钮.FillSelectedColor = System.Drawing.Color.FromArgb(150, 116, 44);
             修改_返回登录按钮.Font = new System.Drawing.Font("微软雅黑", 12F);
             修改_返回登录按钮.LightColor = System.Drawing.Color.FromArgb(253, 243, 243);
             修改_返回登录按钮.Location = new System.Drawing.Point(72, 312);
             修改_返回登录按钮.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             修改_返回登录按钮.MinimumSize = new System.Drawing.Size(1, 1);
             修改_返回登录按钮.Name = "修改_返回登录按钮";
-            修改_返回登录按钮.RectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            修改_返回登录按钮.RectHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            修改_返回登录按钮.RectPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            修改_返回登录按钮.RectSelectedColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            修改_返回登录按钮.RectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            修改_返回登录按钮.RectHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            修改_返回登录按钮.RectPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            修改_返回登录按钮.RectSelectedColor = System.Drawing.Color.FromArgb(150, 116, 44);
             修改_返回登录按钮.Size = new System.Drawing.Size(248, 42);
             修改_返回登录按钮.Style = Sunny.UI.UIStyle.Custom;
             修改_返回登录按钮.Symbol = 61730;
@@ -523,21 +528,21 @@
             // 修改_修改密码按钮
             // 
             修改_修改密码按钮.Cursor = System.Windows.Forms.Cursors.Hand;
-            修改_修改密码按钮.FillColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            修改_修改密码按钮.FillColor2 = System.Drawing.Color.FromArgb(230, 80, 80);
-            修改_修改密码按钮.FillHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            修改_修改密码按钮.FillPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            修改_修改密码按钮.FillSelectedColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            修改_修改密码按钮.FillColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            修改_修改密码按钮.FillColor2 = System.Drawing.Color.FromArgb(198, 158, 74);
+            修改_修改密码按钮.FillHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            修改_修改密码按钮.FillPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            修改_修改密码按钮.FillSelectedColor = System.Drawing.Color.FromArgb(150, 116, 44);
             修改_修改密码按钮.Font = new System.Drawing.Font("微软雅黑", 12F);
             修改_修改密码按钮.LightColor = System.Drawing.Color.FromArgb(253, 243, 243);
             修改_修改密码按钮.Location = new System.Drawing.Point(72, 255);
             修改_修改密码按钮.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             修改_修改密码按钮.MinimumSize = new System.Drawing.Size(1, 1);
             修改_修改密码按钮.Name = "修改_修改密码按钮";
-            修改_修改密码按钮.RectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            修改_修改密码按钮.RectHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            修改_修改密码按钮.RectPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            修改_修改密码按钮.RectSelectedColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            修改_修改密码按钮.RectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            修改_修改密码按钮.RectHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            修改_修改密码按钮.RectPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            修改_修改密码按钮.RectSelectedColor = System.Drawing.Color.FromArgb(150, 116, 44);
             修改_修改密码按钮.Size = new System.Drawing.Size(248, 42);
             修改_修改密码按钮.Style = Sunny.UI.UIStyle.Custom;
             修改_修改密码按钮.Symbol = 61573;
@@ -550,12 +555,12 @@
             // 
             // 修改_密保答案输入框
             // 
-            修改_密保答案输入框.ButtonFillColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            修改_密保答案输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            修改_密保答案输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            修改_密保答案输入框.ButtonRectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            修改_密保答案输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            修改_密保答案输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            修改_密保答案输入框.ButtonFillColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            修改_密保答案输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            修改_密保答案输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            修改_密保答案输入框.ButtonRectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            修改_密保答案输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            修改_密保答案输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
             修改_密保答案输入框.ButtonStyleInherited = false;
             修改_密保答案输入框.Cursor = System.Windows.Forms.Cursors.IBeam;
             修改_密保答案输入框.FillColor2 = System.Drawing.Color.FromArgb(253, 243, 243);
@@ -566,8 +571,8 @@
             修改_密保答案输入框.Name = "修改_密保答案输入框";
             修改_密保答案输入框.Padding = new System.Windows.Forms.Padding(5);
             修改_密保答案输入框.PasswordChar = '*';
-            修改_密保答案输入框.RectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            修改_密保答案输入框.ScrollBarColor = System.Drawing.Color.FromArgb(230, 80, 80);
+            修改_密保答案输入框.RectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            修改_密保答案输入框.ScrollBarColor = System.Drawing.Color.FromArgb(198, 158, 74);
             修改_密保答案输入框.ScrollBarStyleInherited = false;
             修改_密保答案输入框.ShowText = false;
             修改_密保答案输入框.Size = new System.Drawing.Size(248, 42);
@@ -580,12 +585,12 @@
             // 
             // 修改_账号密码输入框
             // 
-            修改_账号密码输入框.ButtonFillColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            修改_账号密码输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            修改_账号密码输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            修改_账号密码输入框.ButtonRectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            修改_账号密码输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            修改_账号密码输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            修改_账号密码输入框.ButtonFillColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            修改_账号密码输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            修改_账号密码输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            修改_账号密码输入框.ButtonRectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            修改_账号密码输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            修改_账号密码输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
             修改_账号密码输入框.ButtonStyleInherited = false;
             修改_账号密码输入框.Cursor = System.Windows.Forms.Cursors.IBeam;
             修改_账号密码输入框.FillColor2 = System.Drawing.Color.FromArgb(253, 243, 243);
@@ -596,8 +601,8 @@
             修改_账号密码输入框.Name = "修改_账号密码输入框";
             修改_账号密码输入框.Padding = new System.Windows.Forms.Padding(5);
             修改_账号密码输入框.PasswordChar = '*';
-            修改_账号密码输入框.RectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            修改_账号密码输入框.ScrollBarColor = System.Drawing.Color.FromArgb(230, 80, 80);
+            修改_账号密码输入框.RectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            修改_账号密码输入框.ScrollBarColor = System.Drawing.Color.FromArgb(198, 158, 74);
             修改_账号密码输入框.ScrollBarStyleInherited = false;
             修改_账号密码输入框.ShowText = false;
             修改_账号密码输入框.Size = new System.Drawing.Size(248, 42);
@@ -610,12 +615,12 @@
             // 
             // 修改_密保问题输入框
             // 
-            修改_密保问题输入框.ButtonFillColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            修改_密保问题输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            修改_密保问题输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            修改_密保问题输入框.ButtonRectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            修改_密保问题输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            修改_密保问题输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            修改_密保问题输入框.ButtonFillColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            修改_密保问题输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            修改_密保问题输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            修改_密保问题输入框.ButtonRectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            修改_密保问题输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            修改_密保问题输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
             修改_密保问题输入框.ButtonStyleInherited = false;
             修改_密保问题输入框.Cursor = System.Windows.Forms.Cursors.IBeam;
             修改_密保问题输入框.FillColor2 = System.Drawing.Color.FromArgb(253, 243, 243);
@@ -625,8 +630,8 @@
             修改_密保问题输入框.MinimumSize = new System.Drawing.Size(1, 16);
             修改_密保问题输入框.Name = "修改_密保问题输入框";
             修改_密保问题输入框.Padding = new System.Windows.Forms.Padding(5);
-            修改_密保问题输入框.RectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            修改_密保问题输入框.ScrollBarColor = System.Drawing.Color.FromArgb(230, 80, 80);
+            修改_密保问题输入框.RectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            修改_密保问题输入框.ScrollBarColor = System.Drawing.Color.FromArgb(198, 158, 74);
             修改_密保问题输入框.ScrollBarStyleInherited = false;
             修改_密保问题输入框.ShowText = false;
             修改_密保问题输入框.Size = new System.Drawing.Size(248, 42);
@@ -639,12 +644,12 @@
             // 
             // 修改_账号名字输入框
             // 
-            修改_账号名字输入框.ButtonFillColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            修改_账号名字输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            修改_账号名字输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
-            修改_账号名字输入框.ButtonRectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            修改_账号名字输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(235, 115, 115);
-            修改_账号名字输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(184, 64, 64);
+            修改_账号名字输入框.ButtonFillColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            修改_账号名字输入框.ButtonFillHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            修改_账号名字输入框.ButtonFillPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
+            修改_账号名字输入框.ButtonRectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            修改_账号名字输入框.ButtonRectHoverColor = System.Drawing.Color.FromArgb(224, 188, 104);
+            修改_账号名字输入框.ButtonRectPressColor = System.Drawing.Color.FromArgb(150, 116, 44);
             修改_账号名字输入框.ButtonStyleInherited = false;
             修改_账号名字输入框.Cursor = System.Windows.Forms.Cursors.IBeam;
             修改_账号名字输入框.FillColor2 = System.Drawing.Color.FromArgb(253, 243, 243);
@@ -654,8 +659,8 @@
             修改_账号名字输入框.MinimumSize = new System.Drawing.Size(1, 16);
             修改_账号名字输入框.Name = "修改_账号名字输入框";
             修改_账号名字输入框.Padding = new System.Windows.Forms.Padding(5);
-            修改_账号名字输入框.RectColor = System.Drawing.Color.FromArgb(230, 80, 80);
-            修改_账号名字输入框.ScrollBarColor = System.Drawing.Color.FromArgb(230, 80, 80);
+            修改_账号名字输入框.RectColor = System.Drawing.Color.FromArgb(198, 158, 74);
+            修改_账号名字输入框.ScrollBarColor = System.Drawing.Color.FromArgb(198, 158, 74);
             修改_账号名字输入框.ScrollBarStyleInherited = false;
             修改_账号名字输入框.ShowText = false;
             修改_账号名字输入框.Size = new System.Drawing.Size(248, 42);
@@ -668,7 +673,7 @@
             // 
             // 启动游戏页面
             // 
-            启动游戏页面.BackColor = System.Drawing.Color.FromArgb(255, 244, 240);
+            启动游戏页面.BackColor = System.Drawing.Color.FromArgb(36, 26, 17);
             启动游戏页面.Controls.Add(启动_当前账号标签);
             启动游戏页面.Controls.Add(启动_选中区服标签);
             启动游戏页面.Controls.Add(启动_注销账号标签);
@@ -705,14 +710,14 @@
             启动_当前账号标签.Style = Sunny.UI.UIStyle.Custom;
             启动_当前账号标签.Symbol = 57607;
             启动_当前账号标签.TabIndex = 9;
-            启动_当前账号标签.Text = "mistyes";
+            启动_当前账号标签.Text = "";
             启动_当前账号标签.TipsFont = new System.Drawing.Font("微软雅黑", 9F);
             // 
             // 启动_选中区服标签
             // 
             启动_选中区服标签.ActiveLinkColor = System.Drawing.Color.FromArgb(220, 155, 40);
             启动_选中区服标签.Font = new System.Drawing.Font("微软雅黑", 12F);
-            启动_选中区服标签.ForeColor = System.Drawing.Color.FromArgb(48, 48, 48);
+            启动_选中区服标签.ForeColor = System.Drawing.Color.FromArgb(224, 206, 168);
             启动_选中区服标签.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
             启动_选中区服标签.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
             启动_选中区服标签.LinkColor = System.Drawing.Color.FromArgb(192, 64, 0);
@@ -723,13 +728,13 @@
             启动_选中区服标签.Style = Sunny.UI.UIStyle.Custom;
             启动_选中区服标签.TabIndex = 7;
             启动_选中区服标签.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            启动_选中区服标签.VisitedLinkColor = System.Drawing.Color.FromArgb(230, 80, 80);
+            启动_选中区服标签.VisitedLinkColor = System.Drawing.Color.FromArgb(198, 158, 74);
             // 
             // 启动_注销账号标签
             // 
             启动_注销账号标签.ActiveLinkColor = System.Drawing.Color.FromArgb(220, 155, 40);
             启动_注销账号标签.Font = new System.Drawing.Font("微软雅黑", 9F);
-            启动_注销账号标签.ForeColor = System.Drawing.Color.FromArgb(48, 48, 48);
+            启动_注销账号标签.ForeColor = System.Drawing.Color.FromArgb(224, 206, 168);
             启动_注销账号标签.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
             启动_注销账号标签.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
             启动_注销账号标签.LinkColor = System.Drawing.Color.Red;
@@ -742,18 +747,17 @@
             启动_注销账号标签.TabStop = true;
             启动_注销账号标签.Text = "退出";
             启动_注销账号标签.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            启动_注销账号标签.VisitedLinkColor = System.Drawing.Color.FromArgb(230, 80, 80);
+            启动_注销账号标签.VisitedLinkColor = System.Drawing.Color.FromArgb(198, 158, 74);
             启动_注销账号标签.Click += 启动_注销账号标签_Click;
             // 
             // 启动_选择游戏区服
             // 
-            启动_选择游戏区服.BackColor = System.Drawing.Color.Wheat;
+            启动_选择游戏区服.BackColor = System.Drawing.Color.FromArgb(46, 34, 22);
             启动_选择游戏区服.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawVariable;
             启动_选择游戏区服.Font = new System.Drawing.Font("微软雅黑", 10.5F);
-            启动_选择游戏区服.ForeColor = System.Drawing.Color.Blue;
+            启动_选择游戏区服.ForeColor = System.Drawing.Color.FromArgb(228, 196, 120);
             启动_选择游戏区服.FormattingEnabled = true;
             启动_选择游戏区服.ItemHeight = 20;
-            启动_选择游戏区服.Items.AddRange(new object[] { "魔龙谷", "伤心树" });
             启动_选择游戏区服.Location = new System.Drawing.Point(128, 36);
             启动_选择游戏区服.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             启动_选择游戏区服.Name = "启动_选择游戏区服";
@@ -766,21 +770,21 @@
             // 启动_进入游戏按钮
             // 
             启动_进入游戏按钮.Cursor = System.Windows.Forms.Cursors.Hand;
-            启动_进入游戏按钮.FillColor = System.Drawing.Color.FromArgb(255, 87, 34);
-            启动_进入游戏按钮.FillColor2 = System.Drawing.Color.FromArgb(255, 87, 34);
-            启动_进入游戏按钮.FillHoverColor = System.Drawing.Color.FromArgb(255, 121, 78);
-            启动_进入游戏按钮.FillPressColor = System.Drawing.Color.FromArgb(204, 70, 28);
-            启动_进入游戏按钮.FillSelectedColor = System.Drawing.Color.FromArgb(204, 70, 28);
+            启动_进入游戏按钮.FillColor = System.Drawing.Color.FromArgb(224, 162, 40);
+            启动_进入游戏按钮.FillColor2 = System.Drawing.Color.FromArgb(224, 162, 40);
+            启动_进入游戏按钮.FillHoverColor = System.Drawing.Color.FromArgb(238, 184, 70);
+            启动_进入游戏按钮.FillPressColor = System.Drawing.Color.FromArgb(182, 124, 26);
+            启动_进入游戏按钮.FillSelectedColor = System.Drawing.Color.FromArgb(182, 124, 26);
             启动_进入游戏按钮.Font = new System.Drawing.Font("微软雅黑", 12F);
-            启动_进入游戏按钮.LightColor = System.Drawing.Color.FromArgb(255, 244, 240);
+            启动_进入游戏按钮.LightColor = System.Drawing.Color.FromArgb(36, 26, 17);
             启动_进入游戏按钮.Location = new System.Drawing.Point(79, 292);
             启动_进入游戏按钮.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             启动_进入游戏按钮.MinimumSize = new System.Drawing.Size(1, 1);
             启动_进入游戏按钮.Name = "启动_进入游戏按钮";
-            启动_进入游戏按钮.RectColor = System.Drawing.Color.FromArgb(255, 87, 34);
-            启动_进入游戏按钮.RectHoverColor = System.Drawing.Color.FromArgb(255, 121, 78);
-            启动_进入游戏按钮.RectPressColor = System.Drawing.Color.FromArgb(204, 70, 28);
-            启动_进入游戏按钮.RectSelectedColor = System.Drawing.Color.FromArgb(204, 70, 28);
+            启动_进入游戏按钮.RectColor = System.Drawing.Color.FromArgb(224, 162, 40);
+            启动_进入游戏按钮.RectHoverColor = System.Drawing.Color.FromArgb(238, 184, 70);
+            启动_进入游戏按钮.RectPressColor = System.Drawing.Color.FromArgb(182, 124, 26);
+            启动_进入游戏按钮.RectSelectedColor = System.Drawing.Color.FromArgb(182, 124, 26);
             启动_进入游戏按钮.Size = new System.Drawing.Size(220, 42);
             启动_进入游戏按钮.Style = Sunny.UI.UIStyle.Custom;
             启动_进入游戏按钮.TabIndex = 1;
@@ -830,17 +834,70 @@
             // 
             游戏进程监测.Enabled = true;
             游戏进程监测.Tick += 游戏进程检查;
-            // 
+            //
+            // 卡片边框
+            //
+            卡片边框.BackColor = System.Drawing.Color.FromArgb(170, 130, 60);
+            卡片边框.Location = new System.Drawing.Point(251, 68);
+            卡片边框.Name = "卡片边框";
+            卡片边框.Size = new System.Drawing.Size(398, 422);
+            卡片边框.TabIndex = 30;
+            //
+            // 标题文字 (改用顶部选项卡导航后隐藏, 避免与立绘叠加看不清)
+            //
+            标题文字.BackColor = System.Drawing.Color.Transparent;
+            标题文字.Font = new System.Drawing.Font("微软雅黑", 15F, System.Drawing.FontStyle.Bold);
+            标题文字.ForeColor = System.Drawing.Color.FromArgb(232, 200, 124);
+            标题文字.Location = new System.Drawing.Point(251, 40);
+            标题文字.Name = "标题文字";
+            标题文字.Size = new System.Drawing.Size(398, 30);
+            标题文字.TabIndex = 31;
+            标题文字.Text = "ELAINA  ENGINE";
+            标题文字.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            标题文字.Visible = false;
+            //
+            // 最小化按钮
+            //
+            最小化按钮.BackColor = System.Drawing.Color.FromArgb(46, 34, 22);
+            最小化按钮.Cursor = System.Windows.Forms.Cursors.Hand;
+            最小化按钮.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
+            最小化按钮.ForeColor = System.Drawing.Color.FromArgb(245, 230, 200);
+            最小化按钮.Location = new System.Drawing.Point(832, 0);
+            最小化按钮.Name = "最小化按钮";
+            最小化按钮.Size = new System.Drawing.Size(34, 30);
+            最小化按钮.TabIndex = 32;
+            最小化按钮.Text = "─";
+            最小化按钮.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            最小化按钮.Click += 最小化按钮_Click;
+            //
+            // 关闭按钮
+            //
+            关闭按钮.BackColor = System.Drawing.Color.FromArgb(46, 34, 22);
+            关闭按钮.Cursor = System.Windows.Forms.Cursors.Hand;
+            关闭按钮.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
+            关闭按钮.ForeColor = System.Drawing.Color.FromArgb(245, 230, 200);
+            关闭按钮.Location = new System.Drawing.Point(866, 0);
+            关闭按钮.Name = "关闭按钮";
+            关闭按钮.Size = new System.Drawing.Size(34, 30);
+            关闭按钮.TabIndex = 33;
+            关闭按钮.Text = "✕";
+            关闭按钮.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            关闭按钮.Click += 关闭按钮_Click;
+            //
             // 登录界面
-            // 
-            AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
-            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            //
+            // 固定皮肤窗体用 None: 避免 Font 自动缩放把宽高按不同比例拉伸, 立绘比例不再失真
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             BackgroundImage = Properties.Resources.登录器;
             BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            ClientSize = new System.Drawing.Size(824, 511);
+            ClientSize = new System.Drawing.Size(900, 556);
+            Controls.Add(标题文字);
+            Controls.Add(最小化按钮);
+            Controls.Add(关闭按钮);
             Controls.Add(主选项卡);
+            Controls.Add(卡片边框);
             DoubleBuffered = true;
-            FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             Icon = (System.Drawing.Icon)resources.GetObject("$this.Icon");
             Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             MaximizeBox = false;
@@ -849,6 +906,12 @@
             Text = "Elaina Engine - 登录器";
             FormClosing += 托盘_隐藏到托盘区;
             Load += 登录界面_Load;
+            MouseDown += 窗体按下拖动;
+            卡片边框.SendToBack();
+            主选项卡.BringToFront();
+            标题文字.BringToFront();
+            最小化按钮.BringToFront();
+            关闭按钮.BringToFront();
             主选项卡.ResumeLayout(false);
             账号登录页面.ResumeLayout(false);
             账号登录页面.PerformLayout();
@@ -936,5 +999,13 @@
         private global::System.Windows.Forms.ToolStripMenuItem 退出ToolStripMenuItem;
 
         private global::System.Windows.Forms.Timer 游戏进程监测;
+
+        private global::System.Windows.Forms.Panel 卡片边框;
+
+        private global::System.Windows.Forms.Label 标题文字;
+
+        private global::System.Windows.Forms.Label 最小化按钮;
+
+        private global::System.Windows.Forms.Label 关闭按钮;
     }
 }

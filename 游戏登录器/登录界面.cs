@@ -5,10 +5,12 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Drawing.Drawing2D;
 using Sunny.UI;
 using 游戏登录器.Properties;
 
@@ -30,6 +32,21 @@ namespace 游戏登录器
         {
             InitializeComponent();
             用户界面 = this;
+            // 用 exe 自带图标(ApplicationIcon = 游戏登录器.ico)覆盖 resx 里嵌的旧图标,
+            // 让任务栏 / Alt-Tab / 托盘都显示新图标 (resx 二进制图标不便手改, 运行时覆盖最稳)
+            try
+            {
+                System.Drawing.Icon 新图标 = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+                if (新图标 != null)
+                {
+                    Icon = 新图标;
+                    最小化到托盘.Icon = 新图标;
+                }
+            }
+            catch
+            {
+                // 提取失败就保持 resx 默认图标, 不阻塞启动
+            }
             网络通信.开始通信();
             游戏区服 = new Dictionary<string, IPEndPoint>();
             // Settings 中的账号 / 区服字段经 DPAPI 加密保存; 老明文格式继续兼容读取.
@@ -87,6 +104,27 @@ namespace 游戏登录器
             // 新功能: 密码强度实时反馈. 复用 错误提示标签 作为指示器, 提交时若有正式错误会被覆盖.
             注册_账号密码输入框.TextChanged += 密码强度_提示;
             修改_账号密码输入框.TextChanged += 密码强度_提示;
+
+            // 「启动游戏」页签只应在登录成功后出现: 启动时先从顶部导航移除,
+            // 避免未登录就点进该页、看到空的或残留的账号/区服占位 (登录成功后再 Add 回来).
+            主选项卡.TabPages.Remove(启动游戏页面);
+        }
+
+        // 登录成功后把「启动游戏」页签加回顶部导航并选中它; 重复登录不重复添加.
+        private void 显示启动游戏页签()
+        {
+            if (!主选项卡.TabPages.Contains(启动游戏页面))
+            {
+                主选项卡.TabPages.Add(启动游戏页面);
+            }
+            主选项卡.SelectedTab = 启动游戏页面;
+        }
+
+        // 注销 / 退出账号时把「启动游戏」页签收起, 回到未登录的 3 页签状态.
+        private void 隐藏启动游戏页签()
+        {
+            主选项卡.SelectedIndex = 0;
+            主选项卡.TabPages.Remove(启动游戏页面);
         }
 
         private void 密码强度_提示(object sender, EventArgs e)
@@ -158,7 +196,7 @@ namespace 游戏登录器
         public static string 密码哈希(string 账号, string 明文密码)
         {
             byte[] bytes = Encoding.UTF8.GetBytes("YH-Auth-v2:" + 账号 + ":" + 明文密码);
-            byte[] hash = SHA256.HashData(bytes);
+            byte[] hash = 兼容随机.SHA256哈希(bytes);
             StringBuilder sb = new StringBuilder(hash.Length * 2);
             for (int i = 0; i < hash.Length; i++)
             {
@@ -240,7 +278,7 @@ namespace 游戏登录器
         // 服务端原样回显, 客户端 数据接收处理 用 == 校验, 不需要服务端改动.
         private static int 下一包号()
         {
-            封包编号 = RandomNumberGenerator.GetInt32(1, int.MaxValue);
+            封包编号 = 兼容随机.整数(1, int.MaxValue);
             return 封包编号;
         }
 
@@ -405,7 +443,7 @@ namespace 游戏登录器
                             启动_选择游戏区服.Items.Add(array3[2]);
                             区服计数++;
                         }
-                        主选项卡.SelectedIndex = 3;
+                        显示启动游戏页签();
                         // 保存本地输入框的账号而非服务器回显, 并通过 DPAPI 加密
                         // VV: 磁盘满 / 权限拒绝 / user.config 损坏时 Save 会抛, 不能让登录流程崩溃
                         try
@@ -497,14 +535,15 @@ namespace 游戏登录器
                             游戏进程?.Dispose();
                             游戏进程 = new Process();
                             游戏进程.StartInfo.FileName = 游戏路径;
-                            // 使用 ArgumentList 由 .NET 按 CommandLineToArgvW 规则自动转义,
-                            // 避免拼接 Arguments 时区服名/票据带特殊字符破出参数边界 (虽然两者都
-                            // 已有白名单, 但纵深防御不依赖白名单完整性).
-                            游戏进程.StartInfo.ArgumentList.Add($"-wegame=1,1,{value.Address},{value.Port},1,1,{value.Address},{value.Port},{区服名}");
-                            游戏进程.StartInfo.ArgumentList.Add($"/ip:1,1,{value.Address}");
-                            游戏进程.StartInfo.ArgumentList.Add($"/port:{value.Port}");
-                            游戏进程.StartInfo.ArgumentList.Add($"/ticket:{票据}");
-                            游戏进程.StartInfo.ArgumentList.Add($"/AreaName:{区服名}");
+                            // net48 无 ArgumentList; 用 兼容随机.拼接命令行 按 CommandLineToArgvW 规则
+                            // 手工转义各参数后写入 Arguments, 避免区服名/票据带特殊字符破出参数边界
+                            // (两者均已白名单, 此处为纵深防御, 不依赖白名单完整性).
+                            游戏进程.StartInfo.Arguments = 兼容随机.拼接命令行(
+                                $"-wegame=1,1,{value.Address},{value.Port},1,1,{value.Address},{value.Port},{区服名}",
+                                $"/ip:1,1,{value.Address}",
+                                $"/port:{value.Port}",
+                                $"/ticket:{票据}",
+                                $"/AreaName:{区服名}");
                             游戏进程.StartInfo.UseShellExecute = false;
                             游戏进程.StartInfo.WorkingDirectory = Environment.CurrentDirectory;
                             游戏进程.Start();
@@ -629,7 +668,7 @@ namespace 游戏登录器
             登录账号 = 账号;
             登录密码 = 密码;
             启动_当前账号标签.Text = 账号;
-            主选项卡.SelectedIndex = 3;
+            显示启动游戏页签();
         }
 
         public void 登录_账号登录失败(string 错误)
@@ -668,6 +707,10 @@ namespace 游戏登录器
 
         private void 托盘_彻底关闭应用(object sender, EventArgs e)
         {
+            // 先同步隐藏窗口(Hide 直接调 ShowWindow(SW_HIDE), 立即从屏幕消失),
+            // 再做清理与退出: net48 下 Environment.Exit 的运行时收尾有一两拍延迟,
+            // 若不先隐藏, 窗口会在收尾期间赖在屏幕上, 表现为"点 X 卡一下才关".
+            try { Hide(); } catch { }
             // YY: 显式 Dispose 释放 NotifyIcon 内部句柄, 避免任务栏残留与未及时 GC 的非托管资源.
             最小化到托盘.Visible = false;
             最小化到托盘.Dispose();
@@ -901,7 +944,7 @@ namespace 游戏登录器
         {
             登录账号 = null;
             登录密码 = null;
-            主选项卡.SelectedIndex = 0;
+            隐藏启动游戏页签();
         }
 
         private void 启动_选择游戏区服_DrawItem(object sender, DrawItemEventArgs e)
@@ -935,7 +978,84 @@ namespace 游戏登录器
 
         private void 登录界面_Load(object sender, EventArgs e)
         {
+            应用圆角();
+            // 标题栏小按钮的悬停高亮: 进入变白, 离开恢复古金
+            最小化按钮.MouseEnter += 标题按钮_悬停;
+            最小化按钮.MouseLeave += 标题按钮_离开;
+            关闭按钮.MouseEnter += 关闭按钮_悬停;
+            关闭按钮.MouseLeave += 标题按钮_离开;
+            // 标题文字与卡片边框也可拖动窗体, 体验更自然
+            标题文字.MouseDown += 窗体按下拖动;
+            卡片边框.MouseDown += 窗体按下拖动;
+        }
 
+        // ===== 无边框窗体的拖动 / 圆角 / 标题栏按钮 =====
+
+        [DllImport("user32.dll")]
+        private static extern bool ReleaseCapture();
+
+        [DllImport("user32.dll")]
+        private static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+
+        private const int WM_NCLBUTTONDOWN = 161;
+        private const int HTCAPTION = 2;
+
+        // 无边框窗体: 在背景/标题区按住左键时, 交给系统按"拖标题栏"方式移动窗口
+        private void 窗体按下拖动(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                ReleaseCapture();
+                SendMessage(Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+            }
+        }
+
+        // 给无边框窗体裁剪出圆角, 配合立绘背景更精致
+        private void 应用圆角()
+        {
+            using (GraphicsPath path = new GraphicsPath())
+            {
+                int 半径 = 18;
+                int w = Width;
+                int h = Height;
+                path.AddArc(0, 0, 半径, 半径, 180, 90);
+                path.AddArc(w - 半径, 0, 半径, 半径, 270, 90);
+                path.AddArc(w - 半径, h - 半径, 半径, 半径, 0, 90);
+                path.AddArc(0, h - 半径, 半径, 半径, 90, 90);
+                path.CloseAllFigures();
+                Region = new Region(path);
+            }
+        }
+
+        private void 标题按钮_悬停(object sender, EventArgs e)
+        {
+            Label 标 = (Label)sender;
+            标.BackColor = System.Drawing.Color.FromArgb(70, 52, 32);
+            标.ForeColor = System.Drawing.Color.White;
+        }
+
+        private void 关闭按钮_悬停(object sender, EventArgs e)
+        {
+            关闭按钮.BackColor = System.Drawing.Color.FromArgb(196, 64, 48);
+            关闭按钮.ForeColor = System.Drawing.Color.White;
+        }
+
+        private void 标题按钮_离开(object sender, EventArgs e)
+        {
+            Label 标 = (Label)sender;
+            标.BackColor = System.Drawing.Color.FromArgb(46, 34, 22);
+            标.ForeColor = System.Drawing.Color.FromArgb(245, 230, 200);
+        }
+
+        private void 最小化按钮_Click(object sender, EventArgs e)
+        {
+            WindowState = FormWindowState.Minimized;
+        }
+
+        // 关闭按钮(X): 直接彻底退出登录器, 不再收进托盘
+        private void 关闭按钮_Click(object sender, EventArgs e)
+        {
+            托盘_彻底关闭应用(sender, e);
         }
     }
 }
