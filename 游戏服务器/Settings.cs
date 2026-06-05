@@ -210,8 +210,6 @@ namespace 游戏服务器
 
         public static bool 下线宝宝不死 = false;
 
-        public static bool 专用网关登录器 = true;
-
         public static bool[] 职业开放 = new bool[6] { true, true, true, true, true, true };
 
         public static string EnvirPath = Path.Combine(Settings.游戏数据目录, "Envir");
@@ -393,8 +391,6 @@ namespace 游戏服务器
             Settings.安全区内满血满蓝 = Settings.iniconfig.ReadBoolean("General", "安全区内满血满蓝", Settings.安全区内满血满蓝);
             Settings.下线宝宝不死 = Settings.iniconfig.ReadBoolean("General", "下线宝宝不死", Settings.下线宝宝不死);
 
-            Settings.专用网关登录器 = Settings.iniconfig.ReadBoolean("General", "专用网关登录器", Settings.专用网关登录器);
-
             for (int i = 0; i < 6; i++)
             {
                 Settings.职业开放[i] = Settings.iniconfig.ReadBoolean("职业开放", "职业" + i, Settings.职业开放[i]);
@@ -497,7 +493,6 @@ namespace 游戏服务器
 
             Settings.iniconfig.Write("General", "安全区内满血满蓝", Settings.安全区内满血满蓝);
             Settings.iniconfig.Write("General", "下线宝宝不死", Settings.下线宝宝不死);
-            Settings.iniconfig.Write("General", "专用网关登录器", Settings.专用网关登录器);
 
 
             for (int i = 0; i < 6; i++)

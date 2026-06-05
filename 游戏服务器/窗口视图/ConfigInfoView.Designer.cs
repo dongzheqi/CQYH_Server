@@ -199,8 +199,6 @@ namespace 游戏服务器.窗口视图
             labelControl12 = new LabelControl();
             labelControl13 = new LabelControl();
             xtraTabPage1 = new XtraTabPage();
-            groupControl2 = new GroupControl();
-            专用网关登录器check = new CheckEdit();
             groupControl5 = new GroupControl();
             labelControl6 = new LabelControl();
             labelControl7 = new LabelControl();
@@ -237,7 +235,6 @@ namespace 游戏服务器.窗口视图
             richEditControl2 = new DevExpress.XtraRichEdit.RichEditControl();
             richEditControl1 = new DevExpress.XtraRichEdit.RichEditControl();
             radioGroup2 = new DevExpress.XtraEditors.Repository.RepositoryItemRadioGroup();
-            labelControl25 = new LabelControl();
             ((ISupportInitialize)ribbon).BeginInit();
             xtraTabPage3.SuspendLayout();
             ((ISupportInitialize)其他分组).BeginInit();
@@ -329,9 +326,6 @@ namespace 游戏服务器.窗口视图
             ((ISupportInitialize)NewbieLevelEdit.Properties).BeginInit();
             ((ISupportInitialize)HighLevelEdit.Properties).BeginInit();
             xtraTabPage1.SuspendLayout();
-            ((ISupportInitialize)groupControl2).BeginInit();
-            groupControl2.SuspendLayout();
-            ((ISupportInitialize)专用网关登录器check.Properties).BeginInit();
             ((ISupportInitialize)groupControl5).BeginInit();
             groupControl5.SuspendLayout();
             ((ISupportInitialize)ServerPathEdit.Properties).BeginInit();
@@ -1973,7 +1967,6 @@ namespace 游戏服务器.窗口视图
             // xtraTabPage1
             // 
             xtraTabPage1.Controls.Add(groupControl6);
-            xtraTabPage1.Controls.Add(groupControl2);
             xtraTabPage1.Controls.Add(groupControl5);
             xtraTabPage1.Controls.Add(groupControl4);
             xtraTabPage1.Controls.Add(groupControl3);
@@ -1981,26 +1974,7 @@ namespace 游戏服务器.窗口视图
             xtraTabPage1.Name = "xtraTabPage1";
             xtraTabPage1.Size = new Size(1038, 468);
             xtraTabPage1.Text = "系统";
-            // 
-            // groupControl2
-            // 
-            groupControl2.Controls.Add(labelControl25);
-            groupControl2.Controls.Add(专用网关登录器check);
-            groupControl2.Location = new Point(604, 15);
-            groupControl2.Name = "groupControl2";
-            groupControl2.Size = new Size(333, 140);
-            groupControl2.TabIndex = 60;
-            groupControl2.Text = "网关";
-            // 
-            // 专用网关登录器check
-            // 
-            专用网关登录器check.Location = new Point(5, 42);
-            专用网关登录器check.MenuManager = ribbon;
-            专用网关登录器check.Name = "专用网关登录器check";
-            专用网关登录器check.Properties.Caption = " 九八账号网关⇌通用账号网关";
-            专用网关登录器check.Size = new Size(180, 19);
-            专用网关登录器check.TabIndex = 112;
-            // 
+            //
             // groupControl5
             // 
             groupControl5.Controls.Add(labelControl6);
@@ -2391,20 +2365,7 @@ namespace 游戏服务器.窗口视图
             radioGroup2.Columns = 2;
             radioGroup2.Items.AddRange(new RadioGroupItem[] { new RadioGroupItem(null, "充值元宝"), new RadioGroupItem(null, "充值银币") });
             radioGroup2.Name = "radioGroup2";
-            // 
-            // labelControl25
-            // 
-            labelControl25.Appearance.Font = new Font("Tahoma", 9F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            labelControl25.Appearance.ForeColor = Color.Red;
-            labelControl25.Appearance.Options.UseFont = true;
-            labelControl25.Appearance.Options.UseForeColor = true;
-            labelControl25.Location = new Point(27, 68);
-            labelControl25.Margin = new Padding(3, 4, 3, 4);
-            labelControl25.Name = "labelControl25";
-            labelControl25.Size = new Size(304, 14);
-            labelControl25.TabIndex = 113;
-            labelControl25.Text = "选上✔号支持九八账号网关，去掉✔支持通用账号网关。";
-            // 
+            //
             // ConfigInfoView
             // 
             Appearance.Options.UseFont = true;
@@ -2515,10 +2476,6 @@ namespace 游戏服务器.窗口视图
             ((ISupportInitialize)NewbieLevelEdit.Properties).EndInit();
             ((ISupportInitialize)HighLevelEdit.Properties).EndInit();
             xtraTabPage1.ResumeLayout(false);
-            ((ISupportInitialize)groupControl2).EndInit();
-            groupControl2.ResumeLayout(false);
-            groupControl2.PerformLayout();
-            ((ISupportInitialize)专用网关登录器check.Properties).EndInit();
             ((ISupportInitialize)groupControl5).EndInit();
             groupControl5.ResumeLayout(false);
             groupControl5.PerformLayout();
@@ -2714,14 +2671,11 @@ namespace 游戏服务器.窗口视图
         private GroupControl 其他分组;
         private CheckEdit 下线宝宝不死check;
         private GroupControl 宠物下属分组;
-        private GroupControl groupControl2;
-        private CheckEdit 专用网关登录器check;
         private GroupControl groupControl6;
         private LabelControl labelControl63;
         private LabelControl labelControl58;
         private DevExpress.XtraRichEdit.RichEditControl richEditControl2;
         private DevExpress.XtraRichEdit.RichEditControl richEditControl1;
-        private LabelControl labelControl25;
         private DevExpress.XtraEditors.Repository.RepositoryItemRadioGroup radioGroup2;
     }
 }

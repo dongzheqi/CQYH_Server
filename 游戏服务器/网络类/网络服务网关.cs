@@ -197,232 +197,44 @@ namespace 游戏服务器.网络类
 
         public static void 处理数据()
         {
-            #region 九八百牛专用网关登录器
-            /*
+            //通用网关登录器 (项目自带账号网关; 已移除九八专用模式选项, 门票固定 2 段: 门票号;账号)
             try
             {
                 while (true)
                 {
-                    UdpClient udpClient;
-                    udpClient = 网络服务网关.门票接收器;
-                    if (udpClient == null || udpClient.Available == 0)
+                    string[] strArray = System.Array.Empty<string>();
+                    do
                     {
-                        break;
-                    }
-                    byte[] bytes;
-                    bytes = 网络服务网关.门票接收器.Receive(ref 网络服务网关.门票发送端);
-                    string[] array;
-                    array = Encoding.UTF8.GetString(bytes).Split(';');
-                    if (array.Length != 5)
-                    {
-                        continue;
-                    }
-                    string text;
-                    text = array[1];
-                    if (text.StartsWith("按角色登录-"))
-                    {
-                        text = text.Substring(6);
-                        if (!游戏数据网关.角色数据表.检索表.TryGetValue(text, out var value))
+                        UdpClient 门票接收器 = 网络服务网关.门票接收器;
+                        if (门票接收器 != null)
                         {
-                            主程.添加系统日志("[本地登陆器-按角色]不存在的角色名:" + text);
-                            break;
+                            if (门票接收器.Available != 0)
+                            {
+                                byte[] _rawBytes = 网络服务网关.门票接收器.Receive(ref 网络服务网关.门票发送端);
+                                // PROTO-03: 拒绝白名单外的源 IP
+                                if (!网络服务网关.门票来源放行(网络服务网关.门票发送端))
+                                {
+                                    continue;
+                                }
+                                strArray = Encoding.UTF8.GetString(_rawBytes).Split(';');
+                            }
+                            else
+                                goto label_5;
                         }
-                        text = (value as 角色数据)?.所属账号.V.账号名字.V;
+                        else
+                            goto label_5;
                     }
-                    网络服务网关.门票数据表[array[0]] = new 门票信息
+                    while (strArray.Length != 2);
+                    网络服务网关.门票数据表[strArray[0]] = new 门票信息()
                     {
-                        登录账号 = text,
+                        登录账号 = strArray[1],
                         有效时间 = 主程.当前时间.AddMinutes(5.0)
                     };
-                    账号数据 账号数据;
-                    账号数据 = ((!游戏数据网关.账号数据表.检索表.TryGetValue(text, out var value2)) ? new 账号数据(text) : (value2 as 账号数据));
-                    账号数据.所属UUID.V = array[4];
-                    if (账号数据.推广代码.V == string.Empty || 账号数据.推广代码.V == null)
-                    {
-                        账号数据.推广代码.V = array[2];
-                        账号数据.推荐人码.V = array[3];
-                    }
                 }
             }
             catch (Exception ex)
             {
                 主程.添加系统日志("接收登录门票时发生错误. " + ex.Message);
-            }
-            */
-            //----- http门票，已禁用--------
-            /*
-            try
-            {
-                string result;
-                while (网络服务网关.Http门票数据.TryDequeue(out result))
-                {
-                    string[] array2;
-                    array2 = result.Split(';');
-                    if (array2.Length == 5)
-                    {
-                        网络服务网关.门票数据表[array2[0]] = new 门票信息
-                        {
-                            登录账号 = array2[1],
-                            有效时间 = 主程.当前时间.AddMinutes(5.0)
-                        };
-                        账号数据 账号数据2;
-                        账号数据2 = ((!游戏数据网关.账号数据表.检索表.TryGetValue(array2[1], out var value3)) ? new 账号数据(array2[1]) : (value3 as 账号数据));
-                        账号数据2.所属UUID.V = array2[4];
-                        if (账号数据2.推广代码.V == string.Empty || 账号数据2.推广代码.V == null)
-                        {
-                            账号数据2.推广代码.V = array2[2];
-                            账号数据2.推荐人码.V = array2[3];
-                        }
-                    }
-                }
-            }
-            catch (Exception ex2)
-            {
-                主程.添加系统日志("接收Http登录门票时发生错误. " + ex2.Message);
-            }
-            */
-            //--------------------
-            /* -------百牛九八原来的------
-            foreach (客户网络 item in 网络服务网关.网络连接表)
-            {
-                if (!item.正在断开 && item.绑定账号 == null && 主程.当前时间.Subtract(item.接入时间).TotalSeconds > 30.0)
-                {
-                    item.尝试断开连接(new Exception("登录超时, 断开连接!"));
-                }
-                else
-                {
-                    item.处理数据();
-                }
-            }
-            while (!网络服务网关.等待移除表.IsEmpty)
-            {
-                if (网络服务网关.等待移除表.TryDequeue(out var result2))
-                {
-                    网络服务网关.网络连接表.Remove(result2);
-                }
-            }
-            while (!网络服务网关.等待添加表.IsEmpty)
-            {
-                if (网络服务网关.等待添加表.TryDequeue(out var result3))
-                {
-                    网络服务网关.网络连接表.Add(result3);
-                }
-            }
-            while (!网络服务网关.全服公告表.IsEmpty)
-            {
-                if (!网络服务网关.全服公告表.TryDequeue(out var result4))
-                {
-                    continue;
-                }
-                foreach (客户网络 item2 in 网络服务网关.网络连接表)
-                {
-                    if (item2.绑定角色 != null)
-                    {
-                        item2.发送封包(result4);
-                    }
-                }
-            }
-            */
-            #endregion 
-            if (Settings.专用网关登录器)
-            {
-                try
-                {
-                    //九八的专用网关登录器
-                    while (true)
-                    {
-                        UdpClient udpClient;
-                        udpClient = 网络服务网关.门票接收器;
-                        if (udpClient == null || udpClient.Available == 0)
-                        {
-                            break;
-                        }
-                        byte[] bytes;
-                        bytes = 网络服务网关.门票接收器.Receive(ref 网络服务网关.门票发送端);
-                        // PROTO-03: 拒绝白名单外的源 IP 注入门票
-                        if (!网络服务网关.门票来源放行(网络服务网关.门票发送端))
-                        {
-                            continue;
-                        }
-                        string[] array;
-                        array = Encoding.UTF8.GetString(bytes).Split(';');
-                        if (array.Length != 5)
-                        {
-                            continue;
-                        }
-                        string text;
-                        text = array[1];
-                        if (text.StartsWith("按角色登录-"))
-                        {
-                            text = text.Substring(6);
-                            if (!游戏数据网关.角色数据表.检索表.TryGetValue(text, out var value))
-                            {
-                                主程.添加系统日志("[本地登陆器-按角色]不存在的角色名:" + text);
-                                break;
-                            }
-                            text = (value as 角色数据)?.所属账号.V.账号名字.V;
-                        }
-                        网络服务网关.门票数据表[array[0]] = new 门票信息
-                        {
-                            登录账号 = text,
-                            有效时间 = 主程.当前时间.AddMinutes(5.0)
-                        };
-                        账号数据 账号数据;
-                        账号数据 = ((!游戏数据网关.账号数据表.检索表.TryGetValue(text, out var value2)) ? new 账号数据(text) : (value2 as 账号数据));
-                        账号数据.所属UUID.V = array[4];
-                        if (账号数据.推广代码.V == string.Empty || 账号数据.推广代码.V == null)
-                        {
-                            账号数据.推广代码.V = array[2];
-                            账号数据.推荐人码.V = array[3];
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    主程.添加系统日志("接收登录门票时发生错误. " + ex.Message);
-                }
-            }
-            else
-            {
-                //通用网关登录器
-                try
-                {
-                    while (true)
-                    {
-                        string[] strArray = System.Array.Empty<string>();
-                        do
-                        {
-                            UdpClient 门票接收器 = 网络服务网关.门票接收器;
-                            if (门票接收器 != null)
-                            {
-                                if (门票接收器.Available != 0)
-                                {
-                                    byte[] _rawBytes = 网络服务网关.门票接收器.Receive(ref 网络服务网关.门票发送端);
-                                    // PROTO-03: 拒绝白名单外的源 IP
-                                    if (!网络服务网关.门票来源放行(网络服务网关.门票发送端))
-                                    {
-                                        continue;
-                                    }
-                                    strArray = Encoding.UTF8.GetString(_rawBytes).Split(';');
-                                }
-                                else
-                                    goto label_5;
-                            }
-                            else
-                                goto label_5;
-                        }
-                        while (strArray.Length != 2);
-                        网络服务网关.门票数据表[strArray[0]] = new 门票信息()
-                        {
-                            登录账号 = strArray[1],
-                            有效时间 = 主程.当前时间.AddMinutes(5.0)
-                        };
-                    }
-                }
-                catch (Exception ex)
-                {
-                    主程.添加系统日志("接收登录门票时发生错误. " + ex.Message);
-                }
             }
 
 

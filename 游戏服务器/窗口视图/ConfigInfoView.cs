@@ -120,7 +120,6 @@ namespace 游戏服务器.窗口视图
             this.不分解极品check.EditValue = Settings.不分解极品装备;
             this.安全区满血check.EditValue = Settings.安全区内满血满蓝;
             this.下线宝宝不死check.EditValue = Settings.下线宝宝不死;
-            this.专用网关登录器check.EditValue = Settings.专用网关登录器;
         }
         //保存配置
         private void SaveConfig()
@@ -214,7 +213,6 @@ namespace 游戏服务器.窗口视图
             Settings.不分解极品装备 = (bool)this.不分解极品check.EditValue;
             Settings.安全区内满血满蓝 = (bool)this.安全区满血check.EditValue;
             Settings.下线宝宝不死 = (bool)this.下线宝宝不死check.EditValue;
-            Settings.专用网关登录器 = (bool)this.专用网关登录器check.EditValue;
 
             if (this.JobOpenCheck.Checked)
             {
