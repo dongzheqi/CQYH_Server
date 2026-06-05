@@ -25,7 +25,7 @@ namespace 游戏服务器.模板类
 			角色成长.数据表 = new Dictionary<int, Dictionary<游戏对象属性, int>>();
 			string 成长属性文件 = Settings.游戏数据目录 + "\\System\\成长属性.txt";
 			string[] array;
-			array = Regex.Split(File.ReadAllText(成长属性文件).Trim('\r', '\n', '\r'), "\r\n", RegexOptions.IgnoreCase);
+			array = Regex.Split(File.ReadAllText(成长属性文件).Trim('\r', '\n'), "\r\n|\r|\n", RegexOptions.IgnoreCase);
 			string[] 属性名数组;
 			属性名数组 = array[0].Split('\t');
 			Dictionary<string, int> dictionary;
@@ -67,7 +67,7 @@ namespace 游戏服务器.模板类
 		// TypeInitializationException 一路冒泡成未处理异常致服务器启动失败,且无从定位是哪行哪文件)。
 		private static void 加载键值文件(string 文件路径, Action<string, string> 写入)
 		{
-			string[] array = Regex.Split(File.ReadAllText(文件路径).Trim('\r', '\n', '\r'), "\r\n", RegexOptions.IgnoreCase);
+			string[] array = Regex.Split(File.ReadAllText(文件路径).Trim('\r', '\n'), "\r\n|\r|\n", RegexOptions.IgnoreCase);
 			for (int i = 0; i < array.Length; i++)
 			{
 				if (string.IsNullOrWhiteSpace(array[i]))
