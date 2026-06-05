@@ -9795,7 +9795,12 @@ namespace 游戏服务器.地图类
 
         public 游戏宝箱[] FilterItemTreasures(IEnumerable<游戏宝箱> items)
         {
-            return (from x in items?.Where((游戏宝箱 x) => x.判断职业 == this.角色职业 || x.判断职业 >= 游戏对象职业.通用)
+            // 宝箱模板未配 道具列表 时 items 为 null; 原 items?.Where(...) 会让 orderby 对 null 调 OrderBy 抛 ArgumentNullException, 进而崩掉服务循环致全图宝箱打不开
+            if (items == null)
+            {
+                return System.Array.Empty<游戏宝箱>();
+            }
+            return (from x in items.Where((游戏宝箱 x) => x.判断职业 == this.角色职业 || x.判断职业 >= 游戏对象职业.通用)
                     orderby (x.获得几率 != 0f) ? x.获得几率 : 100f
                     where 计算类.计算概率(x.获得几率)
                     select x).ToArray();
