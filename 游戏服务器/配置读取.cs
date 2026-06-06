@@ -51,12 +51,11 @@ namespace 游戏服务器
 			return new StreamReader(new MemoryStream(字节), 配置读取.检测编码(字节));
 		}
 
-		// 读取整份文本并按识别出的编码解码.
+		// 读取整份文本并按识别出的编码解码; 复用 打开(经 StreamReader 去掉可能的 BOM), 与 csv 加载路径一致.
 		public static string 读取全文(string 路径)
 		{
-			byte[] 字节;
-			字节 = File.ReadAllBytes(路径);
-			return 配置读取.检测编码(字节).GetString(字节);
+			using StreamReader reader = 配置读取.打开(路径);
+			return reader.ReadToEnd();
 		}
 	}
 }
