@@ -90,7 +90,7 @@ namespace 游戏服务器.模板类
 			}
 			GameQuests.AvailableQuests = list.OrderBy((GameQuests x) => x.Id).ToArray();
 			string[] array2;
-			array2 = File.ReadAllLines(Settings.游戏数据目录 + "\\System\\紧急任务.txt");
+			array2 = File.ReadAllLines(Settings.游戏数据目录 + "\\System\\任务成就\\紧急任务.txt");
 			new StringBuilder();
 			string[] array3;
 			array3 = array2;

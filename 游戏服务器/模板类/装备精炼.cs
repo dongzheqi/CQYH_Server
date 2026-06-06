@@ -57,7 +57,7 @@ namespace 游戏服务器.模板类
 		{
 			装备精炼.数据表 = new Dictionary<int, 装备精炼>();
 			string[] array;
-			array = File.ReadAllLines(Settings.游戏数据目录 + "\\System\\equip_refine.txt");
+			array = File.ReadAllLines(Settings.游戏数据目录 + "\\System\\装备养成\\equip_refine.txt");
 			foreach (string obj in array)
 			{
 				装备精炼 装备精炼2;
@@ -101,7 +101,7 @@ namespace 游戏服务器.模板类
 				装备精炼.数据表.Add(装备精炼2.装备编号, 装备精炼2);
 			}
 			装备精炼.属性表 = new Dictionary<int, 精炼属性>();
-			array = File.ReadAllLines(Settings.游戏数据目录 + "\\System\\equip_refine_attribute.txt");
+			array = File.ReadAllLines(Settings.游戏数据目录 + "\\System\\装备养成\\equip_refine_attribute.txt");
 			foreach (string obj2 in array)
 			{
 				精炼属性 精炼属性2;

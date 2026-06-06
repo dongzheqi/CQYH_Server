@@ -23,7 +23,7 @@ namespace 游戏服务器.模板类
 			角色成长.升级增加战力 = new Dictionary<byte, int>();
 			角色成长.宠物升级经验 = new ushort[9] { 5, 10, 15, 20, 25, 30, 35, 40, 45 };
 			角色成长.数据表 = new Dictionary<int, Dictionary<游戏对象属性, int>>();
-			string 成长属性文件 = Settings.游戏数据目录 + "\\System\\成长属性.txt";
+			string 成长属性文件 = Settings.游戏数据目录 + "\\System\\玩家成长\\成长属性.txt";
 			string[] array;
 			array = Regex.Split(File.ReadAllText(成长属性文件).Trim('\r', '\n'), "\r\n|\r|\n", RegexOptions.IgnoreCase);
 			string[] 属性名数组;
@@ -58,8 +58,8 @@ namespace 游戏服务器.模板类
 					throw 角色成长.解析异常(成长属性文件, i + 1, array[i], ex);
 				}
 			}
-			角色成长.加载键值文件(Settings.游戏数据目录 + "\\System\\玩家升级经验.txt", (string 键, string 值) => 角色成长.升级所需经验.Add(byte.Parse(键), long.Parse(值)));
-			角色成长.加载键值文件(Settings.游戏数据目录 + "\\System\\玩家升级战力.txt", (string 键, string 值) => 角色成长.升级增加战力.Add(byte.Parse(键), int.Parse(值)));
+			角色成长.加载键值文件(Settings.游戏数据目录 + "\\System\\玩家成长\\玩家升级经验.txt", (string 键, string 值) => 角色成长.升级所需经验.Add(byte.Parse(键), long.Parse(值)));
+			角色成长.加载键值文件(Settings.游戏数据目录 + "\\System\\玩家成长\\玩家升级战力.txt", (string 键, string 值) => 角色成长.升级增加战力.Add(byte.Parse(键), int.Parse(值)));
 		}
 
 		// 逐行解析 `键=值` 配置文件;任意一行解析失败都抛出带 文件名 + 行号 + 原始行内容 的异常,

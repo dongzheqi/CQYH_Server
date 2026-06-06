@@ -38,7 +38,7 @@ namespace 游戏服务器.模板类
 			合成公式.数据表 = new Dictionary<byte, 合成公式>();
 			DataTable dataTable;
 			dataTable = new DataTable();
-			using StreamReader reader = File.OpenText(Settings.游戏数据目录 + "\\System\\合成公式.csv");
+			using StreamReader reader = File.OpenText(Settings.游戏数据目录 + "\\System\\装备养成\\合成公式.csv");
 			using (CsvReader csv = new CsvReader(reader, CultureInfo.InvariantCulture))
 			{
 				using CsvDataReader reader2 = new CsvDataReader(csv);

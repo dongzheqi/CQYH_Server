@@ -66,7 +66,7 @@ namespace 游戏服务器.模板类
 
 		public static void 保存数据()
 		{
-			using StreamWriter writer = new StreamWriter(Settings.游戏数据目录 + "\\System\\机器人配置.csv");
+			using StreamWriter writer = new StreamWriter(Settings.游戏数据目录 + "\\System\\世界其他\\机器人配置.csv");
 			using CsvWriter csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture);
 			csvWriter.WriteHeader<机器人csvColumns>();
 			csvWriter.NextRecord();
@@ -89,7 +89,7 @@ namespace 游戏服务器.模板类
 		{
 			机器人.数据表 = new List<机器人>();
 			string path;
-			path = Settings.游戏数据目录 + "\\System\\机器人配置.csv";
+			path = Settings.游戏数据目录 + "\\System\\世界其他\\机器人配置.csv";
 			if (File.Exists(path))
 			{
 				DataTable dataTable;

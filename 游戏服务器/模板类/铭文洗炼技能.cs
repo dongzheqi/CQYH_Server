@@ -139,7 +139,7 @@ namespace 游戏服务器.模板类
 		{
 			铭文洗炼技能.数据表 = new Dictionary<ushort, 铭文洗炼技能>();
 			string text;
-			text = Settings.游戏数据目录 + "\\System\\铭文洗炼技能.json";
+			text = Settings.游戏数据目录 + "\\System\\装备养成\\铭文洗炼技能.json";
 			if (File.Exists(text))
 			{
 				string value;

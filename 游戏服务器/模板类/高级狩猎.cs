@@ -36,7 +36,7 @@ namespace 游戏服务器.模板类
 		{
 			高级狩猎.数据表 = new Dictionary<int, 高级狩猎>();
 			string[] array;
-			array = File.ReadAllLines(Settings.游戏数据目录 + "\\System\\advanced_exercise.txt");
+			array = File.ReadAllLines(Settings.游戏数据目录 + "\\System\\玩家成长\\advanced_exercise.txt");
 			for (int i = 0; i < array.Length; i++)
 			{
 				string[] array2;

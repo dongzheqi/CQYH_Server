@@ -33,7 +33,7 @@ namespace 游戏服务器.模板类
 			传奇之力.检索表[游戏对象职业.道士] = new Dictionary<int, 传奇之力>();
 			传奇之力.检索表[游戏对象职业.龙枪] = new Dictionary<int, 传奇之力>();
 			string[] array;
-			array = File.ReadAllLines(Settings.游戏数据目录 + "\\System\\legend_power.txt");
+			array = File.ReadAllLines(Settings.游戏数据目录 + "\\System\\玩家成长\\legend_power.txt");
 			for (int i = 0; i < array.Length; i++)
 			{
 				string[] array2;

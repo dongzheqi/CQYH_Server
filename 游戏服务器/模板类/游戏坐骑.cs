@@ -64,7 +64,7 @@ namespace 游戏服务器.模板类
 			Dictionary<byte, byte> dictionary3;
 			dictionary3 = new Dictionary<byte, byte>();
 			string[] array2;
-			array2 = Regex.Split(File.ReadAllText(Settings.游戏数据目录 + "\\System\\御兽之力.txt").Trim('\r', '\n', '\r'), "\r\n", RegexOptions.IgnoreCase);
+			array2 = Regex.Split(File.ReadAllText(Settings.游戏数据目录 + "\\System\\玩家成长\\御兽之力.txt").Trim('\r', '\n', '\r'), "\r\n", RegexOptions.IgnoreCase);
 			for (int i = 0; i < array2.Length; i++)
 			{
 				string[] array3;

@@ -18,7 +18,7 @@ namespace 游戏服务器.模板类
 
 		public static void 保存数据()
 		{
-			using StreamWriter writer = new StreamWriter(Settings.游戏数据目录 + "\\System\\全服公告.csv");
+			using StreamWriter writer = new StreamWriter(Settings.游戏数据目录 + "\\System\\公告\\全服公告.csv");
 			using CsvWriter csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture);
 			csvWriter.WriteHeader<全服公告csvColumns>();
 			csvWriter.NextRecord();
@@ -44,7 +44,7 @@ namespace 游戏服务器.模板类
 		public static void 载入数据()
 		{
 			string path;
-			path = Settings.游戏数据目录 + "\\System\\全服公告.csv";
+			path = Settings.游戏数据目录 + "\\System\\公告\\全服公告.csv";
 			全服公告.数据表.Clear();
 			if (File.Exists(path))
 			{

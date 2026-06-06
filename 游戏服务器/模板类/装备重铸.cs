@@ -49,7 +49,7 @@ namespace 游戏服务器.模板类
 			DataTable dataTable;
 			dataTable = new DataTable();
 			string path;
-			path = Settings.游戏数据目录 + "\\System\\装备重铸.csv";
+			path = Settings.游戏数据目录 + "\\System\\装备养成\\装备重铸.csv";
 			if (!File.Exists(path))
 			{
 				return;

@@ -30,7 +30,7 @@ namespace 游戏服务器.模板类
 			掉落分组.数据表 = new Dictionary<int, 掉落分组>();
 			DataTable dataTable;
 			dataTable = new DataTable();
-			using StreamReader reader = File.OpenText(Settings.游戏数据目录 + "\\System\\掉落分组.csv");
+			using StreamReader reader = File.OpenText(Settings.游戏数据目录 + "\\System\\世界其他\\掉落分组.csv");
 			using (CsvReader csv = new CsvReader(reader, CultureInfo.InvariantCulture))
 			{
 				using CsvDataReader reader2 = new CsvDataReader(csv);

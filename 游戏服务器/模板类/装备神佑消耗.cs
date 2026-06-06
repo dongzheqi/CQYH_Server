@@ -20,7 +20,7 @@ namespace 游戏服务器.模板类
 		public 装备神佑消耗()
 		{
 			string path;
-			path = Settings.游戏数据目录 + "\\System\\装备神佑消耗.csv";
+			path = Settings.游戏数据目录 + "\\System\\装备养成\\装备神佑消耗.csv";
 			装备神佑消耗.数据表.Clear();
 			if (File.Exists(path))
 			{
@@ -66,7 +66,7 @@ namespace 游戏服务器.模板类
 
 		public static void 保存数据()
 		{
-			using StreamWriter writer = new StreamWriter(Settings.游戏数据目录 + "\\System\\装备神佑消耗.csv");
+			using StreamWriter writer = new StreamWriter(Settings.游戏数据目录 + "\\System\\装备养成\\装备神佑消耗.csv");
 			using CsvWriter csvWriter = new CsvWriter(writer, CultureInfo.InvariantCulture);
 			csvWriter.WriteHeader<神佑CsvColumns>();
 			csvWriter.NextRecord();

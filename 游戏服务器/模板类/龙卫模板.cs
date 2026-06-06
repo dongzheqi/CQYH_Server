@@ -233,7 +233,7 @@ namespace 游戏服务器.模板类
 				}
 			}
 			string[] array2;
-			array2 = Regex.Split(File.ReadAllText(Settings.游戏数据目录 + "\\System\\龙卫设置.txt").Trim('\r', '\n', '\r'), "\r\n", RegexOptions.IgnoreCase);
+			array2 = Regex.Split(File.ReadAllText(Settings.游戏数据目录 + "\\System\\龙卫数据\\龙卫设置.txt").Trim('\r', '\n', '\r'), "\r\n", RegexOptions.IgnoreCase);
 			for (int j = 0; j < array2.Length; j++)
 			{
 				string[] array3;

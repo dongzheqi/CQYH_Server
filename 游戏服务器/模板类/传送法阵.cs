@@ -36,7 +36,7 @@ namespace 游戏服务器.模板类
 		{
 			传送法阵.数据表 = new List<传送法阵>();
 			string path;
-			path = Settings.游戏数据目录 + "\\System\\传送法阵.csv";
+			path = Settings.游戏数据目录 + "\\System\\世界其他\\传送法阵.csv";
 			if (File.Exists(path))
 			{
 				DataTable dataTable;

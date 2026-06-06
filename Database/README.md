@@ -10,7 +10,7 @@
 
 ```
 Database/
-└── System/                  ← 所有数据集中在这一层
+└── System/
     ├── Achievements/        # 成就模板 (.json / .txt)
     ├── Envir/               # 地图环境数据 (地图 .map、刷怪点、传送点、Mon*.txt)
     ├── lua/                 # 服务器侧 Lua 脚本 (NLua 加载)
@@ -20,10 +20,19 @@ Database/
     ├── 游戏地图/              # 地图属性表
     ├── 游戏坐骑/              # 坐骑配置
     ├── 物品数据/              # 物品模板
-    ├── 龙卫数据/              # 龙卫宠物数据
-    └── *.csv / *.txt / *.json   # 各类全局配置表
-                              # (掉落分组、装备升级、月卡奖励、玩家升级经验 等)
+    ├── 龙卫数据/              # 龙卫宠物数据 + 龙卫设置.txt
+    │   ── 以下为全局配置表按业务域分类 (v0.x 整理) ──
+    ├── 商城福利/             # 充值/月卡/特惠/签到/主题礼包/传永七天
+    ├── 装备养成/             # 升级/合成/重铸/精炼/灵石/铭文洗炼/神佑/分解/锻石炼药
+    ├── 玩家成长/             # 成长属性/升级经验·战力/天赋/御兽之力/威望/高级狩猎/传奇之力
+    ├── 任务成就/             # 杀怪成就/战功任务·奖励/紧急任务
+    ├── 公告/                 # 全服公告/系统公告 (配置 .csv)
+    └── 世界其他/             # 传送法阵/掉落分组/机器人配置/物品过滤
 ```
+
+> 整理后根目录已无散落配置文件，全部归入上述子目录。
+
+> 注：`全服公告/`、`系统公告/`、`机器人/`、`Log/` 等是**运行时输出目录**（非配置），未参与上述分类。
 
 ---
 
@@ -67,8 +76,8 @@ public static string 游戏数据目录 = ".\\Database";
 | 地图环境 | `Database\System\Envir\` | [Settings.cs:353](../游戏服务器/Settings.cs#L353) |
 | 成就模板 | `Database\System\Achievements\` | [模板类/GameAchievements.cs:37](../游戏服务器/模板类/GameAchievements.cs#L37) |
 | 任务模板 | `Database\System\Quests\` | [模板类/GameQuests.cs:75](../游戏服务器/模板类/GameQuests.cs#L75) |
-| 杀怪成就 | `Database\System\杀怪成就.csv` | [数据类/杀怪成就.cs:38](../游戏服务器/数据类/杀怪成就.cs#L38) |
-| 紧急任务 | `Database\System\紧急任务.txt` | [模板类/GameQuests.cs:93](../游戏服务器/模板类/GameQuests.cs#L93) |
+| 杀怪成就 | `Database\System\任务成就\杀怪成就.csv` | [数据类/杀怪成就.cs:38](../游戏服务器/数据类/杀怪成就.cs#L38) |
+| 紧急任务 | `Database\System\任务成就\紧急任务.txt` | [模板类/GameQuests.cs:93](../游戏服务器/模板类/GameQuests.cs#L93) |
 
 ---
 

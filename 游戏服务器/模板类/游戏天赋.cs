@@ -51,7 +51,7 @@ namespace 游戏服务器.模板类
 		{
 			游戏天赋.数据表 = new Dictionary<byte, 游戏天赋>();
 			string[] array;
-			array = File.ReadAllLines(Settings.游戏数据目录 + "\\System\\天赋属性.txt");
+			array = File.ReadAllLines(Settings.游戏数据目录 + "\\System\\玩家成长\\天赋属性.txt");
 			int num;
 			num = 0;
 			string[] array2;
@@ -177,7 +177,7 @@ namespace 游戏服务器.模板类
 					刻印战力 = 刻印战力3
 				});
 			}
-			array2 = File.ReadAllLines(Settings.游戏数据目录 + "\\System\\天赋条件.txt");
+			array2 = File.ReadAllLines(Settings.游戏数据目录 + "\\System\\玩家成长\\天赋条件.txt");
 			for (int i = 0; i < array2.Length; i++)
 			{
 				string[] array6;
