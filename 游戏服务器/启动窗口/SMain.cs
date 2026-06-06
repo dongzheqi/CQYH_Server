@@ -88,6 +88,8 @@ namespace 游戏服务器
         {
             InitializeComponent();
             SMain.Main = this;
+            // 给「GM工具」菜单项内嵌一个自绘 SVG 图标(盾牌+星), 不依赖 resx 或 DevExpress 内置图标路径。
+            this.navBarItemGM.ImageOptions.SvgImage = SMain.创建GM图标();
 
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
             this.ShowView(typeof(SystemLogView));
@@ -212,6 +214,17 @@ namespace 游戏服务器
                     游戏数据网关.导出数据();
                 }
             }
+        }
+
+        // 内嵌的「GM工具」图标: 蓝色盾牌 + 金色五角星(管理/特权之意), 自带 SVG、无外部资源依赖。
+        private static DevExpress.Utils.Svg.SvgImage 创建GM图标()
+        {
+            string svg = "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'>" +
+                "<path d='M16 3 L27 7 V15 C27 23 22 27 16 29 C10 27 5 23 5 15 V7 Z' fill='#2E8DE0'/>" +
+                "<path d='M16 10 l1.8 3.7 4.1 0.6 -3 2.9 0.7 4.1 -3.6 -1.9 -3.6 1.9 0.7 -4.1 -3 -2.9 4.1 -0.6 z' fill='#FFD34E'/>" +
+                "</svg>";
+            byte[] 数据 = System.Text.Encoding.UTF8.GetBytes(svg);
+            return DevExpress.Utils.Svg.SvgImage.FromStream(new System.IO.MemoryStream(数据));
         }
 
         public void ShowView(Type type)
@@ -465,6 +478,14 @@ namespace 游戏服务器
             if (this.Loaded)
             {
                 this.ShowView(typeof(CommandLogView));
+            }
+        }
+
+        private void navBarItemGM_LinkClicked(object sender, NavBarLinkEventArgs e)
+        {
+            if (this.Loaded)
+            {
+                this.ShowView(typeof(GMToolView));
             }
         }
 

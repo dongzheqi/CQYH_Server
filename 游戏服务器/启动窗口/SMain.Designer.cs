@@ -125,6 +125,8 @@ namespace 游戏服务器
 
         private NavBarItem navBarItem15;
 
+        private NavBarItem navBarItemGM;
+
         private BarButtonItem ReLoadLuaButton;
 
         private BarButtonItem ReadLoadMapButton;
@@ -317,6 +319,7 @@ namespace 游戏服务器
             navBarItem1 = new NavBarItem();
             navBarItem13 = new NavBarItem();
             navBarItem15 = new NavBarItem();
+            navBarItemGM = new NavBarItem();
             navBarGroup2 = new NavBarGroup();
             navBarItem2 = new NavBarItem();
             navBarItem3 = new NavBarItem();
@@ -846,7 +849,7 @@ namespace 游戏服务器
             navBarControl1.ActiveGroup = navBarGroup1;
             navBarControl1.Dock = DockStyle.Left;
             navBarControl1.Groups.AddRange(new NavBarGroup[] { navBarGroup1, navBarGroup2, navBarGroup3 });
-            navBarControl1.Items.AddRange(new NavBarItem[] { LogNavButton, navBarItem1, navBarItem2, navBarItem3, navBarItem4, navBarItem5, navBarItem7, navBarItem8, navBarItem10, navBarItem11, navBarItem12, navBarItem13, navBarItem14, navBarItem15, navBarItem16, navBarItem17, navBarItem18 });
+            navBarControl1.Items.AddRange(new NavBarItem[] { LogNavButton, navBarItem1, navBarItem2, navBarItem3, navBarItem4, navBarItem5, navBarItem7, navBarItem8, navBarItem10, navBarItem11, navBarItem12, navBarItem13, navBarItem14, navBarItem15, navBarItem16, navBarItem17, navBarItem18, navBarItemGM });
             navBarControl1.Location = new Point(0, 160);
             navBarControl1.Margin = new Padding(4);
             navBarControl1.Name = "navBarControl1";
@@ -860,7 +863,7 @@ namespace 游戏服务器
             // 
             navBarGroup1.Caption = "操作";
             navBarGroup1.Expanded = true;
-            navBarGroup1.ItemLinks.AddRange(new NavBarItemLink[] { new NavBarItemLink(LogNavButton), new NavBarItemLink(navBarItem1), new NavBarItemLink(navBarItem13), new NavBarItemLink(navBarItem15) });
+            navBarGroup1.ItemLinks.AddRange(new NavBarItemLink[] { new NavBarItemLink(LogNavButton), new NavBarItemLink(navBarItem1), new NavBarItemLink(navBarItem13), new NavBarItemLink(navBarItem15), new NavBarItemLink(navBarItemGM) });
             navBarGroup1.Name = "navBarGroup1";
             // 
             // LogNavButton
@@ -890,7 +893,13 @@ namespace 游戏服务器
             navBarItem15.ImageOptions.SvgImage = (DevExpress.Utils.Svg.SvgImage)resources.GetObject("navBarItem15.ImageOptions.SvgImage");
             navBarItem15.Name = "navBarItem15";
             navBarItem15.LinkClicked += navBarItem15_LinkClicked;
-            // 
+            //
+            // navBarItemGM
+            //
+            navBarItemGM.Caption = "GM工具";
+            navBarItemGM.Name = "navBarItemGM";
+            navBarItemGM.LinkClicked += navBarItemGM_LinkClicked;
+            //
             // navBarGroup2
             // 
             navBarGroup2.Caption = "配置";
