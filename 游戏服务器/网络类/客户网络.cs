@@ -17,7 +17,16 @@ namespace 游戏服务器.网络类
     {
         private DateTime 断开时间;
 
-        private bool 正在发送;
+        // volatile: 发送全部封包 在主循环线程读它做单飞判定, 而复位发生在 发送完成回调(IO线程)/线程发包的 Task 线程, 需保证跨线程可见.
+        private volatile bool 正在发送;
+
+        // 封包限速(默认关, 见 Settings.开启封包限速): 按自然秒滚动统计本连接收包数, 连续超限达阈值即断开.
+        // 仅在 IO 接收回调线程(同一连接的 BeginReceive 串行)访问, 无需加锁.
+        private DateTime 限速窗口起点;
+
+        private int 限速窗口计数;
+
+        private int 限速连续超限;
 
         private byte[] 剩余数据;
 
@@ -58,6 +67,7 @@ namespace 游戏服务器.网络类
             this.当前连接 = 客户端;
             this.当前连接.NoDelay = true;
             this.接入时间 = 主程.当前时间;
+            this.限速窗口起点 = 主程.当前时间;
             this.断开时间 = 主程.当前时间.AddMinutes((int)Settings.掉线判定时间);
             this.断网事件 = (EventHandler<Exception>)Delegate.Combine(this.断网事件, new EventHandler<Exception>(网络服务网关.断网回调));
             this.网络地址 = this.当前连接.Client.RemoteEndPoint.ToString().Split(':')[0];
@@ -248,6 +258,15 @@ namespace 游戏服务器.网络类
 
         private void 发送全部封包()
         {
+            // 单飞重入保护: 同一连接任一时刻只允许一个"抽干发送队列 + 提交 socket 发送"在进行.
+            // 否则 ① 异步路径(开启线程发包=false)相邻帧会重复 BeginSend; ② 线程发包路径多个 Task 并发 Send ——
+            // 二者都会在同一 socket 上交错字节流致粘包/错包. 抢占在主循环单线程完成、与判定之间无竞态;
+            // 复位仍沿用既有点位(开始同步发送末尾 / 发送完成回调 / 各 catch), 另对"本次无内容可发"补一处复位, 杜绝卡死.
+            if (this.正在发送)
+            {
+                return;
+            }
+            this.正在发送 = true;
             if (Settings.开启线程发包)
             {
                 Task.Run(delegate
@@ -265,6 +284,10 @@ namespace 游戏服务器.网络类
                     {
                         this.开始同步发送(list2);
                     }
+                    else
+                    {
+                        this.正在发送 = false;
+                    }
                 });
                 return;
             }
@@ -280,6 +303,10 @@ namespace 游戏服务器.网络类
             if (list.Count != 0)
             {
                 this.开始异步发送(list);
+            }
+            else
+            {
+                this.正在发送 = false;
             }
         }
 
@@ -303,6 +330,32 @@ namespace 游戏服务器.网络类
             {
                 this.尝试断开连接(new Exception("异步接收错误 : " + ex.Message));
             }
+        }
+
+        // 封包限速判定(IO 接收线程调用, 每收到一个封包计一次). 默认关闭直接放行, 开销仅一次布尔判断.
+        // 按自然秒窗口统计: 满 1 秒时若该秒收包数 > 每秒封包上限 则连续超限+1、否则清零; 连续超限达 封包限速容忍秒数 即返回 true(应断开).
+        private bool 超出封包限速()
+        {
+            if (!Settings.开启封包限速)
+            {
+                return false;
+            }
+            this.限速窗口计数++;
+            if ((主程.当前时间 - this.限速窗口起点).TotalSeconds >= 1.0)
+            {
+                if (this.限速窗口计数 > Settings.每秒封包上限)
+                {
+                    this.限速连续超限++;
+                }
+                else
+                {
+                    this.限速连续超限 = 0;
+                }
+                this.限速窗口起点 = 主程.当前时间;
+                this.限速窗口计数 = 0;
+                return this.限速连续超限 >= Settings.封包限速容忍秒数;
+            }
+            return false;
         }
 
         private void 接收完成回调(IAsyncResult 异步参数)
@@ -337,6 +390,11 @@ namespace 游戏服务器.网络类
                                 break;
                             }
                             this.接收列表.Enqueue(游戏封包2);
+                            if (this.超出封包限速())
+                            {
+                                this.尝试断开连接(new Exception($"封包速率持续超限(每秒 > {Settings.每秒封包上限}, 持续 {Settings.封包限速容忍秒数} 秒), 断开连接."));
+                                break;
+                            }
                             continue;
                         }
                         catch (Exception e)

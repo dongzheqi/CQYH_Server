@@ -7,9 +7,17 @@ namespace 游戏服务器
 {
     internal static class Program
     {
+        // 持有进程生命周期、防同目录重复启动的单实例锁; 必须存为静态字段, 否则被 GC 回收即释放锁.
+        private static Mutex 单实例锁;
+
         [STAThread]
         private static void Main(string[] str1)
         {
+            if (!Program.尝试取得单实例锁())
+            {
+                MessageBox.Show("本目录的游戏服务器已在运行, 不能在同一目录重复启动 —— 两个进程同时写同一份客户数据(Data.db)会导致存档损坏。\r\n如需多开, 请把整个服务端复制到不同目录分别运行。", "重复启动已被阻止", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             Application.EnableVisualStyles();
             Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
             Application.SetCompatibleTextRenderingDefault(defaultValue: false);
@@ -25,6 +33,24 @@ namespace 游戏服务器
             else
             {
                 Application.Run(new SMain());
+            }
+        }
+
+        // 防同一目录重复启动: 以运行目录哈希为键的全局命名 Mutex —— 不同目录键不同、互不阻塞(允许多目录多开),
+        // 同一目录的第二个实例取不到锁即被拦下。进程退出(含崩溃)由 OS 自动释放命名对象, 不会卡死下次启动。
+        // 取锁机制本身一旦异常(如 Global 命名空间 ACL 问题), 一律放行启动 —— 宁可不拦也别因锁机制本身打不开服。
+        private static bool 尝试取得单实例锁()
+        {
+            try
+            {
+                byte[] 哈希;
+                哈希 = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\').ToLowerInvariant()));
+                Program.单实例锁 = new Mutex(initiallyOwned: true, "Global\\YH_GameServer_Instance_" + Convert.ToHexString(哈希), out var createdNew);
+                return createdNew;
+            }
+            catch
+            {
+                return true;
             }
         }
 

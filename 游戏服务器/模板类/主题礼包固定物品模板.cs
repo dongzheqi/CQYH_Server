@@ -48,7 +48,7 @@ namespace 游戏服务器.模板类
 			}
 			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 			CsvReader csvReader;
-			csvReader = new CsvReader(new StreamReader(text + "商城福利\\主题礼包固定物品.csv", Encoding.GetEncoding("GB18030")), CultureInfo.InvariantCulture);
+			csvReader = new CsvReader(配置读取.打开(text + "商城福利\\主题礼包固定物品.csv"), CultureInfo.InvariantCulture);
 			csvReader.Read();
 			csvReader.ReadHeader();
 			try

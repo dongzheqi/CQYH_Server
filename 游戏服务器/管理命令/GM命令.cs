@@ -68,7 +68,10 @@ namespace 游戏服务器.管理命令
 				[typeof(float)] = (string s) => Convert.ToSingle(s),
 				[typeof(decimal)] = (string s) => Convert.ToDecimal(s),
 				[typeof(short)] = (string s) => Convert.ToInt16(s),
-				[typeof(ushort)] = (string s) => Convert.ToUInt16(s)
+				[typeof(ushort)] = (string s) => Convert.ToUInt16(s),
+				[typeof(long)] = (string s) => Convert.ToInt64(s),
+				[typeof(ulong)] = (string s) => Convert.ToUInt64(s),
+				[typeof(double)] = (string s) => Convert.ToDouble(s)
 			};
 		}
 
@@ -76,6 +79,13 @@ namespace 游戏服务器.管理命令
 		{
 			string[] array;
 			array = 文本.Trim('@').Split(new char[2] { ' ', '|' }, StringSplitOptions.RemoveEmptyEntries);
+			// 玩家发纯 "@" 或 "@   "(全空白)时, RemoveEmptyEntries 会得到空数组, 下面访问 array[0] 即抛 IndexOutOfRangeException.
+			// 这条路径来自玩家聊天输入(远程可达), 必须先守卫长度.
+			if (array.Length == 0)
+			{
+				命令 = null;
+				return false;
+			}
 			if (GM命令.命令字典.TryGetValue(array[0], out var value) && GM命令.字段列表.TryGetValue(array[0], out var value2))
 			{
 				int num;

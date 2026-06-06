@@ -54,7 +54,7 @@ namespace 游戏服务器.模板类
 			{
 				return;
 			}
-			using StreamReader reader = File.OpenText(path);
+			using StreamReader reader = 配置读取.打开(path);
 			using (CsvReader csv = new CsvReader(reader, CultureInfo.InvariantCulture))
 			{
 				using CsvDataReader reader2 = new CsvDataReader(csv);

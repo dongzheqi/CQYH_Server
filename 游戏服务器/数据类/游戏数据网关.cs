@@ -20,6 +20,14 @@ namespace 游戏服务器.数据类
 {
     public static class 游戏数据网关
     {
+        // 串行化"写文件/改结构"的数据操作(导出/整理/清理), 防 GM 管理操作与后台自动保存(保存数据库 → Task.Run(导出数据))
+        // 并发写同一批数据文件而损坏. 仅锁后台/管理路径, 不锁主循环每帧调用的内存态 保存数据(), 故不阻塞主循环.
+        // lock(Monitor) 可重入: 整理/清理 内部再调 导出数据 不会自死锁.
+        private static readonly object 数据锁 = new object();
+
+        // 数据是否已完成首次加载. 供后续管理操作前置判断, 避免在未加载完成时误整理/合并而清空数据.
+        public static bool 数据已加载 { get; private set; }
+
         private static bool 数据修改;
 
         private static byte[] 表头描述;
@@ -167,6 +175,7 @@ namespace 游戏服务器.数据类
                 item2.Value.加载完成();
             }
             系统数据.数据.加载完成();
+            游戏数据网关.数据已加载 = true;
         }
 
         public static void 保存数据()
@@ -195,6 +204,8 @@ namespace 游戏服务器.数据类
 
         public static void 导出数据()
         {
+            lock (游戏数据网关.数据锁)
+            {
             if (!Directory.Exists(游戏数据网关.数据目录))
             {
                 Directory.CreateDirectory(游戏数据网关.数据目录);
@@ -225,14 +236,52 @@ namespace 游戏服务器.数据类
                 File.Delete(游戏数据网关.数据文件);
             }
             File.Move(游戏数据网关.缓存文件, 游戏数据网关.数据文件);
+            游戏数据网关.清理旧备份(30);
             if (游戏数据网关.已经修改)
             {
                 游戏数据网关.已经修改 = false;
+            }
+            }
+        }
+
+        // 滚动清理备份目录: 仅保留最近 保留份数 个 User-*.db.gz, 防自动保存产生的历史备份无限堆积撑爆磁盘.
+        // 在 导出数据 写完新备份后调用; 任何异常都吞掉, 备份清理失败不得影响主存档落盘.
+        private static void 清理旧备份(int 保留份数)
+        {
+            try
+            {
+                if (!Directory.Exists(Settings.数据备份目录))
+                {
+                    return;
+                }
+                FileInfo[] 备份列表;
+                备份列表 = new DirectoryInfo(Settings.数据备份目录).GetFiles("User-*.db.gz");
+                if (备份列表.Length <= 保留份数)
+                {
+                    return;
+                }
+                Array.Sort(备份列表, (FileInfo a, FileInfo b) => b.LastWriteTimeUtc.CompareTo(a.LastWriteTimeUtc));
+                for (int i = 保留份数; i < 备份列表.Length; i++)
+                {
+                    try
+                    {
+                        备份列表[i].Delete();
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                主程.添加系统日志("清理旧备份失败: " + ex.Message);
             }
         }
 
         public static void 整理数据(bool 保存数据)
         {
+            lock (游戏数据网关.数据锁)
+            {
             int num;
             num = 0;
             foreach (KeyValuePair<Type, 数据表基类> item in 游戏数据网关.数据类型表)
@@ -339,10 +388,13 @@ namespace 游戏服务器.数据类
                 MessageBox.Show("客户数据已经整理完毕, 应用程序需要重启");
                 Environment.Exit(0);
             }
+            }
         }
 
         public static void 清理角色(int 限制等级, int 限制天数)
         {
+            lock (游戏数据网关.数据锁)
+            {
             主程.添加命令日志("开始清理角色数据...");
             DateTime dateTime;
             dateTime = DateTime.Now.AddDays(-限制天数);
@@ -381,6 +433,7 @@ namespace 游戏服务器.数据类
                 游戏数据网关.导出数据();
                 游戏数据网关.加载数据();
                 主程.添加命令日志("数据已经保存到磁盘");
+            }
             }
         }
 

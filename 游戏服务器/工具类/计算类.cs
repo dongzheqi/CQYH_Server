@@ -2179,7 +2179,8 @@ namespace 游戏服务器.工具类
 			using List<T>.Enumerator enumerator = list.GetEnumerator();
 			while (enumerator.MoveNext())
 			{
-				list2.Insert(item: enumerator.Current, index: random.Next(list2.Count));
+				// 插入位置须取 [0, Count] 共 Count+1 个槽; 用 Count 会漏掉"插到末尾", 致末位永远插不进、分布有偏.
+				list2.Insert(item: enumerator.Current, index: random.Next(list2.Count + 1));
 			}
 			return list2;
 		}

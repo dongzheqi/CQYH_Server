@@ -20,7 +20,7 @@ namespace 游戏服务器.模板类
 			任务系统.数据表 = new Dictionary<int, 任务系统>();
 			DataTable dataTable;
 			dataTable = new DataTable();
-			using StreamReader reader = File.OpenText(Settings.游戏数据目录 + "\\System\\任务系统.csv");
+			using StreamReader reader = 配置读取.打开(Settings.游戏数据目录 + "\\System\\任务系统.csv");
 			using (CsvReader csv = new CsvReader(reader, CultureInfo.InvariantCulture))
 			{
 				using CsvDataReader reader2 = new CsvDataReader(csv);

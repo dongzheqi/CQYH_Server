@@ -24,6 +24,15 @@ namespace 游戏服务器
 
         public static ushort 封包限定数量 = 100;
 
+        // 单连接封包限速(默认关闭, 不影响现网). 开启后按自然秒统计收包数: 某秒 > 每秒封包上限 记一次超限、否则清零,
+        // 连续超限达 封包限速容忍秒数 即断开 —— 容忍瞬时尖峰、只杀持续洪水. 阈值须按本服玩法实测调, 调太紧会误踢正常玩家.
+        // 与已有的 封包限定数量(接收队列深度闸)互补: 深度闸防主循环被压垮, 限速防 IO 线程被持续灌包.
+        public static bool 开启封包限速 = false;
+
+        public static ushort 每秒封包上限 = 300;
+
+        public static byte 封包限速容忍秒数 = 8;
+
         public static ushort 异常屏蔽时间 = 5;
 
         public static ushort 掉线判定时间 = 5;
@@ -395,6 +404,9 @@ namespace 游戏服务器
             Settings.门票接收端口 = Settings.iniconfig.ReadUInt16("General", "门票接收端口", Settings.门票接收端口);
             Settings.门票来源白名单 = Settings.iniconfig.ReadString("General", "门票来源白名单", Settings.门票来源白名单);
             Settings.封包限定数量 = Settings.iniconfig.ReadUInt16("General", "封包限定数量", Settings.封包限定数量);
+            Settings.开启封包限速 = Settings.iniconfig.ReadBoolean("General", "开启封包限速", Settings.开启封包限速);
+            Settings.每秒封包上限 = Settings.iniconfig.ReadUInt16("General", "每秒封包上限", Settings.每秒封包上限);
+            Settings.封包限速容忍秒数 = Settings.iniconfig.ReadByte("General", "封包限速容忍秒数", Settings.封包限速容忍秒数);
             Settings.异常屏蔽时间 = Settings.iniconfig.ReadUInt16("General", "异常屏蔽时间", Settings.异常屏蔽时间);
             Settings.掉线判定时间 = Settings.iniconfig.ReadUInt16("General", "掉线判定时间", Settings.掉线判定时间);
             Settings.游戏开放等级 = Settings.iniconfig.ReadByte("General", "游戏开放等级", Settings.游戏开放等级);
@@ -573,6 +585,9 @@ namespace 游戏服务器
             Settings.iniconfig.Write("General", "门票接收端口", Settings.门票接收端口);
             Settings.iniconfig.Write("General", "门票来源白名单", Settings.门票来源白名单);
             Settings.iniconfig.Write("General", "封包限定数量", Settings.封包限定数量);
+            Settings.iniconfig.Write("General", "开启封包限速", Settings.开启封包限速);
+            Settings.iniconfig.Write("General", "每秒封包上限", Settings.每秒封包上限);
+            Settings.iniconfig.Write("General", "封包限速容忍秒数", Settings.封包限速容忍秒数);
             Settings.iniconfig.Write("General", "异常屏蔽时间", Settings.异常屏蔽时间);
             Settings.iniconfig.Write("General", "掉线判定时间", Settings.掉线判定时间);
             Settings.iniconfig.Write("General", "游戏开放等级", Settings.游戏开放等级);

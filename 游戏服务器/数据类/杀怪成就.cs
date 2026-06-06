@@ -35,7 +35,7 @@ namespace 游戏服务器.数据类
 			杀怪成就.数据表 = new Dictionary<ushort, 杀怪成就>();
 			DataTable dataTable;
 			dataTable = new DataTable();
-			using StreamReader reader = File.OpenText(Settings.游戏数据目录 + "\\System\\任务成就\\杀怪成就.csv");
+			using StreamReader reader = 配置读取.打开(Settings.游戏数据目录 + "\\System\\任务成就\\杀怪成就.csv");
 			using (CsvReader csv = new CsvReader(reader, CultureInfo.InvariantCulture))
 			{
 				using CsvDataReader reader2 = new CsvDataReader(csv);

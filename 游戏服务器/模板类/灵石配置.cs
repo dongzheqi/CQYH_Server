@@ -40,7 +40,7 @@ namespace 游戏服务器.模板类
 			灵石配置.数据表 = new Dictionary<int, 灵石配置>();
 			DataTable dataTable;
 			dataTable = new DataTable();
-			using StreamReader reader = File.OpenText(Settings.游戏数据目录 + "\\System\\装备养成\\灵石配置.csv");
+			using StreamReader reader = 配置读取.打开(Settings.游戏数据目录 + "\\System\\装备养成\\灵石配置.csv");
 			using (CsvReader csv = new CsvReader(reader, CultureInfo.InvariantCulture))
 			{
 				using CsvDataReader reader2 = new CsvDataReader(csv);

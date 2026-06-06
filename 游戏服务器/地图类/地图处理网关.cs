@@ -21,7 +21,10 @@ namespace 游戏服务器.地图类
 
         public static Dictionary<int, 地图对象> 地图对象表;
 
-        public static Dictionary<int, 玩家实例> 玩家对象表;
+        // 仅此表用 ConcurrentDictionary: 后台「自动战斗」任务(AutoBattleManager, Task.Run 独立线程)每毫秒
+        // 枚举 玩家对象表.Values.ToList() / ContainsKey, 与主循环登录登出时的增删并发 —— 普通 Dictionary 会抛
+        // 「集合已修改」(被内挂线程 try/catch 吞进 内挂线程异常.txt, 致挂机卡顿). 其余对象表均主循环单线程访问, 保持 Dictionary 避免无谓加锁开销.
+        public static ConcurrentDictionary<int, 玩家实例> 玩家对象表;
 
         public static Dictionary<int, 宠物实例> 宠物对象表;
 
@@ -724,7 +727,7 @@ namespace 游戏服务器.地图类
             地图处理网关.激活对象表 = new Dictionary<int, 地图对象>();
             地图处理网关.地图对象表 = new Dictionary<int, 地图对象>();
             地图处理网关.地图实例表 = new Dictionary<int, 地图实例>();
-            地图处理网关.玩家对象表 = new Dictionary<int, 玩家实例>();
+            地图处理网关.玩家对象表 = new ConcurrentDictionary<int, 玩家实例>();
             地图处理网关.怪物对象表 = new Dictionary<int, 怪物实例>();
             地图处理网关.宠物对象表 = new Dictionary<int, 宠物实例>();
             地图处理网关.守卫对象表 = new Dictionary<int, 守卫实例>();
@@ -1127,7 +1130,7 @@ namespace 游戏服务器.地图类
                     地图处理网关.守卫对象表.Add(当前对象.地图编号, (守卫实例)当前对象);
                     break;
                 case 游戏对象类型.玩家:
-                    地图处理网关.玩家对象表.Add(当前对象.地图编号, (玩家实例)当前对象);
+                    地图处理网关.玩家对象表[当前对象.地图编号] = (玩家实例)当前对象;
                     break;
                 case 游戏对象类型.宠物:
                     地图处理网关.宠物对象表.Add(当前对象.地图编号, (宠物实例)当前对象);
@@ -1156,7 +1159,7 @@ namespace 游戏服务器.地图类
                     地图处理网关.守卫对象表.Remove(当前对象.地图编号);
                     break;
                 case 游戏对象类型.玩家:
-                    地图处理网关.玩家对象表.Remove(当前对象.地图编号);
+                    地图处理网关.玩家对象表.TryRemove(当前对象.地图编号, out _);
                     break;
                 case 游戏对象类型.宠物:
                     地图处理网关.宠物对象表.Remove(当前对象.地图编号);
