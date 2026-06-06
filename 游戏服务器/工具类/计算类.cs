@@ -476,6 +476,24 @@ namespace 游戏服务器.工具类
 			return 主程.随机数.Next(Math.Min(下限, 上限), Math.Max(下限, 上限) + 1);
 		}
 
+		// 幸运倍攻(从零原创): 按攻击方幸运值查最高满足档位的伤害倍率. 未开启或低于最低档返回 1f(不增伤).
+		public static float 幸运倍攻倍率(int 幸运值)
+		{
+			if (!Settings.开启幸运倍率功能)
+			{
+				return 1f;
+			}
+			float 倍率 = 1f;
+			for (int i = 0; i < Settings.幸运额外增伤值.Length && i < Settings.幸运增伤倍率值.Length; i++)
+			{
+				if (幸运值 >= Settings.幸运额外增伤值[i] && Settings.幸运增伤倍率值[i] > 倍率)
+				{
+					倍率 = Settings.幸运增伤倍率值[i];
+				}
+			}
+			return 倍率;
+		}
+
 		public static int 计算防御(int 下限, int 上限)
 		{
 			if (上限 >= 下限)

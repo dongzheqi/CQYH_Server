@@ -14,7 +14,6 @@ namespace 游戏服务器.窗口视图
         public ConfigInfoView()
         {
             this.InitializeComponent();
-
         }
 
         protected override void OnLoad(EventArgs e)
@@ -120,6 +119,7 @@ namespace 游戏服务器.窗口视图
             this.不分解极品check.EditValue = Settings.不分解极品装备;
             this.安全区满血check.EditValue = Settings.安全区内满血满蓝;
             this.下线宝宝不死check.EditValue = Settings.下线宝宝不死;
+            this.借鉴_加载();
         }
         //保存配置
         private void SaveConfig()
@@ -243,6 +243,7 @@ namespace 游戏服务器.窗口视图
                 职业开放7[3] = false;
                 职业开放6[2] = false;
             }
+            this.借鉴_保存();
             Settings.Save();
         }
 

@@ -152,6 +152,8 @@ namespace 游戏服务器
                         SMain.UpdateDelay(地图处理网关.激活对象表.Count, 地图处理网关.次要对象表.Count, 地图处理网关.地图对象表.Count);
                         SMain.UpdateTick(主程.循环计数);
                         主程.循环计数 = 0u;
+                        职业第一管理器.刷新();
+                        公会特效管理器.刷新();
                         主程.每秒计时 = 主程.当前时间.AddSeconds(1.0);
                     }
                     else

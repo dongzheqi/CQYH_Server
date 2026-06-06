@@ -35,18 +35,20 @@ namespace 游戏服务器.副本类
 			[10] = "九层妖塔十层陷阱"
 		};
 
+		// 妖塔各层经验改为从 Setup.ini 读取(Settings.妖塔层经验, [0]~[9] 对应一层~十层/秘境普通).
+		// 类静态初始化晚于 Settings.Load(), 取值时序安全.
 		private static Dictionary<int, int> 妖塔获取经验表 = new Dictionary<int, int>
 		{
-			[1] = 10560,
-			[2] = 14080,
-			[3] = 18480,
-			[4] = 23760,
-			[5] = 29920,
-			[6] = 40656,
-			[7] = 51744,
-			[8] = 61600,
-			[9] = 79200,
-			[10] = 900000
+			[1] = Settings.妖塔层经验[0],
+			[2] = Settings.妖塔层经验[1],
+			[3] = Settings.妖塔层经验[2],
+			[4] = Settings.妖塔层经验[3],
+			[5] = Settings.妖塔层经验[4],
+			[6] = Settings.妖塔层经验[5],
+			[7] = Settings.妖塔层经验[6],
+			[8] = Settings.妖塔层经验[7],
+			[9] = Settings.妖塔层经验[8],
+			[10] = Settings.妖塔层经验[9]
 		};
 
 		public static Dictionary<int, Point> 妖塔传送阵刷新表 = new Dictionary<int, Point>

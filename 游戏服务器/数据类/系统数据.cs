@@ -220,6 +220,11 @@ namespace 游戏服务器.数据类
 
 		public readonly 字典监视器<int, int> 脚本数字;
 
+		// 首杀/首爆(从零原创)全服记录: key=怪物模板编号/物品编号, value=首位达成者角色ID. 由基类反射自动实例化, JSON 名键持久化(旧档无此键即空表).
+		public readonly 字典监视器<int, int> 怪物首杀记录;
+
+		public readonly 字典监视器<int, int> 装备首爆记录;
+
 		public readonly 字典监视器<int, string> 脚本字符;
 
 		public readonly 字典监视器<int, string> 排序角色ID;

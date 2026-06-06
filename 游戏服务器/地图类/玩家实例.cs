@@ -16080,7 +16080,7 @@ namespace 游戏服务器.地图类
                 this.网络连接?.尝试断开连接(new Exception("错误操作: 寄售上架物品, 错误: 参数非法"));
                 return;
             }
-            if (游戏数据网关.寄售数据表.数据表.Where((KeyValuePair<int, 游戏数据> x) => x.Value is 寄售数据 寄售数据 && 寄售数据.卖家编号 == this.地图编号).Count() >= 5)
+            if (游戏数据网关.寄售数据表.数据表.Where((KeyValuePair<int, 游戏数据> x) => x.Value is 寄售数据 寄售数据 && 寄售数据.卖家编号 == this.地图编号).Count() >= Settings.寄售上架上限)
             {
                 base.发送封包(new 游戏错误提示
                 {
@@ -16679,11 +16679,11 @@ namespace 游戏服务器.地图类
                 this.角色数据.日常悬赏.Clear();
                 List<GameQuests> list;
                 list = GameQuests.数据表.Values.Where((GameQuests x) => x.Type == QuestType.悬赏任务 && x.Reset == QuestResetType.NoReset && this.角色数据.Quests.Any((CharacterQuest o) => o.CompleteDate.V == DateTime.MinValue && o.Info.V.Id != x.Id && x.CheckVersion <= 主程.开区节点)).ToList();
-                if (list.Count < 5)
+                if (list.Count < Settings.每日悬赏接取次数)
                 {
                     return false;
                 }
-                while (this.角色数据.日常悬赏.Count < 5)
+                while (this.角色数据.日常悬赏.Count < Settings.每日悬赏接取次数)
                 {
                     int id;
                     id = list[主程.随机数.Next(0, list.Count)].Id;
@@ -16709,11 +16709,11 @@ namespace 游戏服务器.地图类
                 this.角色数据.周常悬赏.Clear();
                 List<GameQuests> list;
                 list = GameQuests.数据表.Values.Where((GameQuests x) => x.Type == QuestType.悬赏任务 && x.Reset == QuestResetType.Weekly && this.角色数据.Quests.Any((CharacterQuest o) => o.CompleteDate.V == DateTime.MinValue && o.Info.V.Id != x.Id && x.CheckVersion <= 主程.开区节点)).ToList();
-                if (list.Count < 5)
+                if (list.Count < Settings.每周悬赏接取次数)
                 {
                     return false;
                 }
-                while (this.角色数据.周常悬赏.Count < 5)
+                while (this.角色数据.周常悬赏.Count < Settings.每周悬赏接取次数)
                 {
                     int id;
                     id = list[主程.随机数.Next(0, list.Count)].Id;
@@ -16764,16 +16764,16 @@ namespace 游戏服务器.地图类
             this.网络连接?.发送封包(new 同步悬赏剩余
             {
                 悬赏类型 = 0,
-                已经完成 = 10 - this.角色数据.日常悬赏完成次数.V,
+                已经完成 = Settings.每日悬赏完成次数 - this.角色数据.日常悬赏完成次数.V,
                 还能完成 = this.角色数据.日常悬赏完成次数.V,
-                日程进度 = 10
+                日程进度 = Settings.每日悬赏完成次数
             });
             this.网络连接?.发送封包(new 同步悬赏剩余
             {
                 悬赏类型 = 1,
-                已经完成 = 15 - this.角色数据.周常悬赏完成次数.V,
+                已经完成 = Settings.每周悬赏完成次数 - this.角色数据.周常悬赏完成次数.V,
                 还能完成 = this.角色数据.周常悬赏完成次数.V,
-                日程进度 = 15
+                日程进度 = Settings.每周悬赏完成次数
             });
         }
 
@@ -16782,12 +16782,12 @@ namespace 游戏服务器.地图类
             if (主程.当前时间 > this.角色数据.日常悬赏计次刷新.V)
             {
                 this.角色数据.日常悬赏计次刷新.V = 主程.当前时间.Date.AddDays(1.0);
-                this.角色数据.日常悬赏完成次数.V = 10;
+                this.角色数据.日常悬赏完成次数.V = Settings.每日悬赏完成次数;
             }
             if (主程.当前时间 > this.角色数据.周常悬赏计次刷新.V)
             {
                 this.角色数据.周常悬赏计次刷新.V = 主程.当前时间.Date.AddDays(1.0);
-                this.角色数据.周常悬赏完成次数.V = 15;
+                this.角色数据.周常悬赏完成次数.V = Settings.每周悬赏完成次数;
             }
             this.检测刷新日常悬赏任务();
             this.发送日常悬赏详情();

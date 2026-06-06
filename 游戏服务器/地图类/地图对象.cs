@@ -2461,6 +2461,11 @@ namespace 游戏服务器.地图类
                         }
                     }
                     详情.技能伤害 = (int)Math.Min(num17, Math.Max(0f, ((num4 + num6) * (float)num9 + (float)num3 + (float)num5 + (float)num15 - Math.Max(0f, (float)(num10 - num7) - (float)num10 * num8)) * (1f + num16 + num2) * 伤害系数));
+                    // 幸运倍攻(从零原创): 攻击方为玩家且幸运值达标时, 最终伤害按档位倍率放大
+                    if (Settings.开启幸运倍率功能 && 地图对象2 is 玩家实例)
+                    {
+                        详情.技能伤害 = (int)Math.Min(num17, (float)详情.技能伤害 * 计算类.幸运倍攻倍率(地图对象2[游戏对象属性.幸运等级]));
+                    }
                     if (地图对象2 != null && 地图对象2 is 玩家实例 玩家实例11 && 玩家实例11.角色装备.TryGetValue(15, out var v) && v.当前持久.V > 0)
                     {
                         switch (v.物品编号)

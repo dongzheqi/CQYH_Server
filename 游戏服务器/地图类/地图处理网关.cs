@@ -156,7 +156,7 @@ namespace 游戏服务器.地图类
                 item = item2.Value as 行会数据;
                 地图处理网关.攻城行会.Add(item);
             }
-            地图处理网关.攻城战结束时间 = 主程.当前时间.AddMinutes(120.0);
+            地图处理网关.攻城战结束时间 = 主程.当前时间.AddMinutes((double)Settings.攻城持续时间);
             地图处理网关.沙城节点 = 2;
             地图处理网关.沙城城门.移除Buff时处理(22300);
             地图处理网关.下方宫门.移除Buff时处理(22300);
@@ -282,7 +282,9 @@ namespace 游戏服务器.地图类
             }
             if (地图处理网关.沙城节点 == 0)
             {
-                if (主程.当前时间.Hour != 19 || 主程.当前时间.Minute != 50)
+                DateTime 今日开战 = 主程.当前时间.Date.AddHours(Settings.攻沙开始时间小时).AddMinutes(Settings.攻沙开始时间分钟);
+                DateTime 今日预告 = 今日开战.AddMinutes(-10.0);
+                if (主程.当前时间.Hour != 今日预告.Hour || 主程.当前时间.Minute != 今日预告.Minute)
                 {
                     return;
                 }
@@ -312,7 +314,7 @@ namespace 游戏服务器.地图类
             }
             if (地图处理网关.沙城节点 == 1)
             {
-                if (主程.当前时间.Hour != 20)
+                if (主程.当前时间.Hour != Settings.攻沙开始时间小时 || 主程.当前时间.Minute < Settings.攻沙开始时间分钟)
                 {
                     return;
                 }
@@ -521,7 +523,7 @@ namespace 游戏服务器.地图类
                         return;
                     }
                 }
-                else if (主程.当前时间.Hour != 22)
+                else if (主程.当前时间.Hour != Settings.攻沙结束时间小时 || 主程.当前时间.Minute < Settings.攻沙结束时间分钟)
                 {
                     return;
                 }
