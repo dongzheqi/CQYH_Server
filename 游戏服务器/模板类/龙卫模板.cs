@@ -232,12 +232,26 @@ namespace 游戏服务器.模板类
 					龙卫模板.检索表.Add($"{龙卫模板2.词缀名字}-{龙卫模板2.需要职业}", 龙卫模板2);
 				}
 			}
+			string 配置文件;
+			配置文件 = Settings.游戏数据目录 + "\\System\\龙卫数据\\龙卫设置.txt";
+			if (!File.Exists(配置文件))
+			{
+				return;
+			}
 			string[] array2;
-			array2 = Regex.Split(File.ReadAllText(Settings.游戏数据目录 + "\\System\\龙卫数据\\龙卫设置.txt").Trim('\r', '\n', '\r'), "\r\n", RegexOptions.IgnoreCase);
+			array2 = Regex.Split(File.ReadAllText(配置文件).Trim('\r', '\n'), "\r?\n", RegexOptions.IgnoreCase);
 			for (int j = 0; j < array2.Length; j++)
 			{
+				if (string.IsNullOrWhiteSpace(array2[j]))
+				{
+					continue;
+				}
 				string[] array3;
 				array3 = Regex.Split(array2[j], "\t", RegexOptions.IgnoreCase);
+				if (array3.Length < 10)
+				{
+					continue;
+				}
 				龙卫模板.龙卫配置.Add(new 龙卫设置
 				{
 					位置 = Convert.ToInt32(array3[0]),
