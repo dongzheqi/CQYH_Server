@@ -110,6 +110,23 @@ namespace 游戏服务器.模板类
 			}
 		}
 
+		// 判断文本是否疑似 JSON: 首个非空白字符为 { 或 [.
+		// 模板目录里常混有 TSV/配置等异类文件(如龙卫数据\龙卫设置.txt), 它们不该被当模板反序列化,
+		// 否则每次起服都对 JsonConvert 抛一次异常并刷一条错误日志. 此处先按形状筛掉, 从源头消噪.
+		private static bool 疑似JSON(string 文本)
+		{
+			for (int i = 0; i < 文本.Length; i++)
+			{
+				char c = 文本[i];
+				if (char.IsWhiteSpace(c))
+				{
+					continue;
+				}
+				return c == '{' || c == '[';
+			}
+			return false;
+		}
+
 		public static object[] 反序列化(string 文件夹, Type 类型)
 		{
 			ConcurrentQueue<object> concurrentQueue;
@@ -127,6 +144,11 @@ namespace 游戏服务器.模板类
 				{
 					string text;
 					text = File.ReadAllText(file.FullName);
+					// 非 JSON 文件(同目录混入的表格/配置)直接跳过, 不再徒抛异常刷日志.
+					if (!序列化类.疑似JSON(text))
+					{
+						return;
+					}
 					// 定向字典 只为修正 $type 里的程序集名(Assembly-CSharp)与短类型名(技能任务子类),
 					// 这些只出现在含 $type 的文件(如技能节点). 不含 $type 的文件(如巨型坐标点集
 					// 地图区域/怪物刷新, 单文件可达数 MB)无需替换, 跳过 18 轮整串 Replace 省掉大量分配.
@@ -172,6 +194,11 @@ namespace 游戏服务器.模板类
 				{
 					string text;
 					text = File.ReadAllText(file.FullName);
+					// 同非泛型重载: 非 JSON 文件直接跳过.
+					if (!序列化类.疑似JSON(text))
+					{
+						return;
+					}
 					// 同非泛型重载: 仅含 $type / Assembly-CSharp 的文件才需替换, 否则跳过 18 轮整串扫描.
 					if (text.IndexOf("$type", StringComparison.Ordinal) >= 0
 						|| text.IndexOf("Assembly-CSharp", StringComparison.Ordinal) >= 0)

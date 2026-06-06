@@ -218,12 +218,22 @@ namespace 游戏服务器.模板类
 			龙卫模板.数据表 = new Dictionary<int, 龙卫模板>();
 			龙卫模板.检索表 = new Dictionary<string, 龙卫模板>();
 			龙卫模板.龙卫配置 = new List<龙卫设置>();
-			string text;
-			text = Settings.游戏数据目录 + "\\System\\龙卫数据\\";
-			if (Directory.Exists(text))
+			string 根目录;
+			根目录 = Settings.游戏数据目录 + "\\System\\龙卫数据\\";
+			// 词缀 JSON 模板与 TSV 觉醒消耗表(龙卫设置.txt)分置两个子目录: 模板\ 与 设置\.
+			// 二者格式不同, 早期混放同一目录致反序列化器误把 龙卫设置.txt 当模板解析刷错误日志、
+			// 且编辑器保存(保存数据)会连它一起删光. 分目录后各管各的, 互不波及.
+			// 子目录不存在则回退根目录(兼容旧扁平布局); 反序列化器自带的 JSON 形状判断会跳过非模板文件.
+			string 模板目录;
+			模板目录 = 根目录 + "模板\\";
+			if (!Directory.Exists(模板目录))
+			{
+				模板目录 = 根目录;
+			}
+			if (Directory.Exists(模板目录))
 			{
 				object[] array;
-				array = 序列化类.反序列化(text, typeof(龙卫模板));
+				array = 序列化类.反序列化(模板目录, typeof(龙卫模板));
 				for (int i = 0; i < array.Length; i++)
 				{
 					龙卫模板 龙卫模板2;
@@ -233,7 +243,12 @@ namespace 游戏服务器.模板类
 				}
 			}
 			string 配置文件;
-			配置文件 = Settings.游戏数据目录 + "\\System\\龙卫数据\\龙卫设置.txt";
+			配置文件 = 根目录 + "设置\\龙卫设置.txt";
+			if (!File.Exists(配置文件))
+			{
+				// 回退旧位置: 龙卫数据\龙卫设置.txt
+				配置文件 = 根目录 + "龙卫设置.txt";
+			}
 			if (!File.Exists(配置文件))
 			{
 				return;
@@ -279,14 +294,19 @@ namespace 游戏服务器.模板类
 
 		public static void 保存数据()
 		{
-			string text;
-			text = Settings.游戏数据目录 + "\\System\\龙卫数据\\";
-			if (!Directory.Exists(text))
+			string 根目录;
+			根目录 = Settings.游戏数据目录 + "\\System\\龙卫数据\\";
+			if (!Directory.Exists(根目录))
 			{
 				return;
 			}
+			// 只在模板子目录里「清空重写」, 不再波及同级的 龙卫设置.txt(觉醒消耗表),
+			// 杜绝编辑器保存把手工配置的觉醒消耗表一并删光的数据丢失.
+			string 模板目录;
+			模板目录 = 根目录 + "模板\\";
+			Directory.CreateDirectory(模板目录);
 			FileInfo[] files;
-			files = new DirectoryInfo(text).GetFiles();
+			files = new DirectoryInfo(模板目录).GetFiles();
 			for (int i = 0; i < files.Length; i++)
 			{
 				files[i].Delete();
@@ -294,7 +314,7 @@ namespace 游戏服务器.模板类
 			foreach (KeyValuePair<int, 龙卫模板> item in 龙卫模板.数据表)
 			{
 				StreamWriter streamWriter;
-				streamWriter = File.CreateText($"{text}{item.Value.龙卫编号}-{item.Value.词缀名字}.txt");
+				streamWriter = File.CreateText($"{模板目录}{item.Value.龙卫编号}-{item.Value.词缀名字}.txt");
 				streamWriter.Write(JsonConvert.SerializeObject(item.Value, Formatting.Indented, 序列化类.全局设置));
 				streamWriter.Close();
 			}
