@@ -77,6 +77,9 @@ namespace 游戏服务器.窗口视图
 			this.spn货币异常上限.Value = Settings.货币异常上限;
 			this.spn货币异常归位.Value = Settings.货币异常归位;
 			this.spn日志保留天数.Value = Settings.日志保留天数;
+
+			// 假人系统(存独立 CSV, 不走 Settings): 载入到「特殊功能 / 假人管理」子页
+			this.假人_载入界面();
 		}
 
 		private void 借鉴_保存()
