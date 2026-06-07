@@ -45,6 +45,9 @@ namespace 游戏服务器
         // 禁止创建角色(借鉴 参考引擎 服务器设置): 开服只放老号 / 活动封档期打开, 创角请求一律拒绝. 默认关.
         public static bool 禁止创建角色 = false;
 
+        // 日志保留天数(借鉴 参考引擎 安全审计): WriteLogs 按此天数清理 Log 各子目录的过期文件, 0=不清理(原行为). 默认 30 天.
+        public static int 日志保留天数 = 30;
+
         public static ushort 异常屏蔽时间 = 5;
 
         public static ushort 掉线判定时间 = 5;
@@ -427,6 +430,7 @@ namespace 游戏服务器
             Settings.单IP连接上限 = Settings.iniconfig.ReadInt32("General", "单IP连接上限", Settings.单IP连接上限);
             Settings.连接IP白名单 = Settings.iniconfig.ReadString("General", "连接IP白名单", Settings.连接IP白名单);
             Settings.禁止创建角色 = Settings.iniconfig.ReadBoolean("General", "禁止创建角色", Settings.禁止创建角色);
+            Settings.日志保留天数 = Settings.iniconfig.ReadInt32("General", "日志保留天数", Settings.日志保留天数);
             Settings.异常屏蔽时间 = Settings.iniconfig.ReadUInt16("General", "异常屏蔽时间", Settings.异常屏蔽时间);
             Settings.掉线判定时间 = Settings.iniconfig.ReadUInt16("General", "掉线判定时间", Settings.掉线判定时间);
             Settings.游戏开放等级 = Settings.iniconfig.ReadByte("General", "游戏开放等级", Settings.游戏开放等级);
@@ -613,6 +617,7 @@ namespace 游戏服务器
             Settings.iniconfig.Write("General", "单IP连接上限", Settings.单IP连接上限);
             Settings.iniconfig.Write("General", "连接IP白名单", Settings.连接IP白名单);
             Settings.iniconfig.Write("General", "禁止创建角色", Settings.禁止创建角色);
+            Settings.iniconfig.Write("General", "日志保留天数", Settings.日志保留天数);
             Settings.iniconfig.Write("General", "异常屏蔽时间", Settings.异常屏蔽时间);
             Settings.iniconfig.Write("General", "掉线判定时间", Settings.掉线判定时间);
             Settings.iniconfig.Write("General", "游戏开放等级", Settings.游戏开放等级);
@@ -801,6 +806,7 @@ namespace 游戏服务器
             // 连接限流上限须为正, 否则无人能连入.
             if (Settings.最大连接数 <= 0) 问题.Add($"最大连接数 = {Settings.最大连接数} (应 > 0, 否则无人能连入)");
             if (Settings.单IP连接上限 <= 0) 问题.Add($"单IP连接上限 = {Settings.单IP连接上限} (应 > 0)");
+            if (Settings.日志保留天数 < 0) 问题.Add($"日志保留天数 = {Settings.日志保留天数} (应 ≥ 0, 0=不清理)");
 
             // 倍率/比率 不应为负; 收益减少比率 是比例, 须在 0~1.
             if (Settings.怪物经验倍率 < 0m) 问题.Add($"怪物经验倍率 = {Settings.怪物经验倍率} (应 ≥ 0)");

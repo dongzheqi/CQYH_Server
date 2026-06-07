@@ -92,6 +92,18 @@ namespace 游戏服务器
                 主程.DisplayCommandLogs.Enqueue(文本);
             }
             主程.Logs.Enqueue(文本);
+            if (主程.CommandLogs != null && 主程.CommandLogs.Count < 2000) 主程.CommandLogs.Enqueue(文本); // 专属 GM/管理员操作审计文件, 不再只混进 SystemLog
+        }
+
+        // 安全告警(借鉴 参考引擎 安全审计): 高危/异常事件(禁止创角拦截、货币异常、门票拒绝等)写专属 SecurityLog 文件,
+        // 同时进系统日志便于运维当场看到. 与 GM操作(CommandLog)/货币(CurrencyLog)/物品(ItemLog) 分文件、互不淹没.
+        public static void 添加安全告警(string 文本)
+        {
+            if (主程.SecurityLogs != null && 主程.SecurityLogs.Count < 2000)
+            {
+                主程.SecurityLogs.Enqueue($"[{主程.当前时间:F}]: {文本}");
+            }
+            主程.添加系统日志("[安全告警] " + 文本);
         }
 
         internal static void WriteLogs()
@@ -180,6 +192,39 @@ namespace 游戏服务器
                 File.AppendAllLines($"{text}\\CurrencyLogs\\{DateTime.Now:yyyy-MM-dd HH 00 00}.txt", list);
             }
             list.Clear();
+            while (!主程.CommandLogs.IsEmpty)
+            {
+                if (主程.CommandLogs.TryDequeue(out var resultCmd))
+                {
+                    list.Add(resultCmd);
+                }
+            }
+            if (!Directory.Exists(text + "\\CommandLog"))
+            {
+                Directory.CreateDirectory(text + "\\CommandLog");
+            }
+            if (list.Count > 0)
+            {
+                File.AppendAllLines($"{text}\\CommandLog\\{DateTime.Now:yyyy-MM-dd}.txt", list);
+            }
+            list.Clear();
+            while (!主程.SecurityLogs.IsEmpty)
+            {
+                if (主程.SecurityLogs.TryDequeue(out var resultSec))
+                {
+                    list.Add(resultSec);
+                }
+            }
+            if (!Directory.Exists(text + "\\SecurityLog"))
+            {
+                Directory.CreateDirectory(text + "\\SecurityLog");
+            }
+            if (list.Count > 0)
+            {
+                File.AppendAllLines($"{text}\\SecurityLog\\{DateTime.Now:yyyy-MM-dd}.txt", list);
+            }
+            list.Clear();
+            主程.清理过期日志(text);
             /*
             while (!主程.WebLogs.IsEmpty)
             {
@@ -201,6 +246,36 @@ namespace 游戏服务器
             */
             list.Clear();
             list.Clear();
+        }
+
+        private static int 上次清理日志的日 = -1;
+
+        // 按 Settings.日志保留天数 删除 Log 各子目录下的过期文件(0=不清理). 每天只跑一次, 单文件删除失败吞异常、不影响落盘.
+        // 治原 WriteLogs 只生成不清理、长期运行撑满磁盘的隐患.
+        private static void 清理过期日志(string logRoot)
+        {
+            try
+            {
+                if (Settings.日志保留天数 <= 0 || 主程.上次清理日志的日 == DateTime.Now.Day || !Directory.Exists(logRoot))
+                {
+                    return;
+                }
+                主程.上次清理日志的日 = DateTime.Now.Day;
+                DateTime 截止 = DateTime.Now.AddDays(-Settings.日志保留天数);
+                foreach (string 文件 in Directory.GetFiles(logRoot, "*.*", SearchOption.AllDirectories))
+                {
+                    try
+                    {
+                        if (File.GetLastWriteTime(文件) < 截止) File.Delete(文件);
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+            catch
+            {
+            }
         }
 
         public static void 添加重铸日志(角色数据 角色数据, 装备数据 关联物品, 列表监视器<随机属性> 随机属性)

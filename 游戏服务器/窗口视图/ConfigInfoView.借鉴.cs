@@ -76,6 +76,7 @@ namespace 游戏服务器.窗口视图
 			this.txt门票来源白名单.Text = Settings.门票来源白名单;
 			this.spn货币异常上限.Value = Settings.货币异常上限;
 			this.spn货币异常归位.Value = Settings.货币异常归位;
+			this.spn日志保留天数.Value = Settings.日志保留天数;
 		}
 
 		private void 借鉴_保存()
@@ -147,6 +148,7 @@ namespace 游戏服务器.窗口视图
 			Settings.门票来源白名单 = this.txt门票来源白名单.Text;
 			Settings.货币异常上限 = Convert.ToUInt32(this.spn货币异常上限.Value);
 			Settings.货币异常归位 = Convert.ToUInt32(this.spn货币异常归位.Value);
+			Settings.日志保留天数 = Convert.ToInt32(this.spn日志保留天数.Value);
 		}
 	}
 }

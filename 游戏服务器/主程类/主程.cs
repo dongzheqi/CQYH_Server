@@ -113,6 +113,11 @@ namespace 游戏服务器
 
         public static ConcurrentQueue<string> CurrencyLogs;
 
+        // 安全审计(借鉴 参考引擎): GM/管理员操作 与 安全告警 各写专属文件, 不再混进 SystemLog 难以追溯.
+        public static ConcurrentQueue<string> CommandLogs;
+
+        public static ConcurrentQueue<string> SecurityLogs;
+
         public static ConcurrentQueue<string> WebLogs;
 
         private static ConcurrentQueue<LogData> WebLogDatas;
@@ -173,6 +178,8 @@ namespace 游戏服务器
             主程.GameLogs = new ConcurrentQueue<string>();
             主程.ItemLogs = new ConcurrentQueue<string>();
             主程.CurrencyLogs = new ConcurrentQueue<string>();
+            主程.CommandLogs = new ConcurrentQueue<string>();
+            主程.SecurityLogs = new ConcurrentQueue<string>();
             //主程.WebLogs = new ConcurrentQueue<string>();
             //主程.WebLogDatas = new ConcurrentQueue<LogData>();
             主程.DisplayCommandLogs = new ConcurrentQueue<string>();

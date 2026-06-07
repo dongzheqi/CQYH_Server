@@ -1574,6 +1574,7 @@ namespace 游戏服务器.地图类
                     text += $"=> {frame.GetFileLineNumber()} {frame.GetMethod().Name}";
                 }
                 主程.添加货币日志(this.角色数据, text, 币, value);
+                主程.添加安全告警($"货币异常拦截: {this.角色数据.角色名字.V} {币} 目标值 {value} 超上限 {Settings.货币异常上限}, 已回退当前值");
                 value = 当前;
             }
             return value;

@@ -2722,19 +2722,22 @@ namespace 游戏服务器.窗口视图
             this.lbl单IP连接上限 = new LabelControl(); this.spn单IP连接上限 = new SpinEdit();
             this.lbl货币异常上限 = new LabelControl(); this.spn货币异常上限 = new SpinEdit();
             this.lbl货币异常归位 = new LabelControl(); this.spn货币异常归位 = new SpinEdit();
+            this.lbl日志保留天数 = new LabelControl(); this.spn日志保留天数 = new SpinEdit();
             this.lbl门票来源白名单 = new LabelControl(); this.txt门票来源白名单 = new TextEdit();
-            this.chk禁止创建角色.Name = "chk禁止创建角色"; this.chk禁止创建角色.Text = "禁止创建角色 (开服只放老号 / 封档期打开)"; this.chk禁止创建角色.Location = new Point(575, 28); this.chk禁止创建角色.Size = new Size(400, 20);
-            this.lbl最大连接数.Text = "最大连接数(≈在线上限, 白名单IP不受限)"; this.lbl最大连接数.Location = new Point(575, 58);
-            this.spn最大连接数.Name = "spn最大连接数"; this.spn最大连接数.Location = new Point(820, 55); this.spn最大连接数.Size = new Size(120, 20); this.spn最大连接数.Properties.IsFloatValue = false; this.spn最大连接数.Properties.MaxValue = 1000000m;
-            this.lbl单IP连接上限.Text = "单IP连接上限(白名单IP不受限)"; this.lbl单IP连接上限.Location = new Point(575, 84);
-            this.spn单IP连接上限.Name = "spn单IP连接上限"; this.spn单IP连接上限.Location = new Point(820, 81); this.spn单IP连接上限.Size = new Size(120, 20); this.spn单IP连接上限.Properties.IsFloatValue = false; this.spn单IP连接上限.Properties.MaxValue = 100000m;
-            this.lbl货币异常上限.Text = "货币异常上限"; this.lbl货币异常上限.Location = new Point(575, 110);
-            this.spn货币异常上限.Name = "spn货币异常上限"; this.spn货币异常上限.Location = new Point(820, 107); this.spn货币异常上限.Size = new Size(120, 20); this.spn货币异常上限.Properties.IsFloatValue = false; this.spn货币异常上限.Properties.MaxValue = 4294967295m;
-            this.lbl货币异常归位.Text = "货币异常归位"; this.lbl货币异常归位.Location = new Point(575, 136);
-            this.spn货币异常归位.Name = "spn货币异常归位"; this.spn货币异常归位.Location = new Point(820, 133); this.spn货币异常归位.Size = new Size(120, 20); this.spn货币异常归位.Properties.IsFloatValue = false; this.spn货币异常归位.Properties.MaxValue = 4294967295m;
-            this.lbl门票来源白名单.Text = "门票来源白名单(账号服IP, 逗号)"; this.lbl门票来源白名单.Location = new Point(575, 162);
-            this.txt门票来源白名单.Name = "txt门票来源白名单"; this.txt门票来源白名单.Location = new Point(760, 159); this.txt门票来源白名单.Size = new Size(245, 20);
-            this.groupControl6.Controls.AddRange(new Control[] { this.chk禁止创建角色, this.lbl最大连接数, this.spn最大连接数, this.lbl单IP连接上限, this.spn单IP连接上限, this.lbl货币异常上限, this.spn货币异常上限, this.lbl货币异常归位, this.spn货币异常归位, this.lbl门票来源白名单, this.txt门票来源白名单 });
+            this.chk禁止创建角色.Name = "chk禁止创建角色"; this.chk禁止创建角色.Text = "禁止创建角色 (开服只放老号 / 封档期打开)"; this.chk禁止创建角色.Location = new Point(575, 26); this.chk禁止创建角色.Size = new Size(400, 20);
+            this.lbl最大连接数.Text = "最大连接数(≈在线上限, 白名单IP不受限)"; this.lbl最大连接数.Location = new Point(575, 54);
+            this.spn最大连接数.Name = "spn最大连接数"; this.spn最大连接数.Location = new Point(820, 51); this.spn最大连接数.Size = new Size(120, 20); this.spn最大连接数.Properties.IsFloatValue = false; this.spn最大连接数.Properties.MaxValue = 1000000m;
+            this.lbl单IP连接上限.Text = "单IP连接上限(白名单IP不受限)"; this.lbl单IP连接上限.Location = new Point(575, 78);
+            this.spn单IP连接上限.Name = "spn单IP连接上限"; this.spn单IP连接上限.Location = new Point(820, 75); this.spn单IP连接上限.Size = new Size(120, 20); this.spn单IP连接上限.Properties.IsFloatValue = false; this.spn单IP连接上限.Properties.MaxValue = 100000m;
+            this.lbl货币异常上限.Text = "货币异常上限"; this.lbl货币异常上限.Location = new Point(575, 102);
+            this.spn货币异常上限.Name = "spn货币异常上限"; this.spn货币异常上限.Location = new Point(820, 99); this.spn货币异常上限.Size = new Size(120, 20); this.spn货币异常上限.Properties.IsFloatValue = false; this.spn货币异常上限.Properties.MaxValue = 4294967295m;
+            this.lbl货币异常归位.Text = "货币异常归位"; this.lbl货币异常归位.Location = new Point(575, 126);
+            this.spn货币异常归位.Name = "spn货币异常归位"; this.spn货币异常归位.Location = new Point(820, 123); this.spn货币异常归位.Size = new Size(120, 20); this.spn货币异常归位.Properties.IsFloatValue = false; this.spn货币异常归位.Properties.MaxValue = 4294967295m;
+            this.lbl日志保留天数.Text = "日志保留天数(0=不清理)"; this.lbl日志保留天数.Location = new Point(575, 150);
+            this.spn日志保留天数.Name = "spn日志保留天数"; this.spn日志保留天数.Location = new Point(820, 147); this.spn日志保留天数.Size = new Size(120, 20); this.spn日志保留天数.Properties.IsFloatValue = false; this.spn日志保留天数.Properties.MaxValue = 3650m;
+            this.lbl门票来源白名单.Text = "门票来源白名单(账号服IP, 逗号)"; this.lbl门票来源白名单.Location = new Point(575, 174);
+            this.txt门票来源白名单.Name = "txt门票来源白名单"; this.txt门票来源白名单.Location = new Point(760, 171); this.txt门票来源白名单.Size = new Size(245, 20);
+            this.groupControl6.Controls.AddRange(new Control[] { this.chk禁止创建角色, this.lbl最大连接数, this.spn最大连接数, this.lbl单IP连接上限, this.spn单IP连接上限, this.lbl货币异常上限, this.spn货币异常上限, this.lbl货币异常归位, this.spn货币异常归位, this.lbl日志保留天数, this.spn日志保留天数, this.lbl门票来源白名单, this.txt门票来源白名单 });
             ResumeLayout(false);
             PerformLayout();
         }
@@ -2751,6 +2754,8 @@ namespace 游戏服务器.窗口视图
         private SpinEdit spn货币异常上限;
         private LabelControl lbl货币异常归位;
         private SpinEdit spn货币异常归位;
+        private LabelControl lbl日志保留天数;
+        private SpinEdit spn日志保留天数;
 
         private XtraTabPage xtraTabPage3;
         private CheckEdit 不分解极品check;
