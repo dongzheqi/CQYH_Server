@@ -2318,7 +2318,7 @@ namespace 游戏服务器.窗口视图
             groupControl6.Controls.Add(richEditControl1);
             groupControl6.Location = new Point(11, 267);
             groupControl6.Name = "groupControl6";
-            groupControl6.Size = new Size(587, 185);
+            groupControl6.Size = new Size(1015, 195);
             groupControl6.TabIndex = 61;
             groupControl6.Text = "玩家限制登录";
             // 
@@ -2716,9 +2716,41 @@ namespace 游戏服务器.窗口视图
             this.spn攻沙结束分.Name = "spn攻沙结束分"; this.spn攻沙结束分.Location = new Point(194, 98); this.spn攻沙结束分.Size = new Size(114, 20); this.spn攻沙结束分.Properties.IsFloatValue = false; this.spn攻沙结束分.Properties.MaxValue = 59m;
             this.spn攻城持续.Name = "spn攻城持续"; this.spn攻城持续.Location = new Point(194, 122); this.spn攻城持续.Size = new Size(114, 20); this.spn攻城持续.Properties.IsFloatValue = false; this.spn攻城持续.Properties.MaxValue = 1440m;
             this.组攻城.Controls.AddRange(new Control[] { this.lbl攻城1, this.spn攻沙开始时, this.lbl攻城2, this.spn攻沙开始分, this.lbl攻城3, this.spn攻沙结束时, this.lbl攻城4, this.spn攻沙结束分, this.lbl攻城5, this.spn攻城持续 });
+            // ===== 玩家限制登录组(groupControl6)补充: 连接限流 / 创角 / 安全(全线性标准设计器代码; 并入系统页现成组; IP白名单复用 richEditControl2) =====
+            this.chk禁止创建角色 = new CheckEdit();
+            this.lbl最大连接数 = new LabelControl(); this.spn最大连接数 = new SpinEdit();
+            this.lbl单IP连接上限 = new LabelControl(); this.spn单IP连接上限 = new SpinEdit();
+            this.lbl货币异常上限 = new LabelControl(); this.spn货币异常上限 = new SpinEdit();
+            this.lbl货币异常归位 = new LabelControl(); this.spn货币异常归位 = new SpinEdit();
+            this.lbl门票来源白名单 = new LabelControl(); this.txt门票来源白名单 = new TextEdit();
+            this.chk禁止创建角色.Name = "chk禁止创建角色"; this.chk禁止创建角色.Text = "禁止创建角色 (开服只放老号 / 封档期打开)"; this.chk禁止创建角色.Location = new Point(575, 28); this.chk禁止创建角色.Size = new Size(400, 20);
+            this.lbl最大连接数.Text = "最大连接数(≈在线上限, 白名单IP不受限)"; this.lbl最大连接数.Location = new Point(575, 58);
+            this.spn最大连接数.Name = "spn最大连接数"; this.spn最大连接数.Location = new Point(820, 55); this.spn最大连接数.Size = new Size(120, 20); this.spn最大连接数.Properties.IsFloatValue = false; this.spn最大连接数.Properties.MaxValue = 1000000m;
+            this.lbl单IP连接上限.Text = "单IP连接上限(白名单IP不受限)"; this.lbl单IP连接上限.Location = new Point(575, 84);
+            this.spn单IP连接上限.Name = "spn单IP连接上限"; this.spn单IP连接上限.Location = new Point(820, 81); this.spn单IP连接上限.Size = new Size(120, 20); this.spn单IP连接上限.Properties.IsFloatValue = false; this.spn单IP连接上限.Properties.MaxValue = 100000m;
+            this.lbl货币异常上限.Text = "货币异常上限"; this.lbl货币异常上限.Location = new Point(575, 110);
+            this.spn货币异常上限.Name = "spn货币异常上限"; this.spn货币异常上限.Location = new Point(820, 107); this.spn货币异常上限.Size = new Size(120, 20); this.spn货币异常上限.Properties.IsFloatValue = false; this.spn货币异常上限.Properties.MaxValue = 4294967295m;
+            this.lbl货币异常归位.Text = "货币异常归位"; this.lbl货币异常归位.Location = new Point(575, 136);
+            this.spn货币异常归位.Name = "spn货币异常归位"; this.spn货币异常归位.Location = new Point(820, 133); this.spn货币异常归位.Size = new Size(120, 20); this.spn货币异常归位.Properties.IsFloatValue = false; this.spn货币异常归位.Properties.MaxValue = 4294967295m;
+            this.lbl门票来源白名单.Text = "门票来源白名单(账号服IP, 逗号)"; this.lbl门票来源白名单.Location = new Point(575, 162);
+            this.txt门票来源白名单.Name = "txt门票来源白名单"; this.txt门票来源白名单.Location = new Point(760, 159); this.txt门票来源白名单.Size = new Size(245, 20);
+            this.groupControl6.Controls.AddRange(new Control[] { this.chk禁止创建角色, this.lbl最大连接数, this.spn最大连接数, this.lbl单IP连接上限, this.spn单IP连接上限, this.lbl货币异常上限, this.spn货币异常上限, this.lbl货币异常归位, this.spn货币异常归位, this.lbl门票来源白名单, this.txt门票来源白名单 });
             ResumeLayout(false);
             PerformLayout();
         }
+
+        // ===== 玩家限制登录组(groupControl6)补充 控件字段 =====
+        private LabelControl lbl最大连接数;
+        private SpinEdit spn最大连接数;
+        private LabelControl lbl单IP连接上限;
+        private SpinEdit spn单IP连接上限;
+        private CheckEdit chk禁止创建角色;
+        private LabelControl lbl门票来源白名单;
+        private TextEdit txt门票来源白名单;
+        private LabelControl lbl货币异常上限;
+        private SpinEdit spn货币异常上限;
+        private LabelControl lbl货币异常归位;
+        private SpinEdit spn货币异常归位;
 
         private XtraTabPage xtraTabPage3;
         private CheckEdit 不分解极品check;

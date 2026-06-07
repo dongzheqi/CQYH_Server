@@ -1,6 +1,7 @@
 using DevExpress.XtraBars;
 using DevExpress.XtraSpreadsheet.Model.History;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -32,6 +33,17 @@ namespace 游戏服务器
         public static ushort 每秒封包上限 = 300;
 
         public static byte 封包限速容忍秒数 = 8;
+
+        // 连接限流(借鉴 参考引擎 服务器设置). 原 网络服务网关 把全局/单IP连接上限写死成 const(9999/10), 现提到 Settings 可调,
+        // 默认值与原写死一致、零行为改变. 连接IP白名单 内的 IP 豁免 单IP连接上限(给主播/自己人多开开后门, 逗号分隔, 空=不豁免).
+        public static int 最大连接数 = 9999;
+
+        public static int 单IP连接上限 = 10;
+
+        public static string 连接IP白名单 = "";
+
+        // 禁止创建角色(借鉴 参考引擎 服务器设置): 开服只放老号 / 活动封档期打开, 创角请求一律拒绝. 默认关.
+        public static bool 禁止创建角色 = false;
 
         public static ushort 异常屏蔽时间 = 5;
 
@@ -329,6 +341,10 @@ namespace 游戏服务器
 
         public static string DefaultNPCFilename = "00-QFunction";
 
+        // 配置校验警告: 验证配置() 把发现的可疑项收集到这里, 由启动流程(主程.服务循环)起服后统一刷进系统日志.
+        // 不在 Settings.Load() 当场调 主程.添加系统日志 —— 那会提前触发 主程 静态初始化, 时序不安全(见 九层妖塔.cs 注释).
+        internal static readonly List<string> 配置校验警告 = new List<string>();
+
         private static InIReader iniconfig;
 
         [CompilerGenerated]
@@ -407,6 +423,10 @@ namespace 游戏服务器
             Settings.开启封包限速 = Settings.iniconfig.ReadBoolean("General", "开启封包限速", Settings.开启封包限速);
             Settings.每秒封包上限 = Settings.iniconfig.ReadUInt16("General", "每秒封包上限", Settings.每秒封包上限);
             Settings.封包限速容忍秒数 = Settings.iniconfig.ReadByte("General", "封包限速容忍秒数", Settings.封包限速容忍秒数);
+            Settings.最大连接数 = Settings.iniconfig.ReadInt32("General", "最大连接数", Settings.最大连接数);
+            Settings.单IP连接上限 = Settings.iniconfig.ReadInt32("General", "单IP连接上限", Settings.单IP连接上限);
+            Settings.连接IP白名单 = Settings.iniconfig.ReadString("General", "连接IP白名单", Settings.连接IP白名单);
+            Settings.禁止创建角色 = Settings.iniconfig.ReadBoolean("General", "禁止创建角色", Settings.禁止创建角色);
             Settings.异常屏蔽时间 = Settings.iniconfig.ReadUInt16("General", "异常屏蔽时间", Settings.异常屏蔽时间);
             Settings.掉线判定时间 = Settings.iniconfig.ReadUInt16("General", "掉线判定时间", Settings.掉线判定时间);
             Settings.游戏开放等级 = Settings.iniconfig.ReadByte("General", "游戏开放等级", Settings.游戏开放等级);
@@ -576,6 +596,7 @@ namespace 游戏服务器
             {
                 Settings.职业开放[i] = Settings.iniconfig.ReadBoolean("职业开放", "职业" + i, Settings.职业开放[i]);
             }
+            Settings.验证配置();
             Settings._0013_0014_0013_0009_0016_0006?.Invoke();
         }
 
@@ -588,6 +609,10 @@ namespace 游戏服务器
             Settings.iniconfig.Write("General", "开启封包限速", Settings.开启封包限速);
             Settings.iniconfig.Write("General", "每秒封包上限", Settings.每秒封包上限);
             Settings.iniconfig.Write("General", "封包限速容忍秒数", Settings.封包限速容忍秒数);
+            Settings.iniconfig.Write("General", "最大连接数", Settings.最大连接数);
+            Settings.iniconfig.Write("General", "单IP连接上限", Settings.单IP连接上限);
+            Settings.iniconfig.Write("General", "连接IP白名单", Settings.连接IP白名单);
+            Settings.iniconfig.Write("General", "禁止创建角色", Settings.禁止创建角色);
             Settings.iniconfig.Write("General", "异常屏蔽时间", Settings.异常屏蔽时间);
             Settings.iniconfig.Write("General", "掉线判定时间", Settings.掉线判定时间);
             Settings.iniconfig.Write("General", "游戏开放等级", Settings.游戏开放等级);
@@ -755,6 +780,63 @@ namespace 游戏服务器
                 Settings.iniconfig.Write("职业开放", "职业" + i, Settings.职业开放[i]);
             }
             Settings._0004_0002_0004_0008_0002_0006_0002_0005_0007_0002?.Invoke();
+        }
+
+        // 配置健壮性体检(借鉴 参考引擎 配置管理器.验证配置()): 在 Load() 末尾对关键不变量做 端口冲突/范围/概率越界/时间倒置 检查.
+        // 哲学对齐本仓"响亮报错 > 静默默认": 只把问题"响亮"收集进 配置校验警告 (起服后由 主程.服务循环 刷进系统日志),
+        // 既不静默改值、也不中断起服 —— 让运维看到警告后自行修 Setup.ini. 重入安全(Load 可被 GUI 重载二次调用, 故先清空).
+        private static void 验证配置()
+        {
+            Settings.配置校验警告.Clear();
+            List<string> 问题 = Settings.配置校验警告;
+
+            // 监听端口: 不能为 0、两个端口不能撞车(同端口会令其中一个 bind 失败, 服务起不来).
+            if (Settings.客户连接端口 == 0) 问题.Add("客户连接端口 为 0, 客户端将无法连接");
+            if (Settings.门票接收端口 == 0) 问题.Add("门票接收端口 为 0, 账号服务器投递门票会失败");
+            if (Settings.客户连接端口 == Settings.门票接收端口) 问题.Add($"客户连接端口 与 门票接收端口 同为 {Settings.客户连接端口}, 端口冲突会导致监听失败");
+
+            // 自动保存时间 为 0 分钟会让定时保存按 0 触发, 极危险.
+            if (Settings.自动保存时间 == 0) 问题.Add("自动保存时间 为 0 分钟, 客户数据将不按预期落盘");
+
+            // 连接限流上限须为正, 否则无人能连入.
+            if (Settings.最大连接数 <= 0) 问题.Add($"最大连接数 = {Settings.最大连接数} (应 > 0, 否则无人能连入)");
+            if (Settings.单IP连接上限 <= 0) 问题.Add($"单IP连接上限 = {Settings.单IP连接上限} (应 > 0)");
+
+            // 倍率/比率 不应为负; 收益减少比率 是比例, 须在 0~1.
+            if (Settings.怪物经验倍率 < 0m) 问题.Add($"怪物经验倍率 = {Settings.怪物经验倍率} (应 ≥ 0)");
+            if (Settings.怪物额外爆率 < 0m) 问题.Add($"怪物额外爆率 = {Settings.怪物额外爆率} (应 ≥ 0)");
+            if (Settings.收益减少比率 < 0m || Settings.收益减少比率 > 1m) 问题.Add($"收益减少比率 = {Settings.收益减少比率} (应在 0~1)");
+
+            // 死亡/红名掉落几率为概率, 须在 0~1.
+            if (Settings.死亡掉落剑甲 < 0f || Settings.死亡掉落剑甲 > 1f) 问题.Add($"死亡掉落剑甲 = {Settings.死亡掉落剑甲} (应在 0~1)");
+            if (Settings.死亡掉落首饰 < 0f || Settings.死亡掉落首饰 > 1f) 问题.Add($"死亡掉落首饰 = {Settings.死亡掉落首饰} (应在 0~1)");
+            if (Settings.死亡掉落背包 < 0f || Settings.死亡掉落背包 > 1f) 问题.Add($"死亡掉落背包 = {Settings.死亡掉落背包} (应在 0~1)");
+            if (Settings.红名掉落剑甲 < 0f || Settings.红名掉落剑甲 > 1f) 问题.Add($"红名掉落剑甲 = {Settings.红名掉落剑甲} (应在 0~1)");
+            if (Settings.红名掉落首饰 < 0f || Settings.红名掉落首饰 > 1f) 问题.Add($"红名掉落首饰 = {Settings.红名掉落首饰} (应在 0~1)");
+
+            // 祝福油几率为权重, 不应为负.
+            int[] 祝福 = new int[7] { Settings.祝福油几率0级, Settings.祝福油几率1级, Settings.祝福油几率2级, Settings.祝福油几率3级, Settings.祝福油几率4级, Settings.祝福油几率5级, Settings.祝福油几率6级 };
+            for (int i = 0; i < 祝福.Length; i++) if (祝福[i] < 0) 问题.Add($"祝福油几率{i}级 = {祝福[i]} (应 ≥ 0)");
+
+            // 等级关系: 游戏开放等级 不应为 0; 新手扶持等级 不应高于 游戏开放等级.
+            if (Settings.游戏开放等级 == 0) 问题.Add("游戏开放等级 为 0");
+            if (Settings.新手扶持等级 > Settings.游戏开放等级) 问题.Add($"新手扶持等级({Settings.新手扶持等级}) 高于 游戏开放等级({Settings.游戏开放等级})");
+
+            // 攻沙时间: 时/分须合法, 且 开始 须早于 结束(倒置会令攻城逻辑异常).
+            if (Settings.攻沙开始时间小时 > 23 || Settings.攻沙结束时间小时 > 23) 问题.Add("攻沙开始/结束 小时 超出 0~23");
+            else if (Settings.攻沙开始时间分钟 > 59 || Settings.攻沙结束时间分钟 > 59) 问题.Add("攻沙开始/结束 分钟 超出 0~59");
+            else if (Settings.攻沙开始时间小时 * 60 + Settings.攻沙开始时间分钟 >= Settings.攻沙结束时间小时 * 60 + Settings.攻沙结束时间分钟)
+                问题.Add($"攻沙开始时间({Settings.攻沙开始时间小时:D2}:{Settings.攻沙开始时间分钟:D2}) 不早于 结束时间({Settings.攻沙结束时间小时:D2}:{Settings.攻沙结束时间分钟:D2})");
+
+            // 武斗场时间须为合法小时.
+            if (Settings.武斗场时间一 > 23) 问题.Add($"武斗场时间一 = {Settings.武斗场时间一} (应在 0~23)");
+            if (Settings.武斗场时间二 > 23) 问题.Add($"武斗场时间二 = {Settings.武斗场时间二} (应在 0~23)");
+
+            // 货币异常上限 须高于 归位值, 否则触发回正后会反复判异常.
+            if (Settings.货币异常上限 <= Settings.货币异常归位) 问题.Add($"货币异常上限({Settings.货币异常上限}) 不高于 货币异常归位({Settings.货币异常归位})");
+
+            // 行会最高人数 须为正.
+            if (Settings.行会最高人数 <= 0) 问题.Add($"行会最高人数 = {Settings.行会最高人数} (应 > 0)");
         }
     }
 }

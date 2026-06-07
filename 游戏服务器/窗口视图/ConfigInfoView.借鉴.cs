@@ -67,6 +67,15 @@ namespace 游戏服务器.窗口视图
 			this.spn攻沙结束时.Value = Settings.攻沙结束时间小时;
 			this.spn攻沙结束分.Value = Settings.攻沙结束时间分钟;
 			this.spn攻城持续.Value = Settings.攻城持续时间;
+
+			// 网络·安全页
+			this.spn最大连接数.Value = Settings.最大连接数;
+			this.spn单IP连接上限.Value = Settings.单IP连接上限;
+			this.richEditControl2.Text = Settings.连接IP白名单.Replace(",", "\r\n"); // 复用「玩家限制登录」组现成的 IP白名单框, 逗号→换行多行显示
+			this.chk禁止创建角色.Checked = Settings.禁止创建角色;
+			this.txt门票来源白名单.Text = Settings.门票来源白名单;
+			this.spn货币异常上限.Value = Settings.货币异常上限;
+			this.spn货币异常归位.Value = Settings.货币异常归位;
 		}
 
 		private void 借鉴_保存()
@@ -129,6 +138,15 @@ namespace 游戏服务器.窗口视图
 			Settings.攻沙结束时间小时 = (byte)Convert.ToInt32(this.spn攻沙结束时.Value);
 			Settings.攻沙结束时间分钟 = (byte)Convert.ToInt32(this.spn攻沙结束分.Value);
 			Settings.攻城持续时间 = Convert.ToInt32(this.spn攻城持续.Value);
+
+			// 网络·安全页
+			Settings.最大连接数 = Convert.ToInt32(this.spn最大连接数.Value);
+			Settings.单IP连接上限 = Convert.ToInt32(this.spn单IP连接上限.Value);
+			Settings.连接IP白名单 = string.Join(",", this.richEditControl2.Text.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)); // 多行 IP→逗号分隔单行存 INI
+			Settings.禁止创建角色 = this.chk禁止创建角色.Checked;
+			Settings.门票来源白名单 = this.txt门票来源白名单.Text;
+			Settings.货币异常上限 = Convert.ToUInt32(this.spn货币异常上限.Value);
+			Settings.货币异常归位 = Convert.ToUInt32(this.spn货币异常归位.Value);
 		}
 	}
 }

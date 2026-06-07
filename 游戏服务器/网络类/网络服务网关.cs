@@ -93,12 +93,30 @@ namespace 游戏服务器.网络类
             主程.添加系统日志($"[安全] 门票来源白名单已加载, 仅以下 IP 可注入门票: {string.Join(", ", 门票来源白名单集合)}");
         }
 
-        // DoS 防护: 限制单 IP 并发 TCP 连接数 + 全局总量上限.
-        // 原 444 行的 9999 全局上限被注释掉, 加上无 per-IP 限制 → 攻击者从单机即可耗尽 fd/内存.
-        // 计数表只在 异步连接 (accept callback) 与 等待移除表 处理点变更, ConcurrentDictionary 即可.
-        public const int 单IP最大连接数 = 10;
-        public const int 全局最大连接数 = 9999;
+        // DoS 防护: 限制单 IP 并发 TCP 连接数 + 全局总量上限. 上限原为写死 const(单IP 10 / 全局 9999),
+        // 现提到 Settings(单IP连接上限 / 最大连接数)可调, 默认值与原写死一致、零行为改变.
+        // 连接IP白名单集合 内的 IP 豁免 单IP连接上限(主播 / 自己人多开). 计数表只在 异步连接 与 等待移除表 处理点变更.
         public static ConcurrentDictionary<string, int> 客户连接计数 = new ConcurrentDictionary<string, int>();
+
+        // 连接IP白名单集合: 启动时从 Settings.连接IP白名单 解析; 命中的 IP 不受 单IP连接上限 限制. 空=不豁免任何 IP.
+        private static System.Collections.Generic.HashSet<string> 连接IP白名单集合 = new System.Collections.Generic.HashSet<string>();
+
+        // 解析 Settings.连接IP白名单 (逗号分隔) 为豁免集合, 复用 门票来源白名单 的解析风格.
+        public static void 初始化连接白名单()
+        {
+            网络服务网关.连接IP白名单集合 = new System.Collections.Generic.HashSet<string>();
+            string raw = Settings.连接IP白名单;
+            if (!string.IsNullOrWhiteSpace(raw))
+            {
+                foreach (string 段 in raw.Split(','))
+                {
+                    string trimmed = 段.Trim();
+                    if (trimmed.Length != 0) 网络服务网关.连接IP白名单集合.Add(trimmed);
+                }
+            }
+            if (网络服务网关.连接IP白名单集合.Count != 0)
+                主程.添加系统日志($"[连接限流] 单IP连接上限={Settings.单IP连接上限}, 以下 IP 豁免该上限: {string.Join(", ", 网络服务网关.连接IP白名单集合)}");
+        }
 
         public static ConcurrentQueue<客户网络> 等待移除表;
 
@@ -131,6 +149,7 @@ namespace 游戏服务器.网络类
             网络服务网关.门票数据表 = new Dictionary<string, 门票信息>();
             网络服务网关.门票接收器 = new UdpClient(new IPEndPoint(IPAddress.Any, Settings.门票接收端口));
             网络服务网关.初始化门票白名单();
+            网络服务网关.初始化连接白名单();
             /*
             网络服务网关.Http门票数据 = new ConcurrentQueue<string>();
             if (Settings.Http门票接收端口 != 0)
@@ -342,14 +361,14 @@ namespace 游戏服务器.网络类
                 {
                     tcpClient.Client.Close();
                 }
-                else if (网络服务网关.网络连接表.Count >= 全局最大连接数)
+                else if (!网络服务网关.连接IP白名单集合.Contains(text) && 网络服务网关.网络连接表.Count >= Settings.最大连接数)
                 {
-                    // 全局连接到上限, 不再接受新连接 (防止内存/fd 耗尽)
+                    // 全局连接到上限, 不再接受新连接 (防止内存/fd 耗尽); 白名单 IP 豁免该上限("不受最大人数限制")
                     tcpClient.Client.Close();
                 }
-                else if (网络服务网关.客户连接计数.AddOrUpdate(text, 1, (_, c) => c + 1) > 单IP最大连接数)
+                else if (网络服务网关.客户连接计数.AddOrUpdate(text, 1, (_, c) => c + 1) > Settings.单IP连接上限 && !网络服务网关.连接IP白名单集合.Contains(text))
                 {
-                    // 该 IP 已超 per-IP 上限, 回滚计数并拒绝
+                    // 该 IP 已超 per-IP 上限且不在白名单, 回滚计数并拒绝
                     网络服务网关.客户连接计数.AddOrUpdate(text, 0, (_, c) => Math.Max(0, c - 1));
                     tcpClient.Client.Close();
                 }
