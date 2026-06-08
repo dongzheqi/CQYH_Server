@@ -340,6 +340,8 @@ namespace 游戏服务器.地图类
             {
                 this.当前地图[坐标].Remove(this);
             }
+            // 四叉树移除(此刻 当前坐标 仍为旧坐标, 与上次插入位置一致, 故能定位到原节点); 索引未建则 null-safe 跳过
+            this.当前地图?.空间索引?.移除(this);
         }
 
         public void 绑定网格()
@@ -349,6 +351,12 @@ namespace 游戏服务器.地图类
             foreach (Point 坐标 in array)
             {
                 this.当前地图[坐标].Add(this);
+            }
+            // 四叉树插入(默认关, Settings.开启四叉树邻居): 按对象中心坐标插入, 与网格同生命周期(spawn/move/remove 全走绑定/解绑)
+            if (Settings.开启四叉树邻居 && this.当前地图 != null)
+            {
+                this.当前地图.确保空间索引();
+                this.当前地图.空间索引?.插入(this);
             }
         }
 
@@ -3078,6 +3086,27 @@ namespace 游戏服务器.地图类
                     item.对象消失时处理(this);
                     this.对象消失时处理(item);
                 }
+            }
+            // 四叉树快路径(默认关, Settings.开启四叉树邻居): 查询中心±12(25×25)矩形取候选邻居, 替代下方 625 格双重扫描;
+            // 候选集对 1×1 对象与625格完全一致, 大体型对象按中心判定可能有边缘差异(同源亦如此, 范围已留余量, 在视线内会修正)。索引为空(开关关/尚未建)则回退625格。
+            if (Settings.开启四叉树邻居 && this.当前地图?.空间索引 != null)
+            {
+                System.Drawing.Rectangle 范围 = new System.Drawing.Rectangle(this.当前坐标.X - 12, this.当前坐标.Y - 12, 25, 25);
+                foreach (地图对象 item3 in this.当前地图.空间索引.查询范围(范围))
+                {
+                    if (item3 != this)
+                    {
+                        if (!this.邻居列表.Contains(item3) && this.邻居类型(item3))
+                        {
+                            this.对象出现时处理(item3);
+                        }
+                        if (!item3.邻居列表.Contains(this) && item3.邻居类型(this))
+                        {
+                            item3.对象出现时处理(this);
+                        }
+                    }
+                }
+                return;
             }
             for (int i = -12; i <= 12; i++)
             {

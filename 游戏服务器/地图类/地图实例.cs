@@ -127,6 +127,20 @@ namespace 游戏服务器.地图类
 			}
 		}
 
+		// 四叉树空间索引(性能优化, 默认关): 按对象中心坐标组织, 供 更新邻居时处理 的四叉树快路径用; 由 绑定网格/解绑网格 维护增删。
+		public 游戏服务器.工具类.四叉树<地图对象> 空间索引;
+
+		// lazy-init: 在地形数据就绪后按地图边界建树(构造期 地形数据 可能尚未赋值, 故不在构造函数建)。仅 Settings.开启四叉树邻居 时由 绑定网格 触发。
+		public void 确保空间索引()
+		{
+			if (this.空间索引 == null && this.地形数据 != null)
+			{
+				Point 起点 = this.地图起点;
+				Point 大小 = this.地图大小;
+				this.空间索引 = new 游戏服务器.工具类.四叉树<地图对象>(new System.Drawing.Rectangle(起点.X, 起点.Y, 大小.X, 大小.Y), 10, 5, (地图对象 o) => o.当前坐标);
+			}
+		}
+
 		public 地图实例(游戏地图 地图模板, int 路线编号 = 1)
 		{
 			this.关闭时间 = DateTime.MaxValue;
