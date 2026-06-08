@@ -184,6 +184,12 @@ namespace 游戏服务器
 
         public static int 首杀道具数量 = 1;
 
+        // 尸王殿入口: 比奇矿区三层(地图154)累计击杀此数量怪物即在最后击杀处开启一道限时传送门(8479尸王殿入口), 0则关闭该玩法
+        public static int 尸王殿开启击杀数 = 100;
+
+        // 尸王殿传送门存续秒数: 门刷出后存活此秒数即自动消失(默认600=10分钟)
+        public static int 尸王殿门存续秒数 = 600;
+
         public static int 首爆货币类型 = 3;
 
         public static int 首爆货币数量 = 0;
@@ -511,6 +517,8 @@ namespace 游戏服务器
             Settings.首杀货币数量 = Settings.iniconfig.ReadInt32("General", "首杀货币数量", Settings.首杀货币数量);
             Settings.首杀道具编号 = Settings.iniconfig.ReadInt32("General", "首杀道具编号", Settings.首杀道具编号);
             Settings.首杀道具数量 = Settings.iniconfig.ReadInt32("General", "首杀道具数量", Settings.首杀道具数量);
+            Settings.尸王殿开启击杀数 = Settings.iniconfig.ReadInt32("General", "尸王殿开启击杀数", Settings.尸王殿开启击杀数);
+            Settings.尸王殿门存续秒数 = Settings.iniconfig.ReadInt32("General", "尸王殿门存续秒数", Settings.尸王殿门存续秒数);
             Settings.首爆货币类型 = Settings.iniconfig.ReadInt32("General", "首爆货币类型", Settings.首爆货币类型);
             Settings.首爆货币数量 = Settings.iniconfig.ReadInt32("General", "首爆货币数量", Settings.首爆货币数量);
             Settings.首爆道具编号 = Settings.iniconfig.ReadInt32("General", "首爆道具编号", Settings.首爆道具编号);
@@ -696,6 +704,8 @@ namespace 游戏服务器
             Settings.iniconfig.Write("General", "首杀货币数量", Settings.首杀货币数量);
             Settings.iniconfig.Write("General", "首杀道具编号", Settings.首杀道具编号);
             Settings.iniconfig.Write("General", "首杀道具数量", Settings.首杀道具数量);
+            Settings.iniconfig.Write("General", "尸王殿开启击杀数", Settings.尸王殿开启击杀数);
+            Settings.iniconfig.Write("General", "尸王殿门存续秒数", Settings.尸王殿门存续秒数);
             Settings.iniconfig.Write("General", "首爆货币类型", Settings.首爆货币类型);
             Settings.iniconfig.Write("General", "首爆货币数量", Settings.首爆货币数量);
             Settings.iniconfig.Write("General", "首爆道具编号", Settings.首爆道具编号);
