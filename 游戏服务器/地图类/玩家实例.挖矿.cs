@@ -698,6 +698,57 @@ namespace 游戏服务器.地图类
 
         }
 
+        // === 开石刀矿石分解(借鉴同源实现): 装备开石刀(99900040)使用矿石, 按概率分解出矿渣(114000)或随机铭文石(21001-21006战/法/道/刺/弓/龙枪) ===
+        // 概率为万分比之外的"百分比阈值"(0-100): Random(100)>矿渣概率 出矿渣; <铭文概率 出铭文石; 中间区间啥都不出。
+        private const int 铜铁矿矿渣概率 = 99;
+        private const int 铜铁矿铭文概率 = 1;
+        private const int 银矿矿渣概率 = 98;
+        private const int 银矿铭文概率 = 5;
+        private const int 金矿矿渣概率 = 90;
+        private const int 金矿铭文概率 = 10;
+
+        private void 矿石分解处理(int 矿渣概率, int 铭文概率, bool 需要损失持久 = false)
+        {
+            if (需要损失持久)
+            {
+                this.武器损失持久();
+            }
+            int num = 主程.随机数.Next(100);
+            if (num > 矿渣概率)
+            {
+                if (游戏物品.数据表.TryGetValue(114000, out var 矿渣模板))
+                {
+                    if (!this.角色数据.尝试获取背包空余格子(out var location))
+                    {
+                        this.网络连接?.发送封包(new 游戏错误提示 { 错误代码 = 1793 });
+                        return;
+                    }
+                    this.角色背包[location] = new 物品数据(矿渣模板, this.角色数据, 1, location, 1);
+                    this.网络连接?.发送封包(new 玩家物品变动 { 物品描述 = this.角色背包[location].字节描述() });
+                    this.发送系统消息("很遗憾，只分解出了矿渣");
+                }
+            }
+            else if (num < 铭文概率)
+            {
+                int key = 主程.随机数.Next(21001, 21007);
+                if (游戏物品.数据表.TryGetValue(key, out var 铭文模板))
+                {
+                    if (!this.角色数据.尝试获取背包空余格子(out var location))
+                    {
+                        this.网络连接?.发送封包(new 游戏错误提示 { 错误代码 = 1793 });
+                        return;
+                    }
+                    this.角色背包[location] = new 物品数据(铭文模板, this.角色数据, 1, location, 1);
+                    this.网络连接?.发送封包(new 玩家物品变动 { 物品描述 = this.角色背包[location].字节描述() });
+                    this.发送系统消息($"恭喜获得一枚[{铭文模板.物品名字}]");
+                }
+            }
+            else
+            {
+                this.发送系统消息("很遗憾，连矿渣都没分解出来");
+            }
+        }
+
         #endregion
     }
 }
