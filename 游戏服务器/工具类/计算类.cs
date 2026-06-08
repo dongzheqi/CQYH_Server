@@ -82,6 +82,7 @@ namespace 游戏服务器.工具类
 				"catAntiMagDefRate" => 游戏对象属性.破魔防, 
 				"catMinIgnoreDefDmg" => 游戏对象属性.最小圣伤, 
 				"catMaxIgnoreDefDmg" => 游戏对象属性.最大圣伤, 
+				"catPoisonResist" => 游戏对象属性.中毒躲避,
 				_ => 游戏对象属性.未知属性, 
 			};
 		}

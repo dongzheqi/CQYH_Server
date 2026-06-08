@@ -2133,7 +2133,7 @@ namespace 游戏服务器.地图类
                     num13 = 地图对象2[游戏对象属性.暴击概率] - this[游戏对象属性.减暴击];
                     int num14;
                     num14 = 地图对象2[游戏对象属性.暴击伤害] - this[游戏对象属性.减暴伤];
-                    if (num13 > 0 && (num14 > 0 || num9 > 0) && 计算类.计算概率(num13 / 10000))
+                    if (num13 > 0 && (num14 > 0 || num9 > 0) && 计算类.计算概率((float)num13 / 10000f))
                     {
                         num9 += num9 + num14;
                         详情.技能反馈 |= 技能命中反馈.暴击;
@@ -3789,7 +3789,7 @@ namespace 游戏服务器.地图类
                     }
                     if (value2.物品持久 == 0)
                     {
-                        new 物品实例(value2, null, this.当前地图, this.当前坐标, 物品归属, num5);
+                        new 物品实例(value2, null, this.当前地图, this.当前坐标, ((归属玩家.所属队伍 == null) ? 物品归属 : 归属玩家.所属队伍.计算掉落归属(value2.物品编号)), num5);
                         if (value2.物品编号 == 1)
                         {
                             this.当前地图.金币掉落总数 += num5;
@@ -3804,7 +3804,7 @@ namespace 游戏服务器.地图类
                     {
                         for (int i = 0; i < num5; i++)
                         {
-                            new 物品实例(value2, null, this.当前地图, this.当前坐标, 物品归属, 1);
+                            new 物品实例(value2, null, this.当前地图, this.当前坐标, ((归属玩家.所属队伍 == null) ? 物品归属 : 归属玩家.所属队伍.计算掉落归属(value2.物品编号)), 1);
                         }
                         this.当前地图.怪物掉落次数 += num5;
                         num3++;

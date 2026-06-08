@@ -57,6 +57,16 @@ namespace 游戏服务器.数据类
 			}
 		}
 
+		public HashSet<角色数据> 计算掉落归属(int 物品编号)
+		{
+			// 队长拾取(拾取方式==1): 普通物品归属仅队长, 队员在归属时间内被 玩家实例 归属门(9063)拦下; 金币(1)/银币(0)及其它模式(0自由/2拍卖)保持全队共享
+			if (this.拾取方式 == 1 && 物品编号 != 0 && 物品编号 != 1)
+			{
+				return new HashSet<角色数据> { this.队长数据 };
+			}
+			return new HashSet<角色数据>(this.队伍成员);
+		}
+
 		public override string ToString()
 		{
 			return this.队长数据?.角色名字?.V;

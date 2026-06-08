@@ -1144,7 +1144,7 @@ namespace 游戏服务器.地图类
 						}
 						if (value2.物品持久 == 0)
 						{
-							new 物品实例(value2, null, this.当前地图, this.当前坐标, hashSet, num6, 物品绑定: false, this);
+							new 物品实例(value2, null, this.当前地图, this.当前坐标, ((归属玩家.所属队伍 == null) ? hashSet : 归属玩家.所属队伍.计算掉落归属(value2.物品编号)), num6, 物品绑定: false, this);
 							if (value2.物品编号 == 1)
 							{
 								this.当前地图.金币掉落总数 += num6;
@@ -1155,7 +1155,7 @@ namespace 游戏服务器.地图类
 						{
 							for (int k = 0; k < num6; k++)
 							{
-								new 物品实例(value2, null, this.当前地图, this.当前坐标, hashSet, 1, 物品绑定: false, this);
+								new 物品实例(value2, null, this.当前地图, this.当前坐标, ((归属玩家.所属队伍 == null) ? hashSet : 归属玩家.所属队伍.计算掉落归属(value2.物品编号)), 1, 物品绑定: false, this);
 							}
 							this.当前地图.怪物掉落次数 += num6;
 							num4++;
