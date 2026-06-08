@@ -2173,15 +2173,17 @@ namespace 游戏服务器.工具类
 
 		public static List<T> RandomSort<T>(List<T> list)
 		{
+			// Fisher-Yates 原地洗牌(O(n)), 替代原 List.Insert 随机插入(O(n²)); 仍返回新列表、不改入参, 契约不变.
 			Random random;
 			random = new Random();
 			List<T> list2;
-			list2 = new List<T>();
-			using List<T>.Enumerator enumerator = list.GetEnumerator();
-			while (enumerator.MoveNext())
+			list2 = new List<T>(list);
+			for (int i = list2.Count - 1; i > 0; i--)
 			{
-				// 插入位置须取 [0, Count] 共 Count+1 个槽; 用 Count 会漏掉"插到末尾", 致末位永远插不进、分布有偏.
-				list2.Insert(item: enumerator.Current, index: random.Next(list2.Count + 1));
+				int j = random.Next(i + 1);
+				T temp = list2[i];
+				list2[i] = list2[j];
+				list2[j] = temp;
 			}
 			return list2;
 		}
