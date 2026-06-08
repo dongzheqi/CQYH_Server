@@ -2541,6 +2541,7 @@ namespace 游戏服务器.窗口视图
             this.spn职位1 = new SpinEdit(); this.spn职位2 = new SpinEdit(); this.spn职位3 = new SpinEdit(); this.spn职位4 = new SpinEdit(); this.spn职位5 = new SpinEdit(); this.spn职位6 = new SpinEdit();
             this.lbl职位1 = new LabelControl(); this.lbl职位2 = new LabelControl(); this.lbl职位3 = new LabelControl(); this.lbl职位4 = new LabelControl(); this.lbl职位5 = new LabelControl(); this.lbl职位6 = new LabelControl();
             this.spn攻沙开始时 = new SpinEdit(); this.spn攻沙开始分 = new SpinEdit(); this.spn攻沙结束时 = new SpinEdit(); this.spn攻沙结束分 = new SpinEdit(); this.spn攻城持续 = new SpinEdit();
+            this.组尸王殿 = new GroupControl(); this.spn尸王殿击杀数 = new SpinEdit(); this.spn尸王殿存续秒 = new SpinEdit(); this.lbl尸王殿1 = new LabelControl(); this.lbl尸王殿2 = new LabelControl();
             this.lbl攻城1 = new LabelControl(); this.lbl攻城2 = new LabelControl(); this.lbl攻城3 = new LabelControl(); this.lbl攻城4 = new LabelControl(); this.lbl攻城5 = new LabelControl();
             // 顶层页 + 子选项卡
             this.特殊功能页.Name = "特殊功能页";
@@ -2652,6 +2653,17 @@ namespace 游戏服务器.窗口视图
             this.spn倍率8.Name = "spn倍率8"; this.spn倍率8.Location = new Point(190, 264); this.spn倍率8.Size = new Size(120, 20); this.spn倍率8.Properties.IsFloatValue = true; this.spn倍率8.Properties.MaxValue = 100m; this.spn倍率8.Properties.Increment = 0.1m;
             this.spn倍率9.Name = "spn倍率9"; this.spn倍率9.Location = new Point(190, 288); this.spn倍率9.Size = new Size(120, 20); this.spn倍率9.Properties.IsFloatValue = true; this.spn倍率9.Properties.MaxValue = 100m; this.spn倍率9.Properties.Increment = 0.1m;
             this.组幸运倍攻.Controls.AddRange(new Control[] { this.chk幸运倍率, this.lbl幸运头, this.lbl倍率头, this.lbl档0, this.spn幸运0, this.spn倍率0, this.lbl档1, this.spn幸运1, this.spn倍率1, this.lbl档2, this.spn幸运2, this.spn倍率2, this.lbl档3, this.spn幸运3, this.spn倍率3, this.lbl档4, this.spn幸运4, this.spn倍率4, this.lbl档5, this.spn幸运5, this.spn倍率5, this.lbl档6, this.spn幸运6, this.spn倍率6, this.lbl档7, this.spn幸运7, this.spn倍率7, this.lbl档8, this.spn幸运8, this.spn倍率8, this.lbl档9, this.spn幸运9, this.spn倍率9 });
+            // ---- 组: 尸王殿入口 ----
+            this.组尸王殿.Name = "组尸王殿";
+            this.组尸王殿.Text = "尸王殿入口 (矿区三层击杀触发限时门, 改后重启生效)";
+            this.组尸王殿.Location = new Point(10, 238);
+            this.组尸王殿.Size = new Size(322, 96);
+            this.特殊开关页.Controls.Add(this.组尸王殿);
+            this.lbl尸王殿1.Text = "开启击杀数(0=关闭)"; this.lbl尸王殿1.Location = new Point(14, 32);
+            this.lbl尸王殿2.Text = "门存续秒数"; this.lbl尸王殿2.Location = new Point(14, 60);
+            this.spn尸王殿击杀数.Name = "spn尸王殿击杀数"; this.spn尸王殿击杀数.Location = new Point(194, 29); this.spn尸王殿击杀数.Size = new Size(114, 20); this.spn尸王殿击杀数.Properties.IsFloatValue = false; this.spn尸王殿击杀数.Properties.MaxValue = 2000000000m;
+            this.spn尸王殿存续秒.Name = "spn尸王殿存续秒"; this.spn尸王殿存续秒.Location = new Point(194, 57); this.spn尸王殿存续秒.Size = new Size(114, 20); this.spn尸王殿存续秒.Properties.IsFloatValue = false; this.spn尸王殿存续秒.Properties.MaxValue = 2000000000m;
+            this.组尸王殿.Controls.AddRange(new Control[] { this.lbl尸王殿1, this.spn尸王殿击杀数, this.lbl尸王殿2, this.spn尸王殿存续秒 });
             // ---- 公会配置页: 公会功能开关 ----
             this.组公会开关.Name = "组公会开关";
             this.组公会开关.Text = "公会功能开关";
@@ -3039,6 +3051,7 @@ namespace 游戏服务器.窗口视图
         private GroupControl 组怪物首杀;
         private GroupControl 组装备首爆;
         private GroupControl 组幸运倍攻;
+        private GroupControl 组尸王殿;
         private GroupControl 组公会开关;
         private GroupControl 组公会等级;
         private GroupControl 组公会职位;
@@ -3056,9 +3069,11 @@ namespace 游戏服务器.窗口视图
         private SpinEdit spn等级1, spn等级2, spn等级3, spn等级4, spn等级5, spn等级6;
         private SpinEdit spn职位1, spn职位2, spn职位3, spn职位4, spn职位5, spn职位6;
         private SpinEdit spn攻沙开始时, spn攻沙开始分, spn攻沙结束时, spn攻沙结束分, spn攻城持续;
+        private SpinEdit spn尸王殿击杀数, spn尸王殿存续秒;
         private LabelControl lbl职业0, lbl职业1, lbl职业2, lbl职业3, lbl职业4, lbl职业5;
         private LabelControl lbl首杀1, lbl首杀2, lbl首杀3, lbl首杀4;
         private LabelControl lbl首爆1, lbl首爆2, lbl首爆3, lbl首爆4;
+        private LabelControl lbl尸王殿1, lbl尸王殿2;
         private LabelControl lbl幸运头, lbl倍率头;
         private LabelControl lbl档0, lbl档1, lbl档2, lbl档3, lbl档4, lbl档5, lbl档6, lbl档7, lbl档8, lbl档9;
         private LabelControl lbl等级1, lbl等级2, lbl等级3, lbl等级4, lbl等级5, lbl等级6;

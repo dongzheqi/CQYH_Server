@@ -68,6 +68,9 @@ namespace 游戏服务器.窗口视图
 			this.spn攻沙结束分.Value = Settings.攻沙结束时间分钟;
 			this.spn攻城持续.Value = Settings.攻城持续时间;
 
+			this.spn尸王殿击杀数.Value = Settings.尸王殿开启击杀数;
+			this.spn尸王殿存续秒.Value = Settings.尸王殿门存续秒数;
+
 			// 网络·安全页
 			this.spn最大连接数.Value = Settings.最大连接数;
 			this.spn单IP连接上限.Value = Settings.单IP连接上限;
@@ -142,6 +145,9 @@ namespace 游戏服务器.窗口视图
 			Settings.攻沙结束时间小时 = (byte)Convert.ToInt32(this.spn攻沙结束时.Value);
 			Settings.攻沙结束时间分钟 = (byte)Convert.ToInt32(this.spn攻沙结束分.Value);
 			Settings.攻城持续时间 = Convert.ToInt32(this.spn攻城持续.Value);
+
+			Settings.尸王殿开启击杀数 = Convert.ToInt32(this.spn尸王殿击杀数.Value);
+			Settings.尸王殿门存续秒数 = Convert.ToInt32(this.spn尸王殿存续秒.Value);
 
 			// 网络·安全页
 			Settings.最大连接数 = Convert.ToInt32(this.spn最大连接数.Value);
