@@ -734,45 +734,7 @@ namespace 游戏服务器.数据类
                 this.角色货币[(游戏货币)i] = 0u;
             }
             this.玩家设置.SetValue(new uint[128].ToList());
-            if (游戏物品.检索表.TryGetValue("新手药水(绑定)", out var value))
-            {
-                this.角色背包[0] = new 物品数据(value, this, 1, 0, 1);
-                this.角色背包[1] = new 物品数据(value, this, 1, 1, 1);
-                this.角色背包[2] = new 物品数据(value, this, 1, 2, 1);
-                this.角色背包[3] = new 物品数据(value, this, 1, 3, 1);
-                this.角色背包[4] = new 物品数据(value, this, 1, 4, 1);
-            }
-            游戏物品 value3;
-            游戏物品 value4;
-            游戏物品 value6;
-            if (职业 == 游戏对象职业.龙枪 && 游戏物品.检索表.TryGetValue("木枪", out var value2) && value2 is 游戏装备 模板)
-            {
-                this.角色背包[5] = new 装备数据(模板, this, 1, 5, 随机生成: true);
-            }
-            else if (职业 == 游戏对象职业.刺客 && 游戏物品.检索表.TryGetValue("柴刀", out value3) && value3 is 游戏装备 模板2)
-            {
-                this.角色背包[5] = new 装备数据(模板2, this, 1, 5, 随机生成: true);
-            }
-            else if (职业 == 游戏对象职业.弓手 && 游戏物品.检索表.TryGetValue("新手木弓", out value4) && value4 is 游戏装备 模板3)
-            {
-                this.角色背包[5] = new 装备数据(模板3, this, 1, 5, 随机生成: true);
-                if (游戏物品.检索表.TryGetValue("箭袋(大)", out var value5))
-                {
-                    this.角色背包[6] = new 物品数据(value5, this, 1, 6, value5.物品持久, 绑定: true);
-                }
-            }
-            else if (游戏物品.检索表.TryGetValue("新手木剑", out value6) && value6 is 游戏装备 模板4)
-            {
-                this.角色背包[5] = new 装备数据(模板4, this, 1, 5, 随机生成: true);
-                if (职业 == 游戏对象职业.道士 && 游戏物品.检索表.TryGetValue("超级护身符", out var value7))
-                {
-                    this.角色背包[6] = new 物品数据(value7, this, 1, 6, value7.物品持久, 绑定: true);
-                }
-            }
-            if (游戏物品.数据表.TryGetValue((性别 == 游戏对象性别.男性) ? 99980113 : 99990113, out var value8) && value8 is 游戏装备 模板5)
-            {
-                this.角色装备[1] = new 装备数据(模板5, this, 0, 1);
-            }
+            出生物品.发放(this, 职业, 性别);
             if (铭文技能.数据表.TryGetValue(职业 switch
             {
                 游戏对象职业.战士 => 10300,

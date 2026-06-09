@@ -79,7 +79,8 @@ namespace 游戏服务器.模板类
                     typeof(充值奖励),
                     typeof(全服公告),
                     typeof(铭文洗炼技能),
-                    typeof(装备神佑消耗)
+                    typeof(装备神佑消耗),
+                    typeof(出生物品)
                 };
                     break;
                 case 1:
@@ -226,7 +227,8 @@ namespace 游戏服务器.模板类
                     typeof(充值奖励),
                     typeof(全服公告),
                     typeof(铭文洗炼技能),
-                    typeof(装备神佑消耗)
+                    typeof(装备神佑消耗),
+                    typeof(出生物品)
                 };
                     break;
             }

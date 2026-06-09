@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using CsvHelper;
 
 namespace 游戏服务器.模板类
 {
@@ -89,23 +92,24 @@ namespace 游戏服务器.模板类
 				}
 			}
 			GameQuests.AvailableQuests = list.OrderBy((GameQuests x) => x.Id).ToArray();
-			string[] array2;
-			array2 = File.ReadAllLines(Settings.游戏数据目录 + "\\System\\任务成就\\紧急任务.txt");
-			new StringBuilder();
-			string[] array3;
-			array3 = array2;
-			for (int i = 0; i < array3.Length; i++)
+			DataTable dataTable;
+			dataTable = new DataTable();
+			using (StreamReader reader = 配置读取.打开(Settings.游戏数据目录 + "\\System\\任务成就\\紧急任务.csv"))
 			{
-				string[] array4;
-				array4 = array3[i].Split(",");
+				using CsvReader csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+				using CsvDataReader reader2 = new CsvDataReader(csv);
+				dataTable.Load(reader2);
+			}
+			foreach (DataRow item in dataTable.Rows.Cast<DataRow>())
+			{
 				int startNPCMap;
-				startNPCMap = Convert.ToInt32(array4[0]);
+				startNPCMap = Convert.ToInt32(item["StartNPCMap"].ToString());
 				int urgentTaskX;
-				urgentTaskX = Convert.ToInt32(array4[1]);
+				urgentTaskX = Convert.ToInt32(item["UrgentTaskX"].ToString());
 				int urgentTaskY;
-				urgentTaskY = Convert.ToInt32(array4[2]);
+				urgentTaskY = Convert.ToInt32(item["UrgentTaskY"].ToString());
 				int key;
-				key = Convert.ToInt32(array4[3]);
+				key = Convert.ToInt32(item["QuestID"].ToString());
 				if (GameQuests.数据表.TryGetValue(key, out var value))
 				{
 					value.StartNPCMap = startNPCMap;
