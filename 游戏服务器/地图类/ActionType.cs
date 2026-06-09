@@ -156,6 +156,7 @@ namespace 游戏服务器.地图类
 		AddBagItemLuck = 151,
 		DelBagItemRandomAbil = 152,
 		ThrowItem = 153,
-		Log = 154
+		Log = 154,
+		WuJiSignIn = 155
 	}
 }

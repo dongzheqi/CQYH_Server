@@ -781,6 +781,11 @@ namespace 游戏服务器.地图类
             {
                 return;
             }
+            if (text == "WUJISIGNIN")
+            {
+                acts.Add(new NPCActions(ActionType.WuJiSignIn));
+                return;
+            }
             switch (text.Length)
             {
                 case 3:
@@ -6448,6 +6453,9 @@ namespace 游戏服务器.地图类
                         }
                     case ActionType.SpecialRepairAll:
                         player.随身修理全部();
+                        break;
+                    case ActionType.WuJiSignIn:
+                        player.传永武技签到文字版();
                         break;
                     case ActionType.GetItemCount:
                         {
