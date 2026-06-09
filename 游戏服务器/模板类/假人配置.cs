@@ -79,6 +79,7 @@ namespace 游戏服务器.模板类
         public void 保存数据()
         {
             UTF8Encoding 编码 = new UTF8Encoding(false);
+            Directory.CreateDirectory(目录); // 目录不存在时先建, 否则 StreamWriter 抛"找不到路径的一部分"致保存失败
             using (StreamWriter w = new StreamWriter(目录 + "假人配置.csv", append: false, 编码))
             {
                 w.WriteLine("# 假人系统全局配置(键,值)。改后服务端 GM 框 @假人 重载 即时生效, 改\"假人总数\"需重启。");
