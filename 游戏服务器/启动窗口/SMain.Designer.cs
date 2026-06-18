@@ -210,6 +210,7 @@ namespace 游戏服务器
         private BarButtonItem barButtonItem_ResetRechargeHttp;
 
         private BarButtonItem barButtonItem_ResetClientFeeHttp;
+        private BarButtonItem 重载Lua脚本Button;
 
         public BarStaticItem barStaticItem2;
 
@@ -288,6 +289,7 @@ namespace 游戏服务器
             barButtonItem20 = new BarButtonItem();
             barButtonItem_ResetRechargeHttp = new BarButtonItem();
             barButtonItem_ResetClientFeeHttp = new BarButtonItem();
+            重载Lua脚本Button = new BarButtonItem();
             skinPaletteRibbonGalleryBarItem1 = new SkinPaletteRibbonGalleryBarItem();
             skinRibbonGalleryBarItem1 = new SkinRibbonGalleryBarItem();
             skinRibbonGalleryBarItem2 = new SkinRibbonGalleryBarItem();
@@ -390,7 +392,7 @@ namespace 游戏服务器
             // 
             ribbonControl1.EmptyAreaImageOptions.ImagePadding = new Padding(35, 39, 35, 39);
             ribbonControl1.ExpandCollapseItem.Id = 0;
-            ribbonControl1.Items.AddRange(new BarItem[] { ribbonControl1.ExpandCollapseItem, StartServerButton, StopServerButton, ReLoadLuaButton, ReadLoadMapButton, barButtonItem2, barButtonItem3, barButtonItem4, barButtonItem6, barButtonItem7, barButtonItem8, barButtonItem9, barButtonItem10, barButtonItem12, barButtonItem13, barEditItem3, barButtonItem14, barButtonItem15, barButtonItem16, barButtonItem18, barEditItem4, barButtonItem20, barButtonItem_ResetRechargeHttp, barButtonItem_ResetClientFeeHttp, skinPaletteRibbonGalleryBarItem1, skinRibbonGalleryBarItem1, skinRibbonGalleryBarItem2, 重载怪物Button, 游戏商店Button, 游戏称号Button, 坐骑数据Button, 怪物爆率Button });
+            ribbonControl1.Items.AddRange(new BarItem[] { ribbonControl1.ExpandCollapseItem, StartServerButton, StopServerButton, ReLoadLuaButton, ReadLoadMapButton, barButtonItem2, barButtonItem3, barButtonItem4, barButtonItem6, barButtonItem7, barButtonItem8, barButtonItem9, barButtonItem10, barButtonItem12, barButtonItem13, barEditItem3, barButtonItem14, barButtonItem15, barButtonItem16, barButtonItem18, barEditItem4, barButtonItem20, barButtonItem_ResetRechargeHttp, barButtonItem_ResetClientFeeHttp, 重载Lua脚本Button, skinPaletteRibbonGalleryBarItem1, skinRibbonGalleryBarItem1, skinRibbonGalleryBarItem2, 重载怪物Button, 游戏商店Button, 游戏称号Button, 坐骑数据Button, 怪物爆率Button });
             ribbonControl1.Location = new Point(0, 0);
             ribbonControl1.Margin = new Padding(4);
             ribbonControl1.MaxItemId = 65;
@@ -669,7 +671,14 @@ namespace 游戏服务器
             barButtonItem_ResetClientFeeHttp.ImageOptions.SvgImage = (DevExpress.Utils.Svg.SvgImage)resources.GetObject("barButtonItem_ResetClientFeeHttp.ImageOptions.SvgImage");
             barButtonItem_ResetClientFeeHttp.Name = "barButtonItem_ResetClientFeeHttp";
             barButtonItem_ResetClientFeeHttp.ItemClick += barButtonItem_ResetClientFeeHttp_ItemClick;
-            // 
+            //
+            // 重载Lua脚本Button
+            //
+            重载Lua脚本Button.Caption = "重载Lua";
+            重载Lua脚本Button.Id = 65;
+            重载Lua脚本Button.Name = "重载Lua脚本Button";
+            重载Lua脚本Button.ItemClick += 重载Lua脚本Button_ItemClick;
+            //
             // skinPaletteRibbonGalleryBarItem1
             // 
             skinPaletteRibbonGalleryBarItem1.Caption = "skinPaletteRibbonGalleryBarItem1";
@@ -810,6 +819,7 @@ namespace 游戏服务器
             ribbonPageGroup3.ItemLinks.Add(barButtonItem12, true);
             ribbonPageGroup3.ItemLinks.Add(barButtonItem_ResetRechargeHttp);
             ribbonPageGroup3.ItemLinks.Add(barButtonItem_ResetClientFeeHttp);
+            ribbonPageGroup3.ItemLinks.Add(重载Lua脚本Button);
             ribbonPageGroup3.Name = "ribbonPageGroup3";
             ribbonPageGroup3.Text = "重载";
             // 

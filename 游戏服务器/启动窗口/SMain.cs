@@ -1097,6 +1097,19 @@ namespace 游戏服务器
 
         }
 
+        private void 重载Lua脚本Button_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            重载Lua脚本Button.Enabled = false;
+            Task.Run(delegate
+            {
+                游戏脚本.热重载Lua();
+                BeginInvoke(new MethodInvoker(delegate
+                {
+                    重载Lua脚本Button.Enabled = true;
+                }));
+            });
+        }
+
         private void 怪物爆率Button_ItemClick(object sender, ItemClickEventArgs e)
         {
             Task.Run(delegate ()
