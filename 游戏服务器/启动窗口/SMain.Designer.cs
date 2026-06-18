@@ -676,6 +676,7 @@ namespace 游戏服务器
             //
             重载Lua脚本Button.Caption = "重载Lua";
             重载Lua脚本Button.Id = 65;
+            重载Lua脚本Button.ImageOptions.SvgImage = (DevExpress.Utils.Svg.SvgImage)resources.GetObject("重载Lua脚本Button.ImageOptions.SvgImage");
             重载Lua脚本Button.Name = "重载Lua脚本Button";
             重载Lua脚本Button.ItemClick += 重载Lua脚本Button_ItemClick;
             //
