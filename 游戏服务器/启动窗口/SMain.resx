@@ -548,18 +548,22 @@
   </data>
   <data name="重载Lua脚本Button.ImageOptions.SvgImage" type="DevExpress.Utils.Svg.SvgImage, DevExpress.Data.v23.1" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        AAEAAAD/////AQAAAAAAAAAMAgAAAFlEZXZFeHByZXNzLkRhdGEudjIzLjEsIFZlcnNpb249MjMuMS4z
-        LjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjg4ZDE3NTRkNzAwZTQ5YQUBAAAAHURl
-        dkV4cHJlc3MuVXRpbHMuU3ZnLlN2Z0ltYWdlAQAAAAREYXRhBwICAAAACQMAAAAPAwAAABUCAAAC77u/
-        PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0nVVRGLTgnPz4NCjxzdmcgeD0iMHB4IiB5PSIwcHgi
-        IHZpZXdCb3g9IjAgMCAzMiAzMiIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv
-        MjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4bWw6c3Bh
-        Y2U9InByZXNlcnZlIiBpZD0iTGF5ZXJfMSIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAg
-        MzIgMzIiPg0KICA8c3R5bGUgdHlwZT0idGV4dC9jc3MiPgoJLkJsYWNre2ZpbGw6IzcyNzI3Mjt9Cgku
-        R3JlZW57ZmlsbDojMDM5QzIzO30KPC9zdHlsZT4NCiAgPHBhdGggZD0iTTMxLDBIMUMwLjUsMCwwLDAu
-        NSwwLDF2MzBjMCwwLjUsMC41LDEsMSwxaDMwYzAuNSwwLDEtMC41LDEtMVYxQzMyLDAuNSwzMS41LDAs
-        MzEsMHogTTMwLDMwSDJWMmgyOFYzMHoiIGNsYXNzPSJCbGFjayIgLz4NCiAgPHJlY3QgeD0iMTIiIHk9
-        IjQiIHdpZHRoPSI4IiBoZWlnaHQ9IjI0IiBjbGFzcz0iR3JlZW4iIC8+DQo8L3N2Zz4L
+        AAEAAAD/////AQAAAAAAAAAMAgAAAFlEZXZFeHByZXNzLkRhdGEudjIzLjEsIFZlcnNpb249MjMu
+        MS4zLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjg4ZDE3NTRkNzAwZTQ5YQUB
+        AAAAHURldkV4cHJlc3MuVXRpbHMuU3ZnLlN2Z0ltYWdlAQAAAAREYXRhBwICAAAACQMAAAAPAwAA
+        AMECAAAC77u/PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0nVVRGLTgnPz4NCjxzdmcgeD0i
+        MHB4IiB5PSIwcHgiIHZpZXdCb3g9IjAgMCAzMiAzMiIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0
+        cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8x
+        OTk5L3hsaW5rIiB4bWw6c3BhY2U9InByZXNlcnZlIiBpZD0iTGF5ZXJfMSIgc3R5bGU9ImVuYWJs
+        ZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMzIgMzIiPg0KICA8c3R5bGUgdHlwZT0idGV4dC9jc3MiPg0K
+        CS5CbGFja3tmaWxsOiM3MjcyNzI7fQ0KCS5CbHVle2ZpbGw6IzAwNjRCMTt9DQogIDwvc3R5bGU+
+        DQogIDxwYXRoIGQ9Ik0zMSwwSDFDMC41LDAsMCwwLjUsMCwxdjMwYzAsMC41LDAuNSwxLDEsMWgz
+        MGMwLjUsMCwxLTAuNSwxLTFWMUMzMiwwLjUsMzEuNSwwLDMxLDB6IE0zMCwzMEgyVjJoMjhWMzB6
+        IiBjbGFzcz0iQmxhY2siIC8+DQogIDxwYXRoIGQ9Ik0yMiw2bDAsNWwtMS44LTEuOEMxOC45LDgu
+        NCwxNy41LDgsMTYsOEMxMS42LDgsOCwxMS42LDgsMTZzMy42LDgsOCw4czgtMy42LDgtOGMwLTEu
+        NS0wLjQtMi45LTEuMi00LjFsMS43LTFDMjUuNSwxMi40LDI2LDE0LjEsMjYsMTZjMCw1LjUtNC41
+        LDEwLTEwLDEwUzYsMjEuNSw2LDE2UzEwLjUsNiwxNiw2YzIsMCwzLjksMC42LDUuNSwxLjZMMjIs
+        NnoiIGNsYXNzPSJCbHVlIiAvPg0KPC9zdmc+Cw==
 </value>
   </data>
   <data name="重载怪物Button.ImageOptions.SvgImage" type="DevExpress.Utils.Svg.SvgImage, DevExpress.Data.v23.1" mimetype="application/x-microsoft.net.object.bytearray.base64">
