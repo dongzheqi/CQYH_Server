@@ -228,6 +228,7 @@ namespace 游戏服务器.窗口视图
             xtraTabPage4 = new XtraTabPage();
             宠物下属分组 = new GroupControl();
             下线宝宝不死check = new CheckEdit();
+            叛变直接死亡check = new CheckEdit();
             安全区分组 = new GroupControl();
             groupControl6 = new GroupControl();
             labelControl63 = new LabelControl();
@@ -350,6 +351,7 @@ namespace 游戏服务器.窗口视图
             ((ISupportInitialize)宠物下属分组).BeginInit();
             宠物下属分组.SuspendLayout();
             ((ISupportInitialize)下线宝宝不死check.Properties).BeginInit();
+            ((ISupportInitialize)叛变直接死亡check.Properties).BeginInit();
             ((ISupportInitialize)安全区分组).BeginInit();
             安全区分组.SuspendLayout();
             ((ISupportInitialize)groupControl6).BeginInit();
@@ -2286,9 +2288,10 @@ namespace 游戏服务器.窗口视图
             // 宠物下属分组
             // 
             宠物下属分组.Controls.Add(下线宝宝不死check);
+            宠物下属分组.Controls.Add(叛变直接死亡check);
             宠物下属分组.Location = new Point(197, 17);
             宠物下属分组.Name = "宠物下属分组";
-            宠物下属分组.Size = new Size(180, 77);
+            宠物下属分组.Size = new Size(180, 100);
             宠物下属分组.TabIndex = 130;
             宠物下属分组.Text = "宠物下属";
             // 
@@ -2300,7 +2303,16 @@ namespace 游戏服务器.窗口视图
             下线宝宝不死check.Properties.Caption = "下线宝宝不死";
             下线宝宝不死check.Size = new Size(100, 19);
             下线宝宝不死check.TabIndex = 129;
-            // 
+            //
+            // 叛变直接死亡check
+            //
+            叛变直接死亡check.Location = new Point(5, 60);
+            叛变直接死亡check.MenuManager = ribbon;
+            叛变直接死亡check.Name = "叛变直接死亡check";
+            叛变直接死亡check.Properties.Caption = "叛变直接死亡";
+            叛变直接死亡check.Size = new Size(100, 19);
+            叛变直接死亡check.TabIndex = 134;
+            //
             // 安全区分组
             // 
             安全区分组.Controls.Add(安全区满血check);
@@ -2503,6 +2515,7 @@ namespace 游戏服务器.窗口视图
             ((ISupportInitialize)宠物下属分组).EndInit();
             宠物下属分组.ResumeLayout(false);
             ((ISupportInitialize)下线宝宝不死check.Properties).EndInit();
+            ((ISupportInitialize)叛变直接死亡check.Properties).EndInit();
             ((ISupportInitialize)安全区分组).EndInit();
             安全区分组.ResumeLayout(false);
             ((ISupportInitialize)groupControl6).EndInit();
@@ -3035,6 +3048,7 @@ namespace 游戏服务器.窗口视图
         private GroupControl 祝福油几率分组;
         private GroupControl 其他分组;
         private CheckEdit 下线宝宝不死check;
+        private CheckEdit 叛变直接死亡check;
         private GroupControl 宠物下属分组;
         private GroupControl groupControl6;
         private LabelControl labelControl63;

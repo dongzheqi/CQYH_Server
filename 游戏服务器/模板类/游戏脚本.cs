@@ -227,6 +227,23 @@ namespace 游戏服务器.模板类
 			}
 		}
 
+		public static void 热重载Lua()
+		{
+			try
+			{
+				var old = 游戏脚本.状态机;
+				游戏脚本.状态机 = null;
+				System.Threading.Thread.Sleep(50);
+				old?.Dispose();
+				初始化脚本系统();
+				主程.添加系统日志("Lua热重载完成");
+			}
+			catch (Exception ex)
+			{
+				主程.添加系统日志("Lua热重载异常: " + ex.Message);
+			}
+		}
+
 		public static void 重新加载()
 		{
 			if (Settings.开启lua && 游戏脚本.reload != null)

@@ -203,6 +203,7 @@ namespace 游戏服务器
         private Button S_浏览备份目录;
 
         private Button S_重载系统数据;
+        private Button S_重载Lua脚本;
 
         private TextBox GM命令文本;
 
@@ -1257,6 +1258,19 @@ namespace 游戏服务器
             });
         }
 
+        private void 重载Lua脚本_Click(object sender, EventArgs e)
+        {
+            this.S_重载Lua脚本.Enabled = false;
+            Task.Run(delegate
+            {
+                游戏脚本.热重载Lua();
+                base.BeginInvoke((MethodInvoker)delegate
+                {
+                    this.S_重载Lua脚本.Enabled = true;
+                });
+            });
+        }
+
         private void 选择数据目录_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog folderBrowserDialog;
@@ -2037,6 +2051,7 @@ namespace 游戏服务器
             this.S_注意事项标签1 = new System.Windows.Forms.Label();
             this.S_重载客户数据 = new System.Windows.Forms.Button();
             this.S_重载系统数据 = new System.Windows.Forms.Button();
+            this.S_重载Lua脚本 = new System.Windows.Forms.Button();
             this.S_浏览合并目录 = new System.Windows.Forms.Button();
             this.S_浏览备份目录 = new System.Windows.Forms.Button();
             this.S_浏览数据目录 = new System.Windows.Forms.Button();
@@ -3200,6 +3215,7 @@ namespace 游戏服务器
             this.S_游戏数据分组.Controls.Add(this.S_注意事项标签1);
             this.S_游戏数据分组.Controls.Add(this.S_重载客户数据);
             this.S_游戏数据分组.Controls.Add(this.S_重载系统数据);
+            this.S_游戏数据分组.Controls.Add(this.S_重载Lua脚本);
             this.S_游戏数据分组.Controls.Add(this.S_浏览合并目录);
             this.S_游戏数据分组.Controls.Add(this.S_浏览备份目录);
             this.S_游戏数据分组.Controls.Add(this.S_浏览数据目录);
@@ -3299,6 +3315,14 @@ namespace 游戏服务器
             this.S_重载客户数据.Text = "重载客户数据";
             this.S_重载客户数据.UseVisualStyleBackColor = true;
             this.S_重载客户数据.Click += new System.EventHandler(重载客户数据_Click);
+            this.S_重载Lua脚本.Location = new System.Drawing.Point(26, 240);
+            this.S_重载Lua脚本.Margin = new System.Windows.Forms.Padding(5);
+            this.S_重载Lua脚本.Name = "S_重载Lua脚本";
+            this.S_重载Lua脚本.Size = new System.Drawing.Size(666, 39);
+            this.S_重载Lua脚本.TabIndex = 14;
+            this.S_重载Lua脚本.Text = "重载Lua脚本";
+            this.S_重载Lua脚本.UseVisualStyleBackColor = true;
+            this.S_重载Lua脚本.Click += new System.EventHandler(重载Lua脚本_Click);
             this.S_重载系统数据.Location = new System.Drawing.Point(26, 144);
             this.S_重载系统数据.Margin = new System.Windows.Forms.Padding(5);
             this.S_重载系统数据.Name = "S_重载系统数据";

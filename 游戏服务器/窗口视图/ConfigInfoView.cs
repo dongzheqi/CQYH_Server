@@ -119,6 +119,7 @@ namespace 游戏服务器.窗口视图
             this.不分解极品check.EditValue = Settings.不分解极品装备;
             this.安全区满血check.EditValue = Settings.安全区内满血满蓝;
             this.下线宝宝不死check.EditValue = Settings.下线宝宝不死;
+            this.叛变直接死亡check.EditValue = Settings.叛变直接死亡;
             this.借鉴_加载();
         }
         //保存配置
@@ -213,6 +214,7 @@ namespace 游戏服务器.窗口视图
             Settings.不分解极品装备 = (bool)this.不分解极品check.EditValue;
             Settings.安全区内满血满蓝 = (bool)this.安全区满血check.EditValue;
             Settings.下线宝宝不死 = (bool)this.下线宝宝不死check.EditValue;
+            Settings.叛变直接死亡 = (bool)this.叛变直接死亡check.EditValue;
 
             if (this.JobOpenCheck.Checked)
             {

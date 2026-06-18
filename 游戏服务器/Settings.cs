@@ -190,6 +190,9 @@ namespace 游戏服务器
         // 尸王殿传送门存续秒数: 门刷出后存活此秒数即自动消失(默认600=10分钟)
         public static int 尸王殿门存续秒数 = 600;
 
+        // 宠物/从属叛变后直接死亡: true=叛变时间到立即自身死亡(不转为野怪); false=原版行为(转为可攻击野怪)
+        public static bool 叛变直接死亡 = false;
+
         // 邻居查找用四叉树空间索引替代625格双重扫描(性能优化, 默认关闭): 触最热的移动/邻居热路径, 务必停服压测确认无邻居desync(对象隐身/幽灵)再开启
         public static bool 开启四叉树邻居 = false;
 
@@ -522,6 +525,7 @@ namespace 游戏服务器
             Settings.首杀道具数量 = Settings.iniconfig.ReadInt32("General", "首杀道具数量", Settings.首杀道具数量);
             Settings.尸王殿开启击杀数 = Settings.iniconfig.ReadInt32("General", "尸王殿开启击杀数", Settings.尸王殿开启击杀数);
             Settings.尸王殿门存续秒数 = Settings.iniconfig.ReadInt32("General", "尸王殿门存续秒数", Settings.尸王殿门存续秒数);
+            Settings.叛变直接死亡 = Settings.iniconfig.ReadBoolean("General", "叛变直接死亡", Settings.叛变直接死亡);
             Settings.开启四叉树邻居 = Settings.iniconfig.ReadBoolean("General", "开启四叉树邻居", Settings.开启四叉树邻居);
             Settings.首爆货币类型 = Settings.iniconfig.ReadInt32("General", "首爆货币类型", Settings.首爆货币类型);
             Settings.首爆货币数量 = Settings.iniconfig.ReadInt32("General", "首爆货币数量", Settings.首爆货币数量);
@@ -710,6 +714,7 @@ namespace 游戏服务器
             Settings.iniconfig.Write("General", "首杀道具数量", Settings.首杀道具数量);
             Settings.iniconfig.Write("General", "尸王殿开启击杀数", Settings.尸王殿开启击杀数);
             Settings.iniconfig.Write("General", "尸王殿门存续秒数", Settings.尸王殿门存续秒数);
+            Settings.iniconfig.Write("General", "叛变直接死亡", Settings.叛变直接死亡);
             Settings.iniconfig.Write("General", "开启四叉树邻居", Settings.开启四叉树邻居);
             Settings.iniconfig.Write("General", "首爆货币类型", Settings.首爆货币类型);
             Settings.iniconfig.Write("General", "首爆货币数量", Settings.首爆货币数量);

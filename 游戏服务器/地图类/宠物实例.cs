@@ -679,7 +679,10 @@ namespace 游戏服务器.地图类
             }
             else if (this.叛变时间 != default(DateTime) && 主程.当前时间 > this.叛变时间)
             {
-                new 怪物实例(this);
+                if (Settings.叛变直接死亡)
+                    this.自身死亡处理(null, 技能击杀: false);
+                else
+                    new 怪物实例(this);
             }
             else
             {

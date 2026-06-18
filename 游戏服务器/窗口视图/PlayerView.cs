@@ -466,6 +466,73 @@ namespace 游戏服务器.窗口视图
 			this.ColumnWidth(this.gridView2);
 			this.ColumnWidth(this.gridView4);
 			this.ColumnWidth(this.gridView1);
+			this.初始化右键菜单();
+		}
+
+		private void 初始化右键菜单()
+		{
+			// 技能右键删除
+			var 技能菜单 = new ContextMenuStrip();
+			var 技能删除项 = new ToolStripMenuItem("删除技能");
+			技能删除项.Click += (s, e) => this.删除选中技能();
+			技能菜单.Items.Add(技能删除项);
+			技能菜单.Opening += (s, e) => { e.Cancel = this.gridView3.FocusedRowHandle < 0; };
+			this.grid技能.ContextMenuStrip = 技能菜单;
+			this.gridView3.MouseDown += (s, e) =>
+			{
+				if (e.Button == MouseButtons.Right)
+				{
+					var info = this.gridView3.CalcHitInfo(e.Location);
+					if (info.InRow) this.gridView3.FocusedRowHandle = info.RowHandle;
+				}
+			};
+
+			// 背包右键删除
+			var 背包菜单 = new ContextMenuStrip();
+			var 背包删除项 = new ToolStripMenuItem("删除物品");
+			背包删除项.Click += (s, e) => this.删除选中背包物品();
+			背包菜单.Items.Add(背包删除项);
+			背包菜单.Opening += (s, e) => { e.Cancel = this.gridView5.FocusedRowHandle < 0; };
+			this.grid背包.ContextMenuStrip = 背包菜单;
+			this.gridView5.MouseDown += (s, e) =>
+			{
+				if (e.Button == MouseButtons.Right)
+				{
+					var info = this.gridView5.CalcHitInfo(e.Location);
+					if (info.InRow) this.gridView5.FocusedRowHandle = info.RowHandle;
+				}
+			};
+		}
+
+		private void 删除选中技能()
+		{
+			if (!游戏数据网关.角色数据表.数据表.TryGetValue(this.选择的角色编号, out var value) || !(value is 角色数据 角色))
+				return;
+			int row = this.gridView3.FocusedRowHandle;
+			if (row < 0) return;
+			ushort 编号 = Convert.ToUInt16(this.gridView3.GetRowCellValue(row, "技能编号"));
+			string 名字 = this.gridView3.GetRowCellValue(row, "技能名字")?.ToString() ?? 编号.ToString();
+			if (MessageBox.Show($"确认删除技能【{名字}】？", "确认删除", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+			{
+				角色.技能数据.Remove(编号);
+				PlayerView.界面更新处理(角色);
+			}
+		}
+
+		private void 删除选中背包物品()
+		{
+			if (!游戏数据网关.角色数据表.数据表.TryGetValue(this.选择的角色编号, out var value) || !(value is 角色数据 角色))
+				return;
+			int row = this.gridView5.FocusedRowHandle;
+			if (row < 0) return;
+			byte 位置 = Convert.ToByte(this.gridView5.GetRowCellValue(row, "背包位置"));
+			var 物品 = this.gridView5.GetRowCellValue(row, "背包物品") as 物品数据;
+			string 名字 = 物品?.ToString() ?? 位置.ToString();
+			if (MessageBox.Show($"确认删除物品【{名字}】（背包格{位置}）？", "确认删除", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+			{
+				角色.角色背包.Remove(位置);
+				PlayerView.界面更新处理(角色);
+			}
 		}
 
 		private void ColumnWidth(GridView gridView)
