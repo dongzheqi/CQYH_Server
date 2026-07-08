@@ -95,6 +95,32 @@ namespace 游戏服务器
             if (主程.CommandLogs != null && 主程.CommandLogs.Count < 2000) 主程.CommandLogs.Enqueue(文本); // 专属 GM/管理员操作审计文件, 不再只混进 SystemLog
         }
 
+        // 借鉴移植(参考引擎·查看日志队列): 汇总各日志队列深度与丢弃上限, 填补"队列满则静默丢弃日志"的运维盲区。
+        // 添加系统日志/添加命令日志 在 Logs>1000、DisplayLogs>100、CommandLogs/SecurityLogs>2000 时静默丢弃, 无此摘要无从察觉日志无声丢失。
+        public static string 日志队列摘要()
+        {
+            string 行(string 名, ConcurrentQueue<string> 队列, int 上限)
+            {
+                int 数 = 队列?.Count ?? 0;
+                string 标记 = (上限 > 0 && 数 >= 上限) ? " ⚠已满(新日志被丢弃)" : ((上限 > 0 && 数 >= 上限 * 9 / 10) ? " ⚠接近上限" : "");
+                return $"  {名}: {数}{((上限 > 0) ? ("/" + 上限) : "(无上限)")}{标记}";
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("===== 日志队列深度 =====");
+            sb.AppendLine(行("Logs(系统)", 主程.Logs, 1000));
+            sb.AppendLine(行("DisplayLogs(界面)", 主程.DisplayLogs, 100));
+            sb.AppendLine(行("ChatLogs(聊天)", 主程.ChatLogs, 1000));
+            sb.AppendLine(行("DisplayChatLogs", 主程.DisplayChatLogs, 500));
+            sb.AppendLine(行("CommandLogs(GM审计)", 主程.CommandLogs, 2000));
+            sb.AppendLine(行("DisplayCommandLogs", 主程.DisplayCommandLogs, 500));
+            sb.AppendLine(行("SecurityLogs(安全)", 主程.SecurityLogs, 2000));
+            sb.AppendLine(行("GameLogs", 主程.GameLogs, 0));
+            sb.AppendLine(行("ItemLogs", 主程.ItemLogs, 0));
+            sb.AppendLine(行("CurrencyLogs", 主程.CurrencyLogs, 0));
+            sb.Append("========================");
+            return sb.ToString();
+        }
+
         // 安全告警(借鉴 参考引擎 安全审计): 高危/异常事件(禁止创角拦截、货币异常、门票拒绝等)写专属 SecurityLog 文件,
         // 同时进系统日志便于运维当场看到. 与 GM操作(CommandLog)/货币(CurrencyLog)/物品(ItemLog) 分文件、互不淹没.
         public static void 添加安全告警(string 文本)

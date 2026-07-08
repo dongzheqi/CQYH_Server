@@ -195,20 +195,7 @@ namespace 游戏服务器.地图类
 			return false;
 		}
 
-		private void 魔虫窟执行()
-		{
-			if (this.副本节点 == 0 && this.固定怪物总数 - this.存活怪物总数 >= 60)
-			{
-				this.副本节点 = 1;
-				this.节点计时 = 主程.当前时间.AddHours(2.0);
-				this.地图公告("<#T:50607>");
-				Point[] 刷新范围;
-				刷新范围 = this.怪物区域.FirstOrDefault((怪物刷新 o) => o.区域名字 == "魔虫窟-BOSS怪物区域")?.范围坐标.ToArray();
-				this.范围刷新怪物("蛇蝎 魔闪", 0, 刷新范围, 禁止复活: true, 立即刷新: true);
-				this.范围刷新怪物("蛇蝎 毒钩", 0, 刷新范围, 禁止复活: true, 立即刷新: true);
-				this.范围刷新怪物("蛇蝎 赤牙", 0, 刷新范围, 禁止复活: true, 立即刷新: true);
-			}
-		}
+		// 借鉴移植(参考引擎): 原 private 魔虫窟执行 雏形(孤儿死代码, 无调用方)已删除, 由标准静态副本类 副本类/魔虫窟.执行 取代。
 
 		public void 处理数据()
 		{

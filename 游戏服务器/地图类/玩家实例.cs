@@ -2720,6 +2720,15 @@ namespace 游戏服务器.地图类
                         return this.角色职业 == (游戏对象职业)x.Value;
                     case QuestAcceptConstraint.Gender:
                         return this.角色性别 == (游戏对象性别)x.Value;
+                    // 借鉴移植(参考引擎): 角色变量约束。缺此 case 时带 SelfVar 约束的任务模板会命中 default 抛 NotImplementedException 崩服。
+                    case QuestAcceptConstraint.SelfVar:
+                        {
+                            if (this.角色数据.角色变量.TryGetValue(x.Value, out var selfVarValue))
+                            {
+                                return selfVarValue == 1;
+                            }
+                            return false;
+                        }
                 }
             });
         }
@@ -2806,6 +2815,19 @@ namespace 游戏服务器.地图类
             foreach (CharacterQuest quest in this.角色数据.Quests)
             {
                 this.UpdateQuestProgress(quest);
+            }
+        }
+
+        // 借鉴移植(参考引擎): 按任务编号强制重算该玩家所有进行中的同ID任务进度(供 @更新任务进度 客服排障用)。
+        public void UpdateQuestProgress(int 任务编号)
+        {
+            if (GameQuests.数据表.TryGetValue(任务编号, out var _))
+            {
+                CharacterQuest[] array = this.角色数据.Quests.Where((CharacterQuest x) => x.Info.V.Id == 任务编号 && x.CompleteDate.V == DateTime.MinValue).ToArray();
+                foreach (CharacterQuest quest in array)
+                {
+                    this.UpdateQuestProgress(quest);
+                }
             }
         }
 

@@ -880,6 +880,74 @@ namespace 游戏服务器.数据类
 					}
 					return 字典监视器31;
 				},
+				// ==== 借鉴移植: 图鉴/永久加成/字符串键脚本变量 序列化委托(读) ====
+				[typeof(字典监视器<int, byte>)] = delegate(BinaryReader r, 游戏数据 o, 数据字段 f)
+				{
+					字典监视器<int, byte> md = new 字典监视器<int, byte>(o);
+					int cnt = r.ReadInt32();
+					for (int i = 0; i < cnt; i++)
+					{
+						int k = r.ReadInt32();
+						byte v = r.ReadByte();
+						md.QuietlyAdd(k, v);
+					}
+					return md;
+				},
+				[typeof(字典监视器<string, int>)] = delegate(BinaryReader r, 游戏数据 o, 数据字段 f)
+				{
+					字典监视器<string, int> md = new 字典监视器<string, int>(o);
+					int cnt = r.ReadInt32();
+					for (int i = 0; i < cnt; i++)
+					{
+						string k = r.ReadString();
+						int v = r.ReadInt32();
+						md.QuietlyAdd(k, v);
+					}
+					return md;
+				},
+				[typeof(字典监视器<string, long>)] = delegate(BinaryReader r, 游戏数据 o, 数据字段 f)
+				{
+					字典监视器<string, long> md = new 字典监视器<string, long>(o);
+					int cnt = r.ReadInt32();
+					for (int i = 0; i < cnt; i++)
+					{
+						string k = r.ReadString();
+						long v = r.ReadInt64();
+						md.QuietlyAdd(k, v);
+					}
+					return md;
+				},
+				[typeof(字典监视器<string, string>)] = delegate(BinaryReader r, 游戏数据 o, 数据字段 f)
+				{
+					字典监视器<string, string> md = new 字典监视器<string, string>(o);
+					int cnt = r.ReadInt32();
+					for (int i = 0; i < cnt; i++)
+					{
+						string k = r.ReadString();
+						string v = r.ReadString();
+						md.QuietlyAdd(k, v);
+					}
+					return md;
+				},
+				[typeof(字典监视器<string, Dictionary<游戏对象属性, int>>)] = delegate(BinaryReader r, 游戏数据 o, 数据字段 f)
+				{
+					字典监视器<string, Dictionary<游戏对象属性, int>> md = new 字典监视器<string, Dictionary<游戏对象属性, int>>(o);
+					int cnt = r.ReadInt32();
+					for (int i = 0; i < cnt; i++)
+					{
+						string k = r.ReadString();
+						int inner = r.ReadInt32();
+						Dictionary<游戏对象属性, int> dic = new Dictionary<游戏对象属性, int>();
+						for (int j = 0; j < inner; j++)
+						{
+							游戏对象属性 ak = (游戏对象属性)r.ReadInt32();
+							int av = r.ReadInt32();
+							dic[ak] = av;
+						}
+						md.QuietlyAdd(k, dic);
+					}
+					return md;
+				},
 				[typeof(字典监视器<ushort, AchievementData>)] = delegate(BinaryReader r, 游戏数据 o, 数据字段 f)
 				{
 					字典监视器<ushort, AchievementData> 字典监视器30;
@@ -1533,6 +1601,68 @@ namespace 游戏服务器.数据类
 						b.Write(item43.Key);
 						b.Write(item43.Value is 装备数据);
 						b.Write(item43.Value.数据索引.V);
+					}
+				},
+				// ==== 借鉴移植: 图鉴/永久加成/字符串键脚本变量 序列化委托(写) ====
+				[typeof(字典监视器<int, byte>)] = delegate(BinaryWriter b, object o)
+				{
+					字典监视器<int, byte> md = (字典监视器<int, byte>)o;
+					b.Write(md?.Count ?? 0);
+					foreach (KeyValuePair<int, byte> kv in md)
+					{
+						b.Write(kv.Key);
+						b.Write(kv.Value);
+					}
+				},
+				[typeof(字典监视器<string, int>)] = delegate(BinaryWriter b, object o)
+				{
+					字典监视器<string, int> md = (字典监视器<string, int>)o;
+					b.Write(md?.Count ?? 0);
+					foreach (KeyValuePair<string, int> kv in md)
+					{
+						b.Write(kv.Key);
+						b.Write(kv.Value);
+					}
+				},
+				[typeof(字典监视器<string, long>)] = delegate(BinaryWriter b, object o)
+				{
+					字典监视器<string, long> md = (字典监视器<string, long>)o;
+					b.Write(md?.Count ?? 0);
+					foreach (KeyValuePair<string, long> kv in md)
+					{
+						b.Write(kv.Key);
+						b.Write(kv.Value);
+					}
+				},
+				[typeof(字典监视器<string, string>)] = delegate(BinaryWriter b, object o)
+				{
+					字典监视器<string, string> md = (字典监视器<string, string>)o;
+					b.Write(md?.Count ?? 0);
+					foreach (KeyValuePair<string, string> kv in md)
+					{
+						b.Write(kv.Key);
+						b.Write(kv.Value);
+					}
+				},
+				[typeof(字典监视器<string, Dictionary<游戏对象属性, int>>)] = delegate(BinaryWriter b, object o)
+				{
+					字典监视器<string, Dictionary<游戏对象属性, int>> md = (字典监视器<string, Dictionary<游戏对象属性, int>>)o;
+					b.Write(md?.Count ?? 0);
+					if (md != null)
+					{
+						foreach (KeyValuePair<string, Dictionary<游戏对象属性, int>> kv in md)
+						{
+							b.Write(kv.Key);
+							b.Write(kv.Value?.Count ?? 0);
+							if (kv.Value != null)
+							{
+								foreach (KeyValuePair<游戏对象属性, int> inner in kv.Value)
+								{
+									b.Write((int)inner.Key);
+									b.Write(inner.Value);
+								}
+							}
+						}
 					}
 				},
 				[typeof(字典监视器<ushort, AchievementData>)] = delegate(BinaryWriter b, object o)
