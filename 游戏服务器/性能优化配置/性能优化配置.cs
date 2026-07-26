@@ -21,7 +21,9 @@ public static class 性能优化配置
 
 	private static int _自动清理内存间隔 = 5;
 
-	private static int _内存阈值MB = 1548;
+	// 默认阈值从参照的 1548MB 上调到 3072MB: 本引擎满地图满怪的私有字节常态就在 1.5G 上下,
+	// 阈值过低会让服务器长期处在"超阈值"状态, 白白反复触发清理(旧版更是直接每秒清一轮把服卡死)
+	private static int _内存阈值MB = 3072;
 
 	private static bool _清理过期门票 = true;
 
@@ -254,7 +256,7 @@ public static class 性能优化配置
 			_启用详细内存日志 = false;
 			_启用自动清理内存 = true;
 			_自动清理内存间隔 = 5;
-			_内存阈值MB = 1548;
+			_内存阈值MB = 3072;
 			_清理过期门票 = true;
 			_清理地图过期物品 = true;
 			if (num)
@@ -277,9 +279,9 @@ public static class 性能优化配置
 			{
 				On配置变更("自动清理内存间隔", 5);
 			}
-			if (num4 != 1548)
+			if (num4 != 3072)
 			{
-				On配置变更("内存阈值MB", 1548);
+				On配置变更("内存阈值MB", 3072);
 			}
 			if (!flag3)
 			{

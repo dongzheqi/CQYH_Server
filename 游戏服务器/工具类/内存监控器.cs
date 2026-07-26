@@ -32,13 +32,91 @@ public static class 内存监控器
 
 	private static readonly object _自动清理锁 = new object();
 
-	private const int 每批清理数量 = 100;
-
-	private static bool _后台清理进行中 = false;
-
-	private static readonly object _后台清理锁 = new object();
-
 	private static readonly HashSet<int> 主城地图编号 = new HashSet<int> { 143, 147, 152, 178 };
+
+	// ===== 以下为"内存看门狗卡服"修复引入的限频/上限参数 =====
+
+	// 单轮清理上限: 清理全程跑在逻辑线程上, 必须封顶, 否则一次清理就是几十万次迭代的停服级卡顿
+	private const int 单轮清理上限_门票 = 5000;
+
+	private const int 单轮清理上限_物品 = 2000;
+
+	private const int 单轮清理上限_副本 = 50;
+
+	private const int 单轮清理上限_空地图 = 5;
+
+	// 进程内存采样缓存: Process.PrivateMemorySize64 在 Windows 上会做一次全系统进程/线程快照
+	// (NtQuerySystemInformation), 单次可达数十毫秒。原实现每秒在逻辑线程取一次 => 周期性卡顿。
+	private const int 内存采样间隔秒 = 10;
+
+	private static DateTime _下次内存采样 = DateTime.MinValue;
+
+	private static long _内存采样缓存 = 0L;
+
+	// 超阈值强制清理的最小间隔与退避: 私有字节清理后一般不会立刻回落到阈值以下,
+	// 原实现 强制清理=true 直接跳过间隔判断 => 每秒一轮全表扫描 + 两次阻塞 Full GC, 服务端卡死。
+	private const int 强制清理最小间隔秒 = 60;
+
+	private const double 有效清理阈值MB = 32.0;
+
+	private const int 最大退避档位 = 3;
+
+	private static int _无效清理次数 = 0;
+
+	private static long _上轮清理前内存 = 0L;
+
+	private static DateTime _下次超阈值诊断 = DateTime.MinValue;
+
+	// 角色字典优化是全表扫描, 最重的一项, 单独限频
+	private const int 角色字典优化间隔分钟 = 30;
+
+	private static DateTime _上次角色字典优化 = DateTime.MinValue;
+
+	// 状态型日志去重(原实现在这两种状态下每秒刷一行, 把日志队列冲满)
+	private static bool _已提示高性能模式 = false;
+
+	private static bool _已提示清理禁用 = false;
+
+	// 代码里直接用索引器读取(缺键即抛 KeyNotFoundException)的角色变量, 绝不能被"优化"删掉:
+	//   50            玩家实例.五零变量 取值器
+	//   218/629/416/220  游戏数据网关.每日处理 的找回奖励结算
+	// 另加 日程变量/角色变量 两个枚举的全部索引(登录同步会整表回填, 删了纯属白删还要重建)
+	private static readonly HashSet<int> 保护角色变量 = 构建保护角色变量();
+
+	private static HashSet<int> 构建保护角色变量()
+	{
+		HashSet<int> hashSet = new HashSet<int> { 50, 218, 220, 416, 629 };
+		try
+		{
+			foreach (int item in Enum.GetValues(typeof(日程变量)))
+			{
+				hashSet.Add(item);
+			}
+			foreach (int item2 in Enum.GetValues(typeof(角色变量)))
+			{
+				hashSet.Add(item2);
+			}
+		}
+		catch
+		{
+		}
+		return hashSet;
+	}
+
+	// 带缓存的进程私有内存读取, 见 内存采样间隔秒 注释
+	private static long 取进程私有内存(DateTime 当前时间, bool 强制刷新 = false)
+	{
+		if (!强制刷新 && _内存采样缓存 > 0 && 当前时间 < _下次内存采样)
+		{
+			return _内存采样缓存;
+		}
+		using (Process process = Process.GetCurrentProcess())
+		{
+			_内存采样缓存 = process.PrivateMemorySize64;
+		}
+		_下次内存采样 = 当前时间.AddSeconds(内存采样间隔秒);
+		return _内存采样缓存;
+	}
 
 	public static void 记录启动内存()
 	{
@@ -49,7 +127,7 @@ public static class 内存监控器
 		_已记录启动内存 = true;
 		try
 		{
-			long privateMemorySize = Process.GetCurrentProcess().PrivateMemorySize64;
+			long privateMemorySize = 取进程私有内存(DateTime.Now, 强制刷新: true);
 			double num = (double)privateMemorySize / 1024.0 / 1024.0;
 			主程.添加系统日志($"[内存基线] 服务器启动内存: {num:F2}MB", true, true);
 			if (num > 1024.0)
@@ -69,24 +147,38 @@ public static class 内存监控器
 	{
 		if (性能优化配置.高性能模式)
 		{
-			主程.添加系统日志("[内存监控] 高性能模式已启用，跳过内存检查", true, true);
+			// 状态不变时不重复刷日志(本方法每秒被主循环调一次)
+			if (!_已提示高性能模式)
+			{
+				_已提示高性能模式 = true;
+				主程.添加系统日志("[内存监控] 高性能模式已启用，跳过内存检查", true, true);
+			}
 			return;
 		}
+		_已提示高性能模式 = false;
 		DateTime now = DateTime.Now;
 		try
 		{
-			long privateMemorySize = Process.GetCurrentProcess().PrivateMemorySize64;
+			long privateMemorySize = 取进程私有内存(now);
 			double num = (double)privateMemorySize / 1024.0 / 1024.0;
 			int 内存阈值MB = 性能优化配置.内存阈值MB;
 			if (num > (double)内存阈值MB)
 			{
-				主程.添加系统日志($"[内存警告] 内存使用过高: {num:F2}MB (阈值: {内存阈值MB}MB)", true, true);
-				记录集合状态();
-				建议();
+				// 超阈值只提高清理频率, 不再每秒"打日志 + 全表统计 + 触发清理"。
+				// 原实现在这里每秒跑 记录集合状态()+建议()+强制清理(绕过间隔), 一旦内存过线就再也回不来 => 卡服。
+				if (now >= _下次超阈值诊断)
+				{
+					_下次超阈值诊断 = now.AddMinutes(Math.Max(1, 性能优化配置.内存监控间隔));
+					主程.添加系统日志($"[内存警告] 内存使用过高: {num:F2}MB (阈值: {内存阈值MB}MB)", true, true);
+					记录集合状态();
+					建议();
+				}
 				尝试自动清理(强制清理: true);
 			}
 			else
 			{
+				_无效清理次数 = 0;
+				_下次超阈值诊断 = DateTime.MinValue;
 				尝试自动清理(强制清理: false);
 			}
 			TimeSpan timeSpan = TimeSpan.FromMinutes(性能优化配置.内存监控间隔);
@@ -116,45 +208,70 @@ public static class 内存监控器
 	{
 		if (!性能优化配置.启用自动清理内存)
 		{
-			主程.添加系统日志("[自动清理] 自动清理已禁用，跳过执行", true, true);
+			if (!_已提示清理禁用)
+			{
+				_已提示清理禁用 = true;
+				主程.添加系统日志("[自动清理] 自动清理已禁用，跳过执行", true, true);
+			}
 			return;
 		}
+		_已提示清理禁用 = false;
+		DateTime now = DateTime.Now;
 		lock (_自动清理锁)
 		{
 			if (_自动清理进行中)
 			{
-				主程.添加系统日志("[自动清理] 清理正在进行中，跳过本次", true, true);
+				if (性能优化配置.启用详细内存日志)
+				{
+					主程.添加系统日志("[自动清理] 清理正在进行中，跳过本次", true, true);
+				}
 				return;
 			}
-			DateTime now = DateTime.Now;
-			TimeSpan timeSpan = TimeSpan.FromMinutes(性能优化配置.自动清理内存间隔);
+			TimeSpan timeSpan;
+			if (强制清理)
+			{
+				// 超阈值也必须限频。清理无效(基本没降内存)时逐级退避 1→2→4→8 分钟,
+				// 避免"内存本来就该这么大"的服务器被清理循环永久占住逻辑线程。
+				timeSpan = TimeSpan.FromSeconds((double)(强制清理最小间隔秒 * (1 << Math.Min(_无效清理次数, 最大退避档位))));
+			}
+			else
+			{
+				timeSpan = TimeSpan.FromMinutes(性能优化配置.自动清理内存间隔);
+			}
 			TimeSpan timeSpan2 = now - _上次自动清理时间;
-			if (!强制清理 && timeSpan2 < timeSpan)
+			if (timeSpan2 < timeSpan)
 			{
 				if (性能优化配置.启用详细内存日志)
 				{
-					主程.添加系统日志($"[自动清理] 跳过清理，距离上次清理还有 {(timeSpan - timeSpan2).TotalSeconds:F0} 秒", true, true);
+					主程.添加系统日志($"[自动清理] 跳过清理，距离下次清理还有 {(timeSpan - timeSpan2).TotalSeconds:F0} 秒(强制={强制清理})", true, true);
 				}
 				return;
 			}
 			主程.添加系统日志($"[自动清理] 触发清理，强制={强制清理}，距离上次清理={timeSpan2.TotalMinutes:F1}分钟", true, true);
 			_自动清理进行中 = true;
+			// 先占位: 清理本身耗时较长时, 防止下一秒的调用又排进来
+			_上次自动清理时间 = now;
 		}
 		try
 		{
-			double num = (double)Process.GetCurrentProcess().PrivateMemorySize64 / 1024.0 / 1024.0;
+			long 清理前内存 = 取进程私有内存(now, 强制刷新: true);
+			double num = (double)清理前内存 / 1024.0 / 1024.0;
+			// 用"两轮清理之间的内存变化"判定上一轮是否有效(非阻塞GC回收在本轮之后才体现, 当场量是量不出来的)
+			if (强制清理 && _上轮清理前内存 > 0)
+			{
+				double num3 = (double)(_上轮清理前内存 - 清理前内存) / 1024.0 / 1024.0;
+				_无效清理次数 = ((num3 < 有效清理阈值MB) ? Math.Min(_无效清理次数 + 1, 最大退避档位) : 0);
+			}
+			_上轮清理前内存 = 清理前内存;
 			主程.添加系统日志("[自动清理] ====== 开始执行自动内存清理 ======", true, true);
 			主程.添加系统日志($"[自动清理] 当前内存: {num:F2}MB", true, true);
 			主程.添加系统日志($"[自动清理] 配置: 间隔={性能优化配置.自动清理内存间隔}分钟, 阈值={性能优化配置.内存阈值MB}MB", true, true);
 			执行自动清理();
-			主程.添加系统日志("[自动清理] 执行GC...", true, true);
-			GC.Collect();
-			GC.WaitForPendingFinalizers();
-			GC.Collect();
-			double num2 = (double)Process.GetCurrentProcess().PrivateMemorySize64 / 1024.0 / 1024.0;
-			double value = num - num2;
+			// 只发一次非阻塞后台 Gen2 回收。原实现连做两次 blocking Full GC + WaitForPendingFinalizers,
+			// 1.5G+ 堆上单次停顿就有数百毫秒~数秒, 逻辑线程全程冻结(玩家表现就是"服务端卡住")。
+			主程.添加系统日志("[自动清理] 已请求后台GC(非阻塞)...", true, true);
+			GC.Collect(2, GCCollectionMode.Optimized, blocking: false);
 			主程.添加系统日志("[自动清理] ====== 清理完成 ======", true, true);
-			主程.添加系统日志($"[自动清理] 当前内存: {num2:F2}MB，释放: {value:F2}MB", true, true);
 			_上次自动清理时间 = DateTime.Now;
 		}
 		catch (Exception ex)
@@ -173,73 +290,71 @@ public static class 内存监控器
 	public static int 智能清理异常怪物(int 最大清理数量 = 200)
 	{
 		int num = 0;
-		if (地图处理网关.地图实例表 == null)
+		if (地图处理网关.地图实例表 == null || 最大清理数量 <= 0)
 		{
 			return 0;
 		}
 		DateTime now = DateTime.Now;
 		try
 		{
-			int num2;
-			do
+			// 单趟扫描, 清满上限就收工, 下一轮清理接着来。
+			// 原实现套了一层 do/while: 每清满一批就从第一张地图重头再扫一遍全服(且每张图的对象列表还要 ToList 拷一份),
+			// 死怪一多就是 O(n²) 级的逻辑线程阻塞 + 海量临时分配 —— 号称清内存, 实际既卡服又制造垃圾。
+			List<怪物实例> list = new List<怪物实例>();
+			foreach (地图实例 item in 地图处理网关.地图实例表.Values.ToList())
 			{
-				num2 = 0;
-				foreach (地图实例 item in 地图处理网关.地图实例表.Values.ToList())
+				if (item?.对象列表 == null)
 				{
-					if (item?.对象列表 == null)
+					continue;
+				}
+				list.Clear();
+				// 我方怪物存于 地图实例.对象列表(HashSet<地图对象>), 无独立怪物列表, 故遍历对象列表按 is 怪物实例 过滤(含已死亡怪物)
+				// 待删项先收集、循环结束后再删, 故此处无需对 对象列表 做 ToList 快照
+				foreach (地图对象 对象项 in item.对象列表)
+				{
+					if (!(对象项 is 怪物实例 item2))
 					{
 						continue;
 					}
-					List<怪物实例> list = new List<怪物实例>();
-					// 我方怪物存于 地图实例.对象列表(HashSet<地图对象>), 无独立怪物列表, 故遍历对象列表按 is 怪物实例 过滤(含已死亡怪物)
-					foreach (地图对象 对象项 in item.对象列表.ToList())
+					if (!item2.对象死亡 || item2.怪物级别 >= 怪物级别分类.精英干将)
 					{
-						if (!(对象项 is 怪物实例 item2))
-						{
-							continue;
-						}
-						if (!item2.对象死亡 || item2.怪物级别 >= 怪物级别分类.精英干将)
-						{
-							continue;
-						}
-						游戏怪物 对象模板 = item2.对象模板;
-						if (对象模板 == null || !对象模板.刷新通知)
-						{
-							if (item2.复活时间 > DateTime.MinValue && now > item2.复活时间.AddMinutes(30.0))
-							{
-								list.Add(item2);
-							}
-							else if (item2.消失时间 > DateTime.MinValue && now > item2.消失时间.AddHours(1.0))
-							{
-								list.Add(item2);
-							}
-							if (list.Count >= 最大清理数量)
-							{
-								break;
-							}
-						}
+						continue;
 					}
-					foreach (怪物实例 item3 in list)
+					游戏怪物 对象模板 = item2.对象模板;
+					if (对象模板 == null || !对象模板.刷新通知)
 					{
-						try
+						if (item2.复活时间 > DateTime.MinValue && now > item2.复活时间.AddMinutes(30.0))
 						{
-							item.对象列表.Remove(item3);
-							item3.删除对象();
-							num++;
-							num2++;
+							list.Add(item2);
 						}
-						catch (Exception ex)
+						else if (item2.消失时间 > DateTime.MinValue && now > item2.消失时间.AddHours(1.0))
 						{
-							主程.添加系统日志($"[智能清理] 清理怪物 {item3.地图编号} 时发生错误: {ex.Message}", true, true);
+							list.Add(item2);
 						}
-					}
-					if (num2 >= 最大清理数量)
-					{
-						break;
+						if (num + list.Count >= 最大清理数量)
+						{
+							break;
+						}
 					}
 				}
+				foreach (怪物实例 item3 in list)
+				{
+					try
+					{
+						item.对象列表.Remove(item3);
+						item3.删除对象();
+						num++;
+					}
+					catch (Exception ex)
+					{
+						主程.添加系统日志($"[智能清理] 清理怪物 {item3.地图编号} 时发生错误: {ex.Message}", true, true);
+					}
+				}
+				if (num >= 最大清理数量)
+				{
+					break;
+				}
 			}
-			while (num2 >= 最大清理数量);
 			if (num > 0)
 			{
 				主程.添加系统日志($"[智能清理] 成功清理 {num} 个异常怪物（死亡未复活超过30分钟）", true, true);
@@ -298,13 +413,18 @@ public static class 内存监控器
 		{
 			主程.添加系统日志("[自动清理] 清理空地图实例时发生错误: " + ex4.Message, true, true);
 		}
-		try
+		// 角色字典优化要扫全服角色表(含所有离线角色), 是这里最重的一项, 单独限频到 角色字典优化间隔分钟
+		if (DateTime.Now - _上次角色字典优化 >= TimeSpan.FromMinutes(角色字典优化间隔分钟))
 		{
-			value5 = 优化角色字典内存();
-		}
-		catch (Exception ex5)
-		{
-			主程.添加系统日志("[自动清理] 优化角色字典内存时发生错误: " + ex5.Message, true, true);
+			_上次角色字典优化 = DateTime.Now;
+			try
+			{
+				value5 = 优化角色字典内存();
+			}
+			catch (Exception ex5)
+			{
+				主程.添加系统日志("[自动清理] 优化角色字典内存时发生错误: " + ex5.Message, true, true);
+			}
 		}
 		try
 		{
@@ -368,7 +488,7 @@ public static class 内存监控器
 			int num2 = 0;
 			foreach (地图实例 item2 in list)
 			{
-				if (num2 >= 50)
+				if (num2 >= 单轮清理上限_副本)
 				{
 					break;
 				}
@@ -402,46 +522,40 @@ public static class 内存监控器
 		return num;
 	}
 
-	private static int 清理过期门票数据()
+	// public: GM命令 @清理内存 复用同一份实现, 避免两处各写一遍再各自出错
+	public static int 清理过期门票数据()
 	{
-		int num = 0;
 		Dictionary<string, 门票信息> 门票数据表 = 网络服务网关.门票数据表;
 		if (门票数据表 == null)
 		{
 			return 0;
 		}
 		DateTime now = DateTime.Now;
-		int num2;
-		do
+		// 单趟扫描 + 封顶。原实现每删满 500 条就把整张表从头再枚举一遍(还是在 lock 里), 过期票一多直接 O(n²) 锁死
+		List<string> list = new List<string>();
+		lock (门票数据表)
 		{
-			num2 = 0;
-			List<string> list = new List<string>();
-			lock (门票数据表)
+			foreach (KeyValuePair<string, 门票信息> item in 门票数据表)
 			{
-				foreach (KeyValuePair<string, 门票信息> item in 门票数据表)
+				if (now > item.Value.有效时间)
 				{
-					if (now > item.Value.有效时间)
+					list.Add(item.Key);
+					if (list.Count >= 单轮清理上限_门票)
 					{
-						list.Add(item.Key);
-						if (list.Count >= 500)
-						{
-							break;
-						}
+						break;
 					}
 				}
-				foreach (string item2 in list)
-				{
-					门票数据表.Remove(item2);
-					num++;
-					num2++;
-				}
+			}
+			foreach (string item2 in list)
+			{
+				门票数据表.Remove(item2);
 			}
 		}
-		while (num2 >= 500);
-		return num;
+		return list.Count;
 	}
 
-	private static int 清理地图过期物品()
+	// public: 同上, 供 GM命令 @清理内存 复用
+	public static int 清理地图过期物品()
 	{
 		int num = 0;
 		if (地图处理网关.地图实例表 == null)
@@ -449,41 +563,48 @@ public static class 内存监控器
 			return 0;
 		}
 		DateTime now = DateTime.Now;
-		int num2;
-		do
+		// 同样改为单趟 + 封顶(原实现 do/while 重扫全服地图)
+		List<物品实例> list = new List<物品实例>();
+		foreach (地图实例 value in 地图处理网关.地图实例表.Values)
 		{
-			num2 = 0;
-			foreach (地图实例 value in 地图处理网关.地图实例表.Values)
+			if (value?.物品列表 == null)
 			{
-				if (value?.物品列表 == null)
+				continue;
+			}
+			list.Clear();
+			foreach (物品实例 item in value.物品列表)
+			{
+				if (now > item.消失时间)
 				{
-					continue;
-				}
-				List<物品实例> list = new List<物品实例>();
-				foreach (物品实例 item in value.物品列表)
-				{
-					if (now > item.消失时间)
+					list.Add(item);
+					if (num + list.Count >= 单轮清理上限_物品)
 					{
-						list.Add(item);
-						if (list.Count >= 500)
-						{
-							break;
-						}
+						break;
 					}
 				}
-				foreach (物品实例 item2 in list)
+			}
+			foreach (物品实例 item2 in list)
+			{
+				try
 				{
+					// 走引擎自身的消失流程(删物品数据 + 解绑网格 + 移出各对象表 + 移出地图物品列表)。
+					// 原实现只从 地图.物品列表 里 Remove: 物品仍留在 地图处理网关.物品对象表/地图对象表 和网格中,
+					// 结果是谁都回收不掉的幽灵物品 —— 越"清"漏得越多。
+					item2.物品消失处理();
+					// 兜底: 物品消失处理 走的是 当前地图.移除对象, 若 当前地图 为空则列表里会残留, 下轮又被重复处理
 					value.物品列表.Remove(item2);
 					num++;
-					num2++;
 				}
-				if (num2 >= 500)
+				catch (Exception ex)
 				{
-					break;
+					主程.添加系统日志("[自动清理] 清理地图物品时发生错误: " + ex.Message, true, true);
 				}
 			}
+			if (num >= 单轮清理上限_物品)
+			{
+				break;
+			}
 		}
-		while (num2 >= 500);
 		return num;
 	}
 
@@ -510,13 +631,14 @@ public static class 内存监控器
 				list.Add(item.Key);
 			}
 		}
-		int num2 = Math.Min(list.Count, 5);
+		int num2 = Math.Min(list.Count, 单轮清理上限_空地图);
 		for (int i = 0; i < num2; i++)
 		{
 			try
 			{
 				int num3 = list[i];
-				if (地图处理网关.地图实例表.TryGetValue(num3, out var value2) && value2 != null && value2.玩家列表?.Count == 0 && value2 != null && value2.获取怪物列表().Count == 0 && 地图处理网关.地图实例表.Remove(num3, out _))
+				// 二次确认改用 对象列表.Count(获取怪物列表() 每次调用都要新建两个 List, 这里没必要)
+				if (地图处理网关.地图实例表.TryGetValue(num3, out var value2) && value2 != null && value2.玩家列表?.Count == 0 && value2.对象列表?.Count == 0 && 地图处理网关.地图实例表.Remove(num3, out _))
 				{
 					num++;
 					主程.添加系统日志($"[空地图清理] 清理空地图: {value2?.地图模板?.地图名字}(ID:{num3})", true, true);
@@ -529,7 +651,7 @@ public static class 内存监控器
 		}
 		if (num > 0)
 		{
-			主程.添加系统日志($"[空地图清理] 本轮清理 {num} 个空地图，剩余待清理: {Math.Max(0, list.Count - 5)} 个，当前总实例: {地图处理网关.地图实例表.Count}", true, true);
+			主程.添加系统日志($"[空地图清理] 本轮清理 {num} 个空地图，剩余待清理: {Math.Max(0, list.Count - 单轮清理上限_空地图)} 个，当前总实例: {地图处理网关.地图实例表.Count}", true, true);
 		}
 		return num;
 	}
@@ -539,24 +661,20 @@ public static class 内存监控器
 		int num = 0;
 		int num2 = 0;
 		int num3 = 0;
-		int num4 = 0;
 		try
 		{
 			if (游戏数据网关.角色数据表?.数据表 == null)
 			{
 				return 0;
 			}
-			DateTime now = DateTime.Now;
-			int num5 = 7;
+			List<int> list = new List<int>();
 			foreach (KeyValuePair<int, 游戏数据> item in 游戏数据网关.角色数据表.数据表.ToList())
 			{
 				if (!(item.Value is 角色数据 角色数据))
 				{
 					continue;
 				}
-				客户网络 网络;
-				bool flag = 角色数据.角色在线(out 网络);
-				if (flag)
+				if (角色数据.角色在线(out _))
 				{
 					num2++;
 				}
@@ -564,39 +682,31 @@ public static class 内存监控器
 				{
 					num3++;
 				}
-				if (角色数据.角色变量 != null && 角色数据.角色变量.Count > 0)
+				if (角色数据.角色变量 == null || 角色数据.角色变量.Count == 0)
 				{
-					List<int> list = new List<int>();
-					foreach (KeyValuePair<int, int> item2 in 角色数据.角色变量)
+					continue;
+				}
+				list.Clear();
+				foreach (KeyValuePair<int, int> item2 in 角色数据.角色变量)
+				{
+					// 只回收"值为 0 且没人用索引器直读"的变量键 —— 值为 0 时 TryGetValue 取不到与取到 0 等价, 删了无副作用。
+					// 原实现另有一条"离线满7天就把该角色所有非日程变量全删"的分支: 那会把任务进度/计数等
+					// 非零业务数据一并抹掉(角色变量是任务约束 SelfVar 的载体), 属于纯数据损坏, 已删除。
+					// 保护键判定也从 Enum.IsDefined(反射+装箱, 百万次量级极慢) 换成预建 HashSet。
+					if (item2.Value == 0 && !保护角色变量.Contains(item2.Key))
 					{
-						if (item2.Value == 0 && !Is日程变量(item2.Key))
-						{
-							list.Add(item2.Key);
-							num4++;
-						}
-						else if (!flag && !Is日程变量(item2.Key) && (now - 角色数据.离线日期.V).TotalDays >= (double)num5)
-						{
-							list.Add(item2.Key);
-							num4++;
-						}
-					}
-					if (list.Count > 0)
-					{
-						foreach (int item3 in list)
-						{
-							角色数据.角色变量.Remove(item3);
-							num++;
-						}
+						list.Add(item2.Key);
 					}
 				}
-				if (!flag && 角色数据.角色变量 != null)
+				foreach (int item3 in list)
 				{
-					_ = 角色数据.角色变量.Count;
+					角色数据.角色变量.Remove(item3);
+					num++;
 				}
 			}
 			if (num > 0 || num2 > 0)
 			{
-				主程.添加系统日志($"[字典优化] 处理角色: 在线{num2}个, 离线{num3}个, 清理变量: {num}个(临时{num4})", true, true);
+				主程.添加系统日志($"[字典优化] 处理角色: 在线{num2}个, 离线{num3}个, 清理空变量: {num}个", true, true);
 			}
 		}
 		catch (Exception ex)
@@ -604,21 +714,6 @@ public static class 内存监控器
 			主程.添加系统日志("[字典优化] 优化时发生错误: " + ex.Message, true, true);
 		}
 		return num;
-	}
-
-	private static bool Is日程变量(int 变量索引)
-	{
-		try
-		{
-			if (Enum.IsDefined(typeof(日程变量), 变量索引))
-			{
-				return true;
-			}
-		}
-		catch
-		{
-		}
-		return false;
 	}
 
 	private static void 记录详细集合状态()
@@ -740,11 +835,12 @@ public static class 内存监控器
 		}
 	}
 
+	// 注意: 本方法内含阻塞式 Full GC(会冻结逻辑线程), 只允许 GM 手动命令 @清理内存 调用, 不要挂进任何定时逻辑
 	public static void 强制垃圾回收()
 	{
 		try
 		{
-			long privateMemorySize = Process.GetCurrentProcess().PrivateMemorySize64;
+			long privateMemorySize = 取进程私有内存(DateTime.Now, 强制刷新: true);
 			double num = (double)privateMemorySize / 1024.0 / 1024.0;
 			if (num > 3072.0)
 			{
@@ -766,7 +862,7 @@ public static class 内存监控器
 				GC.Collect(1, GCCollectionMode.Optimized, blocking: false);
 			}
 			GC.WaitForPendingFinalizers();
-			long privateMemorySize2 = Process.GetCurrentProcess().PrivateMemorySize64;
+			long privateMemorySize2 = 取进程私有内存(DateTime.Now, 强制刷新: true);
 			double value = (double)privateMemorySize2 / 1024.0 / 1024.0;
 			double num2 = (double)(privateMemorySize - privateMemorySize2) / 1024.0 / 1024.0;
 			if (num2 < 10.0 && num > 1024.0)
@@ -775,7 +871,7 @@ public static class 内存监控器
 				GC.Collect(2, GCCollectionMode.Forced, blocking: true);
 				GC.WaitForPendingFinalizers();
 				GC.Collect(2, GCCollectionMode.Forced, blocking: true);
-				long privateMemorySize3 = Process.GetCurrentProcess().PrivateMemorySize64;
+				long privateMemorySize3 = 取进程私有内存(DateTime.Now, 强制刷新: true);
 				double value2 = (double)privateMemorySize3 / 1024.0 / 1024.0;
 				double value3 = (double)(privateMemorySize - privateMemorySize3) / 1024.0 / 1024.0;
 				主程.添加系统日志($"[内存监控] 垃圾回收完成，当前内存: {value2:F2}MB, 总释放: {value3:F2}MB", true, true);
@@ -795,7 +891,7 @@ public static class 内存监控器
 	{
 		try
 		{
-			Process currentProcess = Process.GetCurrentProcess();
+			using Process currentProcess = Process.GetCurrentProcess();
 			GCMemoryInfo gCMemoryInfo = GC.GetGCMemoryInfo();
 			StringBuilder stringBuilder = new StringBuilder();
 			stringBuilder.AppendLine("===== 内存诊断报告 =====");

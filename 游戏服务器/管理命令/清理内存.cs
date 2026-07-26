@@ -49,19 +49,10 @@ public class 清理内存 : GM命令
 		int num = 0;
 		int num2 = 0;
 		long num3 = GC.GetTotalMemory(forceFullCollection: false) / 1024 / 1024;
-		foreach (地图实例 value7 in 地图处理网关.地图实例表.Values)
-		{
-			if (value7?.物品列表 != null)
-			{
-				num += value7.物品列表.Count;
-			}
-			if (value7?.获取怪物列表() != null)
-			{
-				num2 += value7.获取怪物列表().Count;
-			}
-		}
-		int value2 = 清理过期门票数据();
-		int value3 = 清理地图过期物品();
+		统计地图物品与怪物(out num, out num2);
+		// 门票/地图物品的清理统一走 内存监控器 的实现(单趟+封顶+物品消失处理), 不再在本命令里另写一份
+		int value2 = 内存监控器.清理过期门票数据();
+		int value3 = 内存监控器.清理地图过期物品();
 		int value4 = 内存监控器.智能清理异常怪物(100);
 		int value5 = 内存监控器.优化角色字典内存();
 		内存监控器.强制垃圾回收();
@@ -69,23 +60,45 @@ public class 清理内存 : GM命令
 		int num4 = 0;
 		int num5 = 0;
 		long num6 = GC.GetTotalMemory(forceFullCollection: true) / 1024 / 1024;
-		foreach (地图实例 value8 in 地图处理网关.地图实例表.Values)
-		{
-			if (value8?.物品列表 != null)
-			{
-				num4 += value8.物品列表.Count;
-			}
-			if (value8?.获取怪物列表() != null)
-			{
-				num5 += value8.获取怪物列表().Count;
-			}
-		}
+		统计地图物品与怪物(out num4, out num5);
 		主程.添加命令日志("<= @清理内存 命令执行完成");
 		主程.添加命令日志($"  门票数据: {value} -> {value6} (清理 {value2} 个过期)");
 		主程.添加命令日志($"  地图物品: {num} -> {num4} (清理 {value3} 个过期)");
 		主程.添加命令日志($"  异常怪物: {num2} -> {num5} (清理 {value4} 个死亡未复活)");
 		主程.添加命令日志($"  角色字典: 清理 {value5} 个临时变量");
 		主程.添加命令日志($"  内存使用: {num3}MB -> {num6}MB (变化 {num6 - num3:+#;-#;0}MB)");
+	}
+
+	// 一次遍历同时统计物品与存活怪物: 获取怪物列表() 每次调用都要新建两个 List, 原来一张图要调两次
+	private static void 统计地图物品与怪物(out int 物品数, out int 怪物数)
+	{
+		物品数 = 0;
+		怪物数 = 0;
+		if (地图处理网关.地图实例表 == null)
+		{
+			return;
+		}
+		foreach (地图实例 地图 in 地图处理网关.地图实例表.Values)
+		{
+			if (地图 == null)
+			{
+				continue;
+			}
+			if (地图.物品列表 != null)
+			{
+				物品数 += 地图.物品列表.Count;
+			}
+			if (地图.对象列表 != null)
+			{
+				foreach (地图对象 对象项 in 地图.对象列表)
+				{
+					if (对象项 is 怪物实例 { 对象死亡: false })
+					{
+						怪物数++;
+					}
+				}
+			}
+		}
 	}
 
 	private void 执行后台清理()
@@ -115,86 +128,5 @@ public class 清理内存 : GM命令
 		double num2 = (double)GC.GetTotalMemory(forceFullCollection: true) / 1024.0 / 1024.0;
 		主程.添加命令日志($"  强制GC完成: {num:F2}MB -> {num2:F2}MB (释放 {num - num2:F2}MB)");
 		主程.添加命令日志("  警告: 频繁使用强制GC会影响性能！");
-	}
-
-	private int 清理过期门票数据()
-	{
-		int num = 0;
-		Dictionary<string, 门票信息> 门票数据表 = 网络服务网关.门票数据表;
-		if (门票数据表 == null)
-		{
-			return 0;
-		}
-		DateTime now = DateTime.Now;
-		int num2;
-		do
-		{
-			num2 = 0;
-			List<string> list = new List<string>();
-			lock (门票数据表)
-			{
-				foreach (KeyValuePair<string, 门票信息> item in 门票数据表)
-				{
-					if (now > item.Value.有效时间)
-					{
-						list.Add(item.Key);
-						if (list.Count >= 500)
-						{
-							break;
-						}
-					}
-				}
-				foreach (string item2 in list)
-				{
-					门票数据表.Remove(item2);
-					num++;
-					num2++;
-				}
-			}
-		}
-		while (num2 >= 500);
-		return num;
-	}
-
-	private int 清理地图过期物品()
-	{
-		int num = 0;
-		DateTime now = DateTime.Now;
-		int num2;
-		do
-		{
-			num2 = 0;
-			foreach (地图实例 value in 地图处理网关.地图实例表.Values)
-			{
-				if (value?.物品列表 == null)
-				{
-					continue;
-				}
-				List<物品实例> list = new List<物品实例>();
-				foreach (物品实例 item in value.物品列表)
-				{
-					if (now > item.消失时间)
-					{
-						list.Add(item);
-						if (list.Count >= 1000)
-						{
-							break;
-						}
-					}
-				}
-				foreach (物品实例 item2 in list)
-				{
-					value.物品列表.Remove(item2);
-					num++;
-					num2++;
-				}
-				if (num2 >= 1000)
-				{
-					break;
-				}
-			}
-		}
-		while (num2 >= 1000);
-		return num;
 	}
 }

@@ -24,7 +24,7 @@ public class 性能优化配置数据
 
 
 	[JsonPropertyName("内存阈值MB")]
-	public int 内存阈值MB { get; set; } = 1548;
+	public int 内存阈值MB { get; set; } = 3072;
 
 
 	[JsonPropertyName("清理过期门票")]
