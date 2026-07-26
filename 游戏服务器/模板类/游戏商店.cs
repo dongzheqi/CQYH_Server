@@ -103,9 +103,10 @@ namespace 游戏服务器.模板类
 			return this.回购列表.Remove(物品);
 		}
 
-		public void 出售物品(物品数据 物品)
+		public void 出售物品(物品数据 物品, int 卖家索引)
 		{
 			物品.回购编号 = ++游戏商店.商店回购排序;
+			物品.回购卖家索引 = 卖家索引;
 			if (this.回购列表.Add(物品) && this.回购列表.Count > 50)
 			{
 				物品数据 物品数据;

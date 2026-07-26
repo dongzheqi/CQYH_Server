@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using 游戏服务器.地图类;
 using 游戏服务器.工具类;
-using 游戏服务器.性成优化配置;
+using 游戏服务器.性能优化;
 using 游戏服务器.网络类;
 
 namespace 游戏服务器.管理命令;

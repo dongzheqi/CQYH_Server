@@ -135,15 +135,46 @@ namespace 游戏服务器.数据类
 
 		public override byte[] 存表数据()
 		{
+			// 本方法跑在后台线程(主程.保存数据库 → Task.Run → 游戏数据网关.导出数据), 而主循环同时会在
+			// 添加数据(:45 数据表.Add) / 删除数据(:58 数据表.Remove) 里增删同一张表——捡物/吃药/卖物每秒都在跑。
+			// 原先「先写死 数据表.Count 再裸 foreach 数据表」有两条坏路径:
+			//   撞 Add    → Dictionary 递增 _version, foreach 抛「集合已修改」, 被 主程.服务.cs 的 catch
+			//               吞成一行「客户数据保存异常」, 自动保存长期静默失效, 挂机后丢几小时数据;
+			//   撞 Remove → .NET Core 的 Dictionary.Remove 不递增 _version(与 Add 不同), foreach 静默少写
+			//               记录, 头部写死的 Count 大于实际条数 → 下次开服 加载数据(:98) 按 Count 循环,
+			//               读尽后 :106 的 ReadInt32 撞流尾抛 EndOfStreamException(该行不在 try 内), 存档报废。
+			// 改为先取快照, 使「头部记录数」与「实际写出条数」同源, 彻底消除后者(存档损坏)。前者收窄到
+			// ToList 自身那一瞬, 故加有限重试, 避免一次撞车就丢掉整轮存盘。
+			// 与同文件 保存数据(:71) / 强制保存(:83) 的 .ToList() 快照范式保持一致。
+			List<KeyValuePair<int, 游戏数据>> 快照 = null;
+			for (int 重试次数 = 0; 重试次数 < 5; 重试次数++)
+			{
+				try
+				{
+					快照 = base.数据表.ToList();
+					break;
+				}
+				catch (InvalidOperationException)
+				{
+					Thread.Sleep(1);
+				}
+			}
+			if (快照 == null)
+			{
+				// 宁可让本轮存盘整体失败(导出数据 未走到 File.Move, 磁盘上的旧 数据文件 原样保留),
+				// 也不写出记录数错位的存档。
+				throw new InvalidOperationException(base.数据类型.Name + ".存表数据 连续 5 次取快照均撞上主循环增删, 本轮放弃存盘以免写出错位存档");
+			}
 			using MemoryStream memoryStream = new MemoryStream();
 			using BinaryWriter binaryWriter = new BinaryWriter(memoryStream);
 			binaryWriter.Write(base.当前索引);
-			binaryWriter.Write(base.数据表.Count);
-			foreach (KeyValuePair<int, 游戏数据> item in base.数据表)
+			binaryWriter.Write(快照.Count);
+			foreach (KeyValuePair<int, 游戏数据> item in 快照)
 			{
 				item.Value.导出数据(binaryWriter);
 			}
-			memoryStream.Seek(4L, SeekOrigin.Begin);
+			// 原有 memoryStream.Seek(4L, SeekOrigin.Begin) 已删除: ToArray() 无视流位置, 该行是死代码,
+			// 且偏移 4 正好是 Count 字段, 极易被误读为「回头重写真实条数」而掩盖上面这个缺陷。
 			return memoryStream.ToArray();
 		}
 	}

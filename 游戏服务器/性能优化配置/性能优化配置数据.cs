@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace 游戏服务器.性成优化配置;
+namespace 游戏服务器.性能优化;
 
 // 借鉴移植(参考引擎): 性能/内存优化的持久化配置数据对象
 public class 性能优化配置数据

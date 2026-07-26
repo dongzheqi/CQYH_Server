@@ -504,6 +504,26 @@ namespace 游戏服务器.窗口视图
 			};
 		}
 
+		// 删除动作必须在游戏主线程执行。技能数据 / 角色背包 是 字典监视器, 增删会触发 更改事件 向在线玩家
+		// 推送封包, 直接在 WinForms UI 线程上改就是与服务循环并发改同一批集合(轻则主循环遍历时抛「集合已修改」,
+		// 重则在线玩家状态与封包错乱)。范式与 GMToolView 一致: 闭包丢进 主程.外部命令 由主循环 drain 执行。
+		// 删除完成后再 BeginInvoke 回 UI 线程刷新表格 —— 若在入队后立刻刷新, 主循环多半还没执行到, 表格
+		// 会显示成「没删掉」。未开服时 在游戏线程执行 会同步前台跑, 此路径同样成立。
+		private void 在游戏线程删除并刷新(角色数据 角色, Action 删除动作)
+		{
+			GMToolView.在游戏线程执行(delegate
+			{
+				删除动作();
+				if (this.IsHandleCreated && !this.IsDisposed)
+				{
+					this.BeginInvoke((Action)delegate
+					{
+						PlayerView.界面更新处理(角色);
+					});
+				}
+			});
+		}
+
 		private void 删除选中技能()
 		{
 			if (!游戏数据网关.角色数据表.数据表.TryGetValue(this.选择的角色编号, out var value) || !(value is 角色数据 角色))
@@ -514,8 +534,10 @@ namespace 游戏服务器.窗口视图
 			string 名字 = this.gridView3.GetRowCellValue(row, "技能名字")?.ToString() ?? 编号.ToString();
 			if (MessageBox.Show($"确认删除技能【{名字}】？", "确认删除", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
 			{
-				角色.技能数据.Remove(编号);
-				PlayerView.界面更新处理(角色);
+				this.在游戏线程删除并刷新(角色, delegate
+				{
+					角色.技能数据.Remove(编号);
+				});
 			}
 		}
 
@@ -530,8 +552,10 @@ namespace 游戏服务器.窗口视图
 			string 名字 = 物品?.ToString() ?? 位置.ToString();
 			if (MessageBox.Show($"确认删除物品【{名字}】（背包格{位置}）？", "确认删除", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
 			{
-				角色.角色背包.Remove(位置);
-				PlayerView.界面更新处理(角色);
+				this.在游戏线程删除并刷新(角色, delegate
+				{
+					角色.角色背包.Remove(位置);
+				});
 			}
 		}
 

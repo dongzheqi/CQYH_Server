@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -76,7 +77,7 @@ namespace 游戏服务器.地图类
                 this.挂机_地图 = this.当前地图.地图编号;
                 this.挂机_下一个坐标 = default(Point);
                 this.挂机_状态 = 挂机状态.寻路;
-                this.挂机_寻路队列 = new Queue<Point>();
+                this.挂机_寻路队列 = new ConcurrentQueue<Point>();
                 this.挂机_范围 = new Rectangle(this.当前坐标.X - this.自动挂机.战斗范围, this.当前坐标.Y - this.自动挂机.战斗范围, this.自动挂机.战斗范围 * 2, this.自动挂机.战斗范围 * 2);
                 this.远攻技能数 = -1;
                 this.获取远攻技能数();
@@ -144,14 +145,10 @@ namespace 游戏服务器.地图类
             }
             if (this.挂机_目标 != null && 主程.当前时间 > this.挂机_目标_超时时间)
             {
-                if (this.挂机_目标_黑名单.ContainsKey(this.挂机_目标))
-                {
-                    this.挂机_目标_黑名单[this.挂机_目标] = 主程.当前时间.AddSeconds(30.0);
-                }
-                else
-                {
-                    this.挂机_目标_黑名单.Add(this.挂机_目标, 主程.当前时间.AddSeconds(30.0));
-                }
+                // 原为 ContainsKey ? 索引器赋值 : Add(...) —— 换成 ConcurrentDictionary 后索引器本身就是
+                // "有则覆盖、无则新增", 既少一次查找, 也消除了「查完到 Add 之间被后台线程插入」导致
+                // Add 抛「已存在相同键」的窗口。
+                this.挂机_目标_黑名单[this.挂机_目标] = 主程.当前时间.AddSeconds(30.0);
                 this.挂机_目标 = null;
                 this.挂机_状态 = 挂机状态.寻路;
                 return;
@@ -272,13 +269,15 @@ namespace 游戏服务器.地图类
                     {
                         if (this.挂机_下一个坐标 == default(Point))
                         {
-                            if (this.挂机_寻路队列.Count == 0)
+                            // TryDequeue 取代「先判 Count 再 Dequeue」: 后台线程可能在两步之间把队列清空,
+                            // 原写法会抛 InvalidOperationException。取不到就退回寻路状态, 与队列为空同义。
+                            if (!this.挂机_寻路队列.TryDequeue(out var 下一点))
                             {
                                 this.挂机_下一个坐标 = default(Point);
                                 this.挂机_状态 = 挂机状态.寻路;
                                 break;
                             }
-                            this.挂机_下一个坐标 = this.挂机_寻路队列.Dequeue();
+                            this.挂机_下一个坐标 = 下一点;
                         }
                         if (计算类.网格距离(this.挂机_下一个坐标, this.当前坐标) >= 4)
                         {
@@ -293,7 +292,7 @@ namespace 游戏服务器.地图类
                             break;
                         }
                         Point point;
-                        point = ((this.挂机_寻路队列.Count > 0) ? this.挂机_寻路队列.Peek() : default(Point));
+                        point = (this.挂机_寻路队列.TryPeek(out var 窥探点) ? 窥探点 : default(Point));
                         if (point != default(Point) && this.当前地图.能否通行(point))
                         {
                             int num3;
@@ -306,10 +305,7 @@ namespace 游戏服务器.地图类
                             num6 = this.挂机_下一个坐标.Y - point.Y;
                             if (num3 == num5 && num4 == num6)
                             {
-                                if (this.挂机_寻路队列.Count > 0)
-                                {
-                                    this.挂机_寻路队列.Dequeue();
-                                }
+                                this.挂机_寻路队列.TryDequeue(out var _);
                                 this.挂机_下一个坐标 = point;
                                 this.玩家角色跑动(this.挂机_下一个坐标);
                                 this.奔跑时间 = this.奔跑时间.AddMilliseconds(150.0);
@@ -1048,6 +1044,34 @@ namespace 游戏服务器.地图类
                 物品数据 value;
                 value = item.Value;
                 if (!value.是否上锁 && 物品分解.数据表.ContainsKey(value.物品编号) && (!(value is 装备数据 装备数据) || 装备数据.随机属性.Count <= 0))
+                {
+                    this.玩家分解物品(1, key, 1);
+                    num++;
+                    if (num > 5)
+                    {
+                        return;
+                    }
+                }
+            }
+            this.分解完成 = true;
+        }
+
+        // 与 挂机自动分解 同款, 唯一区别是不跳过「带随机属性的极品装备」, 对应 Settings.不分解极品装备 == false。
+        // 原先这段是内联在 玩家实例.挖矿.cs 每秒逻辑里的一份劣化拷贝(见那边的说明注释), 现提成独立方法,
+        // 使 num > 5 的 return 只结束分解本身、不再掐断调用方剩余逻辑, 语义与 挂机自动分解 完全一致:
+        // 未分解完则 分解完成 保持 false, 由 :129/:132 安排 3 秒后重试。
+        private void 挂机自动分解_不留极品()
+        {
+            this.分解完成 = false;
+            int num;
+            num = 0;
+            foreach (KeyValuePair<byte, 物品数据> item in this.角色背包.ToList())
+            {
+                byte key;
+                key = item.Key;
+                物品数据 value;
+                value = item.Value;
+                if (!value.是否上锁 && 物品分解.数据表.ContainsKey(value.物品编号))
                 {
                     this.玩家分解物品(1, key, 1);
                     num++;

@@ -175,9 +175,13 @@ namespace 游戏服务器.模板类
 			return null;
 		}
 
+		// 先填局部表、最后一起原子换引用(理由同 游戏Buff.载入数据 的注释)。本处共四张互相关联的静态表,
+		// 必须全部填好后再一次性换过去, 否则热重载期间会出现「数据表 已新、概率表 还旧」之类的中间态,
+		// 洗炼/铭文相关逻辑会读到对不上的组合。
 		public static void 载入数据()
 		{
-			铭文技能.数据表 = new Dictionary<ushort, 铭文技能>();
+			Dictionary<ushort, 铭文技能> 新数据表;
+			新数据表 = new Dictionary<ushort, 铭文技能>();
 			string text;
 			text = Settings.游戏数据目录 + "\\System\\技能数据\\铭文数据\\";
 			if (Directory.Exists(text))
@@ -186,10 +190,11 @@ namespace 游戏服务器.模板类
 				array = 序列化类.反序列化(text, typeof(铭文技能));
 				foreach (object obj in array)
 				{
-					铭文技能.数据表.Add(((铭文技能)obj).铭文索引, (铭文技能)obj);
+					新数据表.Add(((铭文技能)obj).铭文索引, (铭文技能)obj);
 				}
 			}
-			铭文技能.概率表 = new Dictionary<byte, List<铭文技能>>
+			Dictionary<byte, List<铭文技能>> 新概率表;
+			新概率表 = new Dictionary<byte, List<铭文技能>>
 			{
 				[0] = new List<铭文技能>(),
 				[1] = new List<铭文技能>(),
@@ -198,7 +203,8 @@ namespace 游戏服务器.模板类
 				[4] = new List<铭文技能>(),
 				[5] = new List<铭文技能>()
 			};
-			铭文技能.十次概率表 = new Dictionary<byte, List<铭文技能>>
+			Dictionary<byte, List<铭文技能>> 新十次概率表;
+			新十次概率表 = new Dictionary<byte, List<铭文技能>>
 			{
 				[0] = new List<铭文技能>(),
 				[1] = new List<铭文技能>(),
@@ -207,7 +213,8 @@ namespace 游戏服务器.模板类
 				[4] = new List<铭文技能>(),
 				[5] = new List<铭文技能>()
 			};
-			铭文技能.五十概率表 = new Dictionary<byte, List<铭文技能>>
+			Dictionary<byte, List<铭文技能>> 新五十概率表;
+			新五十概率表 = new Dictionary<byte, List<铭文技能>>
 			{
 				[0] = new List<铭文技能>(),
 				[1] = new List<铭文技能>(),
@@ -216,19 +223,19 @@ namespace 游戏服务器.模板类
 				[4] = new List<铭文技能>(),
 				[5] = new List<铭文技能>()
 			};
-			foreach (铭文技能 value2 in 铭文技能.数据表.Values)
+			foreach (铭文技能 value2 in 新数据表.Values)
 			{
 				if (value2.铭文编号 != 0)
 				{
 					Dictionary<byte, List<铭文技能>> dictionary;
-					dictionary = (value2.十次节点 ? 铭文技能.十次概率表 : ((!value2.五十节点) ? 铭文技能.概率表 : 铭文技能.五十概率表));
+					dictionary = (value2.十次节点 ? 新十次概率表 : ((!value2.五十节点) ? 新概率表 : 新五十概率表));
 					for (int j = 0; j < value2.洗练概率; j++)
 					{
 						dictionary[(byte)value2.技能职业].Add(value2);
 					}
 				}
 			}
-			foreach (List<铭文技能> value3 in 铭文技能.概率表.Values)
+			foreach (List<铭文技能> value3 in 新概率表.Values)
 			{
 				for (int k = 0; k < value3.Count; k++)
 				{
@@ -240,6 +247,10 @@ namespace 游戏服务器.模板类
 					value3[index] = value;
 				}
 			}
+			铭文技能.数据表 = 新数据表;
+			铭文技能.概率表 = 新概率表;
+			铭文技能.十次概率表 = 新十次概率表;
+			铭文技能.五十概率表 = 新五十概率表;
 		}
 
 		public 铭文技能()

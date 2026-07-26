@@ -604,7 +604,10 @@ namespace 游戏服务器
             Settings.技巧项链倍数 = Settings.iniconfig.ReadFloat("General", "技巧项链倍数 ", Settings.技巧项链倍数);
             //新增
             Settings.金币自动入包 = Settings.iniconfig.ReadBoolean("General", "金币自动入包", Settings.金币自动入包);
-            Settings.金币自动入包 = Settings.iniconfig.ReadBoolean("General", "银币自动入包", Settings.银币自动入包);
+            // 原为 Settings.金币自动入包 = ...("银币自动入包", ...) —— 复制粘贴漏改左侧字段。
+            // 后果: 银币自动入包 永远读不进来(重启即回默认 true, GUI 里改了也白改), 而 金币自动入包
+            // 被上一行读到的值紧接着被银币键的值覆盖, 两个开关实际都由「银币自动入包」这一个键决定。
+            Settings.银币自动入包 = Settings.iniconfig.ReadBoolean("General", "银币自动入包", Settings.银币自动入包);
             Settings.物品自动入包 = Settings.iniconfig.ReadBoolean("General", "物品自动入包", Settings.物品自动入包);
             Settings.自动分解装备 = Settings.iniconfig.ReadBoolean("General", "自动分解装备", Settings.自动分解装备);
             Settings.不分解极品装备 = Settings.iniconfig.ReadBoolean("General", "不分解极品装备", Settings.不分解极品装备);

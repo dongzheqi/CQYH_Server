@@ -16,7 +16,7 @@ using 游戏服务器.管理命令;
 using 游戏服务器.模板类;
 using 游戏服务器.数据类;
 using 游戏服务器.网络类;
-using 游戏服务器.性成优化配置;
+using 游戏服务器.性能优化;
 using Newtonsoft.Json;
 
 namespace 游戏服务器

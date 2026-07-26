@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -235,7 +236,13 @@ namespace 游戏服务器.地图类
 
         public DateTime 挂机_目标_超时时间;
 
-        public Dictionary<地图对象, DateTime> 挂机_目标_黑名单 = new Dictionary<地图对象, DateTime>();
+        // 并发集合: 这两个字段被「主循环线程」与「AutoBattleManager 后台线程(工具类\AutoBattle.cs:26 的 Task.Run)」
+        // 同时读写 —— 后台线程在 AutoBattle.cs:127/168/174/281/397/407 增删, 主循环在
+        // 玩家实例.自动挂机.cs:74/79/147-153/266-311 增删。原来是裸 Dictionary / 裸 Queue, 一旦撞上
+        // 就在主循环里抛「集合已修改」, 而主循环的异常会被 主程.循环.cs:205 记成「发生致命错误」并整帧跳过
+        // (含定时存盘) —— 一个玩家挂机就能让全服丢一帧。改成并发集合后最坏只是路径点新旧混一次(玩家多走一步),
+        // 不会再让整个 tick 崩掉。
+        public ConcurrentDictionary<地图对象, DateTime> 挂机_目标_黑名单 = new ConcurrentDictionary<地图对象, DateTime>();
 
         private int 远攻技能数 = -1;
 
@@ -1551,7 +1558,8 @@ namespace 游戏服务器.地图类
 
         public Point 挂机_下一个坐标 { get; private set; }
 
-        public Queue<Point> 挂机_寻路队列 { get; set; }
+        // 见 挂机_目标_黑名单 处的说明: 与后台自动战斗线程共享, 必须是并发集合。
+        public ConcurrentQueue<Point> 挂机_寻路队列 { get; set; }
 
         public 挂机状态 挂机_状态 { get; set; }
 
@@ -2105,7 +2113,16 @@ namespace 游戏服务器.地图类
         {
             CharacterQuest characterQuest;
             characterQuest = this.角色数据.Quests.FirstOrDefault((CharacterQuest x) => x.Info.V.Id == questId);
-            if (characterQuest == null || (characterQuest.CompleteDate.V != DateTime.MinValue && characterQuest.CompleteCount.V >= characterQuest.Info.V.MaxCompleteCount) || !characterQuest.Missions.All((CharacterQuestMission x) => x.CompletedDate.V != DateTime.MinValue || x.Info.V.Type == QuestMissionType.RecycleItem || (x.Info.V.Type == QuestMissionType.AdquireItem && x.CompletedDate.V == DateTime.MinValue && this.查找背包物品(x.Info.V.Id, x.Info.V.Count) != null)))
+            // 「已完成必须重新接取」判定原先缺失: 旧条件是 (CompleteDate != MinValue && CompleteCount >= MaxCompleteCount),
+            // 两者要同时成立才拒绝。对 MaxCompleteCount > 1 的可重复任务, 玩家正常完成一次后 CompleteDate 已置位、
+            // CompleteCount 才 1, 条件不成立 → 反复重发「玩家完成任务」封包就能把剩余次数的奖励一次性全领走,
+            // 既不用重新接取、也不用重做 Missions(它们仍是已完成状态, 下面的 All 判定照样通过)。
+            // 改为「CompleteDate != MinValue 即拒绝」, 与全仓既有约定一致(UpdateQuestProgress :2836、:16059、:16098
+            // 都是这个判定)。重新接取时 玩家接取任务 :2783 会把 CompleteDate 复位成 MinValue 并重置所有 Missions,
+            // 且 :2780 是复用同一个 CharacterQuest 对象(仅在没有时才 Create), 故不影响可重复任务的正常循环。
+            // MaxCompleteCount 上限判定保留作纵深防御, 并补上全仓统一的 `> 0` 前缀(0 表示不限次, 见 :2648/:2663/:2690),
+            // 原写法漏了这个前缀——只是恰好因为 CompleteDate 那半边而没暴露出来。
+            if (characterQuest == null || characterQuest.CompleteDate.V != DateTime.MinValue || (characterQuest.Info.V.MaxCompleteCount > 0 && characterQuest.CompleteCount.V >= characterQuest.Info.V.MaxCompleteCount) || !characterQuest.Missions.All((CharacterQuestMission x) => x.CompletedDate.V != DateTime.MinValue || x.Info.V.Type == QuestMissionType.RecycleItem || (x.Info.V.Type == QuestMissionType.AdquireItem && x.CompletedDate.V == DateTime.MinValue && this.查找背包物品(x.Info.V.Id, x.Info.V.Count) != null)))
             {
                 return;
             }
@@ -5467,7 +5484,10 @@ namespace 游戏服务器.地图类
                     绑定武器 = flag || num5 != 0 || 额外诱惑时长 != 0 || 额外诱惑概率 != 0f || this.宠物列表.Count >= num4;
                     宠物实例 宠物实例2;
                     宠物实例2 = ((诱惑目标 is 怪物实例 怪物实例2) ? new 宠物实例(this, 怪物实例2, (byte)Math.Max(怪物实例2.宠物等级, num9), 绑定武器, 宠物时长, 0, int.MaxValue) : new 宠物实例(this, (宠物实例)诱惑目标, (byte)num9, 绑定武器, 宠物时长, 0, int.MaxValue));
-                    宠物实例2.叛变时间.AddMilliseconds(this.龙卫BUFF诱惑时间());
+                    // DateTime 是值类型, AddMilliseconds 返回新值而不是就地修改 —— 原写法丢掉了返回值,
+                    // 是个死存储, 龙卫词缀「忠仆」的延长诱惑时间从来没生效过。叛变时间 是 宠物实例.cs:136
+                    // 带 setter 的属性(写回 宠物数据.叛变时间.V), 直接赋值即可。
+                    宠物实例2.叛变时间 = 宠物实例2.叛变时间.AddMilliseconds(this.龙卫BUFF诱惑时间());
                     this.网络连接?.发送封包(new 同步宠物等级
                     {
                         宠物编号 = 宠物实例2.地图编号,
@@ -9459,6 +9479,16 @@ namespace 游戏服务器.地图类
 
         public void 玩家转移物品(byte 当前背包, byte 当前位置, byte 目标背包, byte 目标位置)
         {
+            // 容器编号白名单(原先缺失)。当前背包/目标背包 是客户端可控字节, 下面那一长串判定只对已知容器
+            // (0装备 / 1背包 / 2仓库 / 5挂载 / 7资源包)校验了槽位上界, 却从未校验「容器编号本身是否合法」。
+            // 客户端填一个未定义值(例如 3)时: 取值段(:9509-9528)没有任何 if 命中 → 物品数据2 保持 null;
+            // 大判定(:9529)里所有与 目标背包 相关的子句也都不命中 → 直接放行; 随后 :9593 把 物品容器 改写成 3、
+            // :9598 的 switch 把物品从源容器摘除, 而 :9621 的 switch 找不到对应 case → 物品不会被放进任何容器。
+            // 净效果: 物品凭空消失, 且它仍作为一条记录留在 物品数据表 里(容器号 3), 成为再也取不回的幽灵物品。
+            if ((当前背包 != 0 && 当前背包 != 1 && 当前背包 != 2 && 当前背包 != 5 && 当前背包 != 7) || (目标背包 != 0 && 目标背包 != 1 && 目标背包 != 2 && 目标背包 != 5 && 目标背包 != 7))
+            {
+                return;
+            }
             if (this.对象死亡 || this.摆摊状态 > 0 || this.交易状态 >= 3 || (当前背包 == 0 && 当前位置 >= 16) || (目标背包 == 0 && 目标位置 >= 16) || (当前背包 == 1 && 当前位置 >= this.背包大小) || (目标背包 == 1 && 目标位置 >= this.背包大小) || (当前背包 == 2 && 当前位置 >= this.仓库大小) || (目标背包 == 2 && 目标位置 >= this.仓库大小) || (当前背包 == 7 && 当前位置 >= this.资源包大小) || (目标背包 == 7 && 目标位置 >= this.资源包大小))
             {
                 return;
@@ -10683,7 +10713,7 @@ namespace 游戏服务器.地图类
                 {
                     this.角色背包.Remove(物品位置);
                     主程.添加物品日志(this, "出售商店物品", v, 1, this.对话守卫?.对象名字);
-                    value.出售物品(v);
+                    value.出售物品(v, this.角色数据.数据索引.V);
                     this.修改货币("+", 游戏货币.金币, (uint)v.出售价格);
                     主程.添加货币日志(this, "出售商店物品->" + v.物品名字, 游戏货币.金币, v.出售价格);
                     this.网络连接?.发送封包(new 删除玩家物品
@@ -10697,7 +10727,11 @@ namespace 游戏服务器.地图类
 
         public void 玩家购买物品(int 商店编号, int 物品位置, ushort 购入数量)
         {
-            if (this.对象死亡 || this.摆摊状态 > 0 || this.交易状态 >= 3 || this.对话守卫 == null || this.当前地图 != this.对话守卫.当前地图 || base.网格距离(this.对话守卫) > 12 || this.打开商店 == 0 || 购入数量 <= 0 || this.打开商店 != 商店编号 || !游戏商店.数据表.TryGetValue(this.打开商店, out var value) || value.商品列表.Count <= 物品位置 || !游戏物品.数据表.TryGetValue(value.商品列表[物品位置].商品编号, out var value2))
+            // 下面的判定原先只有上界 `商品列表.Count <= 物品位置`, 没有下界。物品位置 是客户端可控的 int,
+            // 传 -1 时上界判定为假、条件继续往右求值, 同一行最后一个子句里的 value.商品列表[物品位置]
+            // 立刻抛 ArgumentOutOfRangeException。故补 `物品位置 < 0` —— || 是自左向右短路的,
+            // 放在索引那一子句之前即可保证越界下标永远不会被拿去索引。
+            if (this.对象死亡 || this.摆摊状态 > 0 || this.交易状态 >= 3 || this.对话守卫 == null || this.当前地图 != this.对话守卫.当前地图 || base.网格距离(this.对话守卫) > 12 || this.打开商店 == 0 || 购入数量 <= 0 || this.打开商店 != 商店编号 || !游戏商店.数据表.TryGetValue(this.打开商店, out var value) || 物品位置 < 0 || value.商品列表.Count <= 物品位置 || !游戏物品.数据表.TryGetValue(value.商品列表[物品位置].商品编号, out var value2))
             {
                 return;
             }
@@ -11079,7 +11113,13 @@ namespace 游戏服务器.地图类
             {
                 return;
             }
-            this.回购清单 = value.回购列表.ToList();
+            // 只列出自己卖掉的东西。游戏商店 是 游戏商店.数据表 里的全服共享模板对象, 它的 回购列表 也就是
+            // 全服共享的一张表 —— 原先这里整表 ToList() 直接发给任何打开该商店的玩家, 于是 A 刚卖给 NPC 的
+            // 极品装备, B 打开同一个商店就能在回购栏里看到、并按 NPC 出售价(远低于其价值)买走。
+            // 卖家索引在 游戏商店.出售物品 里记录(玩家实例.cs 出售处传入)。
+            // 注: 回购列表 本身仍是全服共享的 50 件上限(游戏商店.cs:109), 过滤后繁忙商店里自己的回购物
+            // 可能被别人的出售更快挤掉 —— 这是既有的容量设计, 本次不动, 需要的话再单独调整上限。
+            this.回购清单 = value.回购列表.Where((物品数据 x) => x.回购卖家索引 == this.角色数据.数据索引.V).ToList();
             using MemoryStream memoryStream = new MemoryStream();
             using BinaryWriter binaryWriter = new BinaryWriter(memoryStream);
             binaryWriter.Write((byte)this.回购清单.Count);
@@ -11194,6 +11234,19 @@ namespace 游戏服务器.地图类
                     return;
                 }
                 num = value.移除花费;
+                // 金币不足校验(原先完全没有)。扣款走的 扣金币 → 修改货币(:1583) 恒 return true(:1632),
+                // 底层 NPCSegment.Calculate("-", …)(NPCSegment.cs:6886-6889) 又用 Math.Max(left - right, 0)
+                // 把结果钳到 0 —— 余额不足时扣款既不失败也不报错, 只是少扣甚至一分不扣(余额本就是 0 时
+                // 前后相等, 连 货币数量变动 封包都不会发)。于是把金币花光后反复拆灵石, 每次 0 成本,
+                // 灵石照样取下来进背包。错误码 1821 沿用本文件既有的「金币不足」回执(:7569/:7593/:7617/:7682/:7717)。
+                if (this.金币数量 < num)
+                {
+                    this.网络连接?.发送封包(new 游戏错误提示
+                    {
+                        错误代码 = 1821
+                    });
+                    return;
+                }
                 byte b;
                 b = 0;
                 while (b < this.背包大小)

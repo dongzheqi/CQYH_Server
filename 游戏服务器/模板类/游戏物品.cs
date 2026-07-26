@@ -157,10 +157,14 @@ namespace 游戏服务器.模板类
 			return value;
 		}
 
+		// 先填局部表、最后原子换引用(理由同 游戏Buff.载入数据 的注释)。本处是双表, 两张表必须一起换,
+		// 否则会出现「数据表 已是新的、检索表 还是旧的」的中间态。
 		public static void 载入数据()
 		{
-			游戏物品.数据表 = new Dictionary<int, 游戏物品>();
-			游戏物品.检索表 = new Dictionary<string, 游戏物品>();
+			Dictionary<int, 游戏物品> dictionary;
+			dictionary = new Dictionary<int, 游戏物品>();
+			Dictionary<string, 游戏物品> dictionary2;
+			dictionary2 = new Dictionary<string, 游戏物品>();
 			string text;
 			text = Settings.游戏数据目录 + "\\System\\物品数据\\普通物品\\";
 			if (Directory.Exists(text))
@@ -171,8 +175,8 @@ namespace 游戏服务器.模板类
 				{
 					游戏物品 游戏物品2;
 					游戏物品2 = array[i] as 游戏物品;
-					游戏物品.数据表.Add(游戏物品2.物品编号, 游戏物品2);
-					游戏物品.检索表.Add(游戏物品2.物品名字, 游戏物品2);
+					dictionary.Add(游戏物品2.物品编号, 游戏物品2);
+					dictionary2.Add(游戏物品2.物品名字, 游戏物品2);
 				}
 			}
 			text = Settings.游戏数据目录 + "\\System\\物品数据\\装备物品\\";
@@ -184,10 +188,12 @@ namespace 游戏服务器.模板类
 				{
 					游戏装备 游戏装备2;
 					游戏装备2 = array2[j] as 游戏装备;
-					游戏物品.数据表.Add(游戏装备2.物品编号, 游戏装备2);
-					游戏物品.检索表.Add(游戏装备2.物品名字, 游戏装备2);
+					dictionary.Add(游戏装备2.物品编号, 游戏装备2);
+					dictionary2.Add(游戏装备2.物品名字, 游戏装备2);
 				}
 			}
+			游戏物品.数据表 = dictionary;
+			游戏物品.检索表 = dictionary2;
 		}
 
 		public override string ToString()

@@ -278,11 +278,18 @@ namespace 游戏服务器.地图类
 					item2.宠物召回处理();
 				}
 			}
-			foreach (物品实例 item3 in this.物品列表)
+			// 补 .ToList() 快照, 与上面 玩家列表/宠物列表 两个循环一致。
+			// 物品消失处理() / 删除对象() 最终都会 移除对象() 把自己从这两个 HashSet 里摘掉,
+			// 而 HashSet<T>.Remove 会递增 _version(与 Dictionary.Remove 不同), 边枚举边删必抛
+			// InvalidOperationException「集合已修改」——异常从 地图实例.处理数据 一路冒到
+			// 主程.循环.cs:205 的总 catch, 于是最后一行 副本关闭 = true 永远执行不到:
+			// 副本既不会被 清理已关闭副本() 回收, 每次主循环再跑到它又再抛一次, 该帧后半段
+			// (含 :192 的定时存盘)全部跳过。
+			foreach (物品实例 item3 in this.物品列表.ToList())
 			{
 				item3.物品消失处理();
 			}
-			foreach (地图对象 item4 in this.对象列表)
+			foreach (地图对象 item4 in this.对象列表.ToList())
 			{
 				item4.删除对象();
 			}

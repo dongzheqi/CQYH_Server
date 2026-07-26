@@ -3,7 +3,11 @@ using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
-namespace 游戏服务器.性成优化配置;
+// 命名空间刻意不叫「性能优化配置」: 本文件的类就叫 性能优化配置, 同名会让 `性能优化配置.高性能模式`
+// 这类引用解析到命名空间而非类型(CS0234)。移植进来时这里原本写的是错别字「性成优化配置」来绕开冲突,
+// 现改为去掉「配置」二字的 性能优化, 既无冲突也不是错字。JSON 持久化走 System.Text.Json 的
+// Serialize<T>/Deserialize<T>, 文件里不含类型名, 故改命名空间对已有的 配置/性能优化配置.json 无影响。
+namespace 游戏服务器.性能优化;
 
 // 借鉴移植(参考引擎): 性能/内存优化的静态配置基座。纯 lock + JSON 持久化, 不碰任何游戏状态。
 // 日志调用已由 Logger.SystemLog(带caller/line) 机械替换为 主程.添加系统日志(msg, hardLog, showDiag)。

@@ -815,15 +815,24 @@ namespace 游戏服务器.数据类
 					obj.QuietlySetValue(GameQuests.数据表.TryGetValue(r.ReadInt32(), out var value2) ? value2 : null);
 					return obj;
 				},
+				// 读写必须严格对称: 写入侧(字段写入方法表, 本文件 :1576-1582)恒写两个 int(QuestId + MissionIndex),
+				// 共 8 字节。原读取侧在「任务模板查不到」时只吃了第一个 int 就 return, 少读 4 字节 —— 而字段是按
+				// 数据映射.字段列表 顺序连续读的, 于是该条记录后面每一个字段全部错位(下一个字段会把残留的
+				// MissionIndex 当成自己的值读走), 整条角色/任务记录报废。
+				// 故两个 int 无条件先读完, 再决定要不要赋值。另补下标越界判定: 原 value.Missions[...] 直接索引,
+				// 任务模板改过(Missions 变少)时会抛 IndexOutOfRange, 经 读取字段内容 吞掉后返回 null。
 				[typeof(数据监视器<GameQuestMission>)] = delegate(BinaryReader r, 游戏数据 o, 数据字段 f)
 				{
 					数据监视器<GameQuestMission> 数据监视器6;
 					数据监视器6 = new 数据监视器<GameQuestMission>(o);
-					if (!GameQuests.数据表.TryGetValue(r.ReadInt32(), out var value))
+					int 任务编号;
+					任务编号 = r.ReadInt32();
+					int 目标下标;
+					目标下标 = r.ReadInt32();
+					if (GameQuests.数据表.TryGetValue(任务编号, out var value) && 目标下标 >= 0 && 目标下标 < value.Missions.Count)
 					{
-						return 数据监视器6;
+						数据监视器6.QuietlySetValue(value.Missions[目标下标]);
 					}
-					数据监视器6.QuietlySetValue(value.Missions[r.ReadInt32()]);
 					return 数据监视器6;
 				},
 				[typeof(数据监视器<CharacterQuest>)] = delegate(BinaryReader r, 游戏数据 o, 数据字段 f)

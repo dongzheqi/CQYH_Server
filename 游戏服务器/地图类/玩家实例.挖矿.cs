@@ -584,6 +584,14 @@ namespace 游戏服务器.地图类
                         continue;
                     }
                 }
+                // 归属校验(原先金币/银币自动入包完全没有这道校验, 只有下面的「物品自动入包」在 :621 有)。
+                // 后果: 别人或别的队伍打怪掉的金币/银币, 只要落进自己的 邻居列表 范围(±12 格)就被自动吸走,
+                // 隔着大半个屏幕白嫖。判定与下面「物品自动入包」那处保持完全一致: 有归属、自己不在归属里、
+                // 且归属尚未过期 → 跳过; 归属过期后仍可正常拾取。
+                if (物品实例2.物品归属.Count != 0 && !物品实例2.物品归属.Contains(this.角色数据) && 主程.当前时间 < 物品实例2.归属时间)
+                {
+                    continue;
+                }
                 int num;
                 num = 物品实例2.堆叠数量;
                 if (num < 0 || num >= int.MaxValue)
@@ -648,34 +656,22 @@ namespace 游戏服务器.地图类
 
 
                 }
-                if (Settings.自动分解装备 == true && Settings.不分解极品装备 == true)
+            }
+            // 自动分解与「当前遍历到的哪一件地面物品」毫无关系, 原先却被写在上面那个「遍历邻居地面物品」的
+            // foreach 内部, 于是每秒被重复执行 N 次(N = 邻居里的地面物品数)。移出循环, 每秒一次。
+            // 另外原内联版本复用了循环里表示「地面物品堆叠数量」的局部变量 num 作分解计数 —— 地上掉着一堆
+            // 6 个以上的物品时 num 一进来就 > 5, 分解第一件后立刻 return, 而那个 return 结束的是整个每秒
+            // 逻辑, 把后面的 GM 无敌回血、安全区满血满蓝等全部掐掉。现改为调用与 挂机自动分解 同款的独立方法。
+            if (Settings.自动分解装备 == true)
+            {
+                if (Settings.不分解极品装备 == true)
                 {
                     this.挂机自动分解();
-
                 }
-                if (Settings.自动分解装备 == true && Settings.不分解极品装备 == false)
+                else
                 {
-
-                    this.分解完成 = false;
-                    foreach (KeyValuePair<byte, 物品数据> item in this.角色背包.ToList())
-                    {
-                        byte key;
-                        key = item.Key;
-                        物品数据 value;
-                        value = item.Value;
-                        if (!value.是否上锁 && 物品分解.数据表.ContainsKey(value.物品编号))
-                        {
-                            this.玩家分解物品(1, key, 1);
-                            num++;
-                            if (num > 5)
-                            {
-                                return;
-                            }
-                        }
-                    }
-                    this.分解完成 = true;
+                    this.挂机自动分解_不留极品();
                 }
-
             }
 
             //GM无敌时血量和魔法量变满

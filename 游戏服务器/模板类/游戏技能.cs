@@ -130,9 +130,11 @@ namespace 游戏服务器.模板类
 		[Editor(typeof(NodeEditor), typeof(UITypeEditor))]
 		public SortedDictionary<int, 技能任务> 节点列表 { get; set; }
 
+		// 先填局部表、最后一行原子换引用, 消除热重载期间的空表窗口(理由同 游戏Buff.载入数据 的注释)。
 		public static void 载入数据()
 		{
-			游戏技能.数据表 = new Dictionary<string, 游戏技能>();
+			Dictionary<string, 游戏技能> dictionary;
+			dictionary = new Dictionary<string, 游戏技能>();
 			string text;
 			text = Settings.游戏数据目录 + "\\System\\技能数据\\技能数据\\";
 			if (Directory.Exists(text))
@@ -141,9 +143,10 @@ namespace 游戏服务器.模板类
 				array = 序列化类.反序列化(text, typeof(游戏技能));
 				foreach (object obj in array)
 				{
-					游戏技能.数据表.Add(((游戏技能)obj).技能名字, (游戏技能)obj);
+					dictionary.Add(((游戏技能)obj).技能名字, (游戏技能)obj);
 				}
 			}
+			游戏技能.数据表 = dictionary;
 		}
 
 		public static void 保存数据()

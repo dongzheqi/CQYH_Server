@@ -474,9 +474,17 @@ namespace 游戏服务器.模板类
 			}
 		}
 
+		// 先填局部表、最后一行原子换引用(与 游戏怪物.载入数据 同款范式)。
+		// 原写法第一句就把 数据表 换成空 Dictionary, 之后才做真正耗时的 序列化类.反序列化(整目录数千个 .txt),
+		// 于是「表是空的/半满的」窗口 = 整个反序列化耗时。而重载入口 BuffInfoView.cs:121 等 SMain 系视图
+		// 并不设 主窗口.暂停界面更新(旧 主窗口.加载系统数据 是先停世界再重载的), 系统数据网关 的
+		// Task.Run(...).Wait() 也只阻塞 UI 线程, 逻辑主循环照跑 —— 期间 Buff数据.Buff模板 查不到返回 null,
+		// 而 地图对象.cs:287 等主循环路径对它无条件解引用, 一次 NRE 就被 主程.循环.cs:205 记成
+		// 「发生致命错误」并整帧跳过(含定时存盘)。换引用后主循环任一瞬间读到的要么是旧表要么是新表。
 		public static void 载入数据()
 		{
-			游戏Buff.数据表 = new Dictionary<ushort, 游戏Buff>();
+			Dictionary<ushort, 游戏Buff> dictionary;
+			dictionary = new Dictionary<ushort, 游戏Buff>();
 			string text;
 			text = Settings.游戏数据目录 + "\\System\\技能数据\\Buff数据\\";
 			if (Directory.Exists(text))
@@ -485,9 +493,10 @@ namespace 游戏服务器.模板类
 				array = 序列化类.反序列化(text, typeof(游戏Buff));
 				foreach (object obj in array)
 				{
-					游戏Buff.数据表.Add(((游戏Buff)obj).Buff编号, (游戏Buff)obj);
+					dictionary.Add(((游戏Buff)obj).Buff编号, (游戏Buff)obj);
 				}
 			}
+			游戏Buff.数据表 = dictionary;
 		}
 
 		public 游戏Buff()

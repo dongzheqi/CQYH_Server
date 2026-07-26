@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using 游戏服务器.地图类;
-using 游戏服务器.性成优化配置;
+using 游戏服务器.性能优化;
 using 游戏服务器.数据类;
 using 游戏服务器.模板类;
 using 游戏服务器.网络类;
@@ -32,8 +32,6 @@ public static class 内存监控器
 
 	private static readonly object _自动清理锁 = new object();
 
-	private static readonly HashSet<int> 主城地图编号 = new HashSet<int> { 143, 147, 152, 178 };
-
 	// ===== 以下为"内存看门狗卡服"修复引入的限频/上限参数 =====
 
 	// 单轮清理上限: 清理全程跑在逻辑线程上, 必须封顶, 否则一次清理就是几十万次迭代的停服级卡顿
@@ -42,8 +40,6 @@ public static class 内存监控器
 	private const int 单轮清理上限_物品 = 2000;
 
 	private const int 单轮清理上限_副本 = 50;
-
-	private const int 单轮清理上限_空地图 = 5;
 
 	// 进程内存采样缓存: Process.PrivateMemorySize64 在 Windows 上会做一次全系统进程/线程快照
 	// (NtQuerySystemInformation), 单次可达数十毫秒。原实现每秒在逻辑线程取一次 => 周期性卡顿。
@@ -608,52 +604,26 @@ public static class 内存监控器
 		return num;
 	}
 
+	// 【本引擎不适用, 整体停用, 恒返回 0】
+	// 参照引擎的世界地图是「用到才建、空了可弃」的池化实例, 删掉能省内存、下次进图会重建。本引擎不是:
+	// 地图处理网关.初始化(地图处理网关.cs:737-739) 在起服时就把 游戏地图.数据表 里每一张地图 new 成常驻
+	// 地图实例 塞进 地图实例表, 随后 :741-758 给它挂 地形数据 与逐格 地图对象 网格、:759-781 挂
+	// 复活区域/安全区域 等 地图区域。全仓再无第二处往 地图实例表 写入——删掉即永久丢失, 不会重建。
+	// 后果: 已分配地图(编号) 从此返回 null, 在该图下线的角色登录、传送/换图、NPC 脚本查人数全部 NRE,
+	// 怪物也不再在该图刷新。
+	// 而原判定恰好专挑常驻图下手, 三道保险全都不成立:
+	//   ① !value.副本地图 —— 候选集正好是常驻世界图(副本实例另有 清理已关闭副本() 负责);
+	//   ② 地图实例表.Count <= 150 才跳过 —— 本引擎约 2695 张地图模板, 这道闸门恒开;
+	//   ③ 30 分钟空闲保护形同虚设 —— 执行计时 只在 地图实例.处理数据(地图实例.cs:202-205) 的
+	//      `if (this.副本地图 && ...)` 分支里推进, 普通地图的 执行计时 自初始化后再没更新过,
+	//      故 now - 执行计时 恒远大于 30 分钟, 判定恒真。
+	// 即: 任何一张暂时没人、没地面物品、没怪的普通图, 都会被永久删除。
+	// 保留空实现而非删掉函数, 是为了让 执行智能清理() 的调用点与「空地图 N 个」日志格式不变, 并给
+	// 后续再从参照引擎移植同名功能的人留下这段说明。随之失效的 主城地图编号 / 单轮清理上限_空地图
+	// 两个私有成员已一并移除。
 	private static int 清理空地图实例()
 	{
-		int num = 0;
-		if (地图处理网关.地图实例表 == null)
-		{
-			return 0;
-		}
-		List<int> list = new List<int>();
-		DateTime now = DateTime.Now;
-		if (地图处理网关.地图实例表.Count <= 150)
-		{
-			return 0;
-		}
-		TimeSpan timeSpan = TimeSpan.FromMinutes(30.0);
-		foreach (KeyValuePair<int, 地图实例> item in 地图处理网关.地图实例表)
-		{
-			地图实例 value = item.Value;
-			// 我方怪物在 对象列表 内, "对象列表<=0" 已隐含"无怪物", 故删去参照冗余的 怪物列表 子判定
-			if (value != null && !value.副本地图 && !主城地图编号.Contains(value.地图编号) && (value.玩家列表 == null || value.玩家列表.Count <= 0) && (value.物品列表 == null || value.物品列表.Count <= 0) && (value.对象列表 == null || value.对象列表.Count <= 0) && value.已初始化 && !(now - value.执行计时 < timeSpan))
-			{
-				list.Add(item.Key);
-			}
-		}
-		int num2 = Math.Min(list.Count, 单轮清理上限_空地图);
-		for (int i = 0; i < num2; i++)
-		{
-			try
-			{
-				int num3 = list[i];
-				// 二次确认改用 对象列表.Count(获取怪物列表() 每次调用都要新建两个 List, 这里没必要)
-				if (地图处理网关.地图实例表.TryGetValue(num3, out var value2) && value2 != null && value2.玩家列表?.Count == 0 && value2.对象列表?.Count == 0 && 地图处理网关.地图实例表.Remove(num3, out _))
-				{
-					num++;
-					主程.添加系统日志($"[空地图清理] 清理空地图: {value2?.地图模板?.地图名字}(ID:{num3})", true, true);
-				}
-			}
-			catch (Exception ex)
-			{
-				主程.添加系统日志("[自动清理] 清理地图时发生错误: " + ex.Message, true, true);
-			}
-		}
-		if (num > 0)
-		{
-			主程.添加系统日志($"[空地图清理] 本轮清理 {num} 个空地图，剩余待清理: {Math.Max(0, list.Count - 单轮清理上限_空地图)} 个，当前总实例: {地图处理网关.地图实例表.Count}", true, true);
-		}
-		return num;
+		return 0;
 	}
 
 	public static int 优化角色字典内存()
